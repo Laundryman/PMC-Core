@@ -1,0 +1,16 @@
+﻿<Project>
+  <ItemGroup>
+    <StaticWebAssetEndpoint Include="App_Plugins/CoreSystemII/umbraco-package.7luhe4k78i.json">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\umbraco-package.json'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"7luhe4k78i"},{"Name":"integrity","Value":"sha256-5ewgyHbItsyr2X2Wk\u002BxNC5YvbizrNAWhkOa5WmzNRY0="},{"Name":"label","Value":"App_Plugins/CoreSystemII/umbraco-package.json"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"106"},{"Name":"Content-Type","Value":"application/json"},{"Name":"ETag","Value":"\u00225ewgyHbItsyr2X2Wk\u002BxNC5YvbizrNAWhkOa5WmzNRY0=\u0022"},{"Name":"Last-Modified","Value":"Thu, 05 Sep 2024 14:52:51 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="App_Plugins/CoreSystemII/umbraco-package.json">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\umbraco-package.json'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-5ewgyHbItsyr2X2Wk\u002BxNC5YvbizrNAWhkOa5WmzNRY0="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"106"},{"Name":"Content-Type","Value":"application/json"},{"Name":"ETag","Value":"\u00225ewgyHbItsyr2X2Wk\u002BxNC5YvbizrNAWhkOa5WmzNRY0=\u0022"},{"Name":"Last-Modified","Value":"Thu, 05 Sep 2024 14:52:51 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+  </ItemGroup>
+</Project>

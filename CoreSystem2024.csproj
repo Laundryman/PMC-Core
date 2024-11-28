@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <StaticWebAssetBasePath>App_Plugins/CoreSystemII</StaticWebAssetBasePath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>CoreSystemII</PackageId>
+    <Product>CoreSystemII</Product>
+    <Title>CoreSystemII</Title>
+    <Description>...</Description>
+    <PackageTags>umbraco plugin package</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Controllers\AccountController.cs" />
+    <Compile Remove="Controllers\AzureAccountController.cs" />
+    <Compile Remove="Controllers\EditSectionPlanogramApiController.cs" />
+    <Compile Remove="Controllers\LogoutController.cs" />
+    <Compile Remove="Helpers\ControllerExtensions.cs" />
+    <Compile Remove="Helpers\DictionaryExensions.cs" />
+    <Compile Remove="Helpers\LogHelper.cs" />
+    <Compile Remove="Helpers\MenuExtensions.cs" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.3.0" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.3.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Graph" Version="4.11.0" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.65.0" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Identity.Web.UI" Version="3.2.0" />
+    <PackageReference Include="RazorEngine.NetCore" Version="3.1.0" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="7.0.2" />
+    <PackageReference Include="Umbraco.Cms.Core" Version="14.3.1" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="14.3.1" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="14.3.1" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\laundromat_dcl\dplo.Data\dplo.Data.csproj" />
+    <ProjectReference Include="..\..\laundromat_dcl\dplo.Domain\dplo.Domain.csproj" />
+    <ProjectReference Include="..\..\laundromat_dcl\dplo.Helpers\dplo.Helpers.csproj" />
+    <ProjectReference Include="..\..\laundromat_dcl\dplo.Service\dplo.Service.csproj" />
+    <ProjectReference Include="..\..\laundromat_dcl\Dplo.ViewModels\dplo.ViewModels.csproj" />
+  </ItemGroup>
+</Project>
