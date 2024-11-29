@@ -705,7 +705,7 @@ namespace CoreSystem.Controllers.Planx
                 string webPath = string.Format("{0}{1}", wPath, Uri.EscapeDataString(fileName));
 
 
-                var exportManager = new ExportManager(_planogramService);
+                var exportManager = new ExportManager(_planogramService, _orderService);
                 exportManager.ExportSkuListToXls(filePath, planogram);
 
                 //ExportManager.WriteResponseXls(filePath, fileName);

@@ -818,8 +818,8 @@ namespace CoreSystem.Controllers.shop
 
                 if (System.IO.File.Exists(filePath))
                     System.IO.File.Delete(filePath);
-
-                ExportManager.ExportOrderToXls(filePath, order);
+                var exportManager = new ExportManager(_planogramService, _orderService);
+                exportManager.ExportOrderToXls(filePath, order);
 
                 _logger.LogDebug("CreateOrderExportLink End " + webPath);
 

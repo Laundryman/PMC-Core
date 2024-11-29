@@ -1,0 +1,216 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Extensions.Caching.SqlServer</name>
+    </assembly>
+    <members>
+        <member name="F:Microsoft.Extensions.Caching.SqlServer.DatabaseOperations.DuplicateKeyErrorId">
+            <summary>
+            Since there is no specific exception type representing a 'duplicate key' error, we are relying on
+            the following message number which represents the following text in Microsoft SQL Server database.
+                "Violation of %ls constraint '%.*ls'. Cannot insert duplicate key in object '%.*ls'.
+                The duplicate key value is %ls."
+            You can find the list of system messages by executing the following query:
+            "SELECT * FROM sys.messages WHERE [text] LIKE '%duplicate%'"
+            </summary>
+        </member>
+        <member name="T:Microsoft.Extensions.Caching.SqlServer.SqlServerCache">
+            <summary>
+            Distributed cache implementation using Microsoft SQL Server database.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.Caching.SqlServer.SqlServerCache.#ctor(Microsoft.Extensions.Options.IOptions{Microsoft.Extensions.Caching.SqlServer.SqlServerCacheOptions})">
+            <summary>
+            Initializes a new instance of <see cref="T:Microsoft.Extensions.Caching.SqlServer.SqlServerCache"/>.
+            </summary>
+            <param name="options">The configuration options.</param>
+        </member>
+        <member name="M:Microsoft.Extensions.Caching.SqlServer.SqlServerCache.Get(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Extensions.Caching.SqlServer.SqlServerCache.GetAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Extensions.Caching.SqlServer.SqlServerCache.Refresh(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Extensions.Caching.SqlServer.SqlServerCache.RefreshAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Extensions.Caching.SqlServer.SqlServerCache.Remove(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Extensions.Caching.SqlServer.SqlServerCache.RemoveAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Extensions.Caching.SqlServer.SqlServerCache.Set(System.String,System.Byte[],Microsoft.Extensions.Caching.Distributed.DistributedCacheEntryOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.Extensions.Caching.SqlServer.SqlServerCache.SetAsync(System.String,System.Byte[],Microsoft.Extensions.Caching.Distributed.DistributedCacheEntryOptions,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.Extensions.Caching.SqlServer.SqlServerCacheOptions">
+            <summary>
+            Configuration options for <see cref="T:Microsoft.Extensions.Caching.SqlServer.SqlServerCache"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.Caching.SqlServer.SqlServerCacheOptions.SystemClock">
+            <summary>
+            An abstraction to represent the clock of a machine in order to enable unit testing.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.Caching.SqlServer.SqlServerCacheOptions.ExpiredItemsDeletionInterval">
+            <summary>
+            The periodic interval to scan and delete expired items in the cache. Default is 30 minutes.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.Caching.SqlServer.SqlServerCacheOptions.ConnectionString">
+            <summary>
+            The connection string to the database.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.Caching.SqlServer.SqlServerCacheOptions.SchemaName">
+            <summary>
+            The schema name of the table.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.Caching.SqlServer.SqlServerCacheOptions.TableName">
+            <summary>
+            Name of the table where the cache items are stored.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.Caching.SqlServer.SqlServerCacheOptions.DefaultSlidingExpiration">
+            <summary>
+            The default sliding expiration set for a cache entry if neither Absolute or SlidingExpiration has been set explicitly.
+            By default, its 20 minutes.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.SqlServerCachingServicesExtensions">
+            <summary>
+            Extension methods for setting up Microsoft SQL Server distributed cache services in an <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection" />.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.SqlServerCachingServicesExtensions.AddDistributedSqlServerCache(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{Microsoft.Extensions.Caching.SqlServer.SqlServerCacheOptions})">
+            <summary>
+            Adds Microsoft SQL Server distributed caching services to the specified <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection" />.
+            </summary>
+            <param name="services">The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection" /> to add services to.</param>
+            <param name="setupAction">An <see cref="T:System.Action`1"/> to configure the provided <see cref="T:Microsoft.Extensions.Caching.SqlServer.SqlServerCacheOptions"/>.</param>
+            <returns>The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> so that additional calls can be chained.</returns>
+        </member>
+        <member name="M:Microsoft.AspNetCore.Shared.ArgumentNullThrowHelper.ThrowIfNull(System.Object,System.String)">
+            <summary>Throws an <see cref="T:System.ArgumentNullException"/> if <paramref name="argument"/> is null.</summary>
+            <param name="argument">The reference type argument to validate as non-null.</param>
+            <param name="paramName">The name of the parameter with which <paramref name="argument"/> corresponds.</param>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.AllowNullAttribute">
+            <summary>Specifies that null is allowed as an input even if the corresponding type disallows it.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.DisallowNullAttribute">
+            <summary>Specifies that null is disallowed as an input even if the corresponding type allows it.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MaybeNullAttribute">
+            <summary>Specifies that an output may be null even if the corresponding type disallows it.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.NotNullAttribute">
+            <summary>Specifies that an output will not be null even if the corresponding type allows it. Specifies that an input argument was not null when the call returns.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute">
+            <summary>Specifies that when a method returns <see cref="P:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.ReturnValue"/>, the parameter may be null even if the corresponding type disallows it.</summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.#ctor(System.Boolean)">
+            <summary>Initializes the attribute with the specified return value condition.</summary>
+            <param name="returnValue">
+            The return value condition. If the method returns this value, the associated parameter may be null.
+            </param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.ReturnValue">
+            <summary>Gets the return value condition.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute">
+            <summary>Specifies that when a method returns <see cref="P:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.ReturnValue"/>, the parameter will not be null even if the corresponding type allows it.</summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.#ctor(System.Boolean)">
+            <summary>Initializes the attribute with the specified return value condition.</summary>
+            <param name="returnValue">
+            The return value condition. If the method returns this value, the associated parameter will not be null.
+            </param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.ReturnValue">
+            <summary>Gets the return value condition.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute">
+            <summary>Specifies that the output will be non-null if the named parameter is non-null.</summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute.#ctor(System.String)">
+            <summary>Initializes the attribute with the associated parameter name.</summary>
+            <param name="parameterName">
+            The associated parameter name.  The output will be non-null if the argument to the parameter specified is non-null.
+            </param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute.ParameterName">
+            <summary>Gets the associated parameter name.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute">
+            <summary>Applied to a method that will never return under any circumstance.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute">
+            <summary>Specifies that the method will not return if the associated Boolean parameter is passed the specified value.</summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute.#ctor(System.Boolean)">
+            <summary>Initializes the attribute with the specified parameter value.</summary>
+            <param name="parameterValue">
+            The condition parameter value. Code after the method will be considered unreachable by diagnostics if the argument to
+            the associated parameter matches this value.
+            </param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute.ParameterValue">
+            <summary>Gets the condition parameter value.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MemberNotNullAttribute">
+            <summary>Specifies that the method or property will ensure that the listed field and property members have not-null values.</summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MemberNotNullAttribute.#ctor(System.String)">
+            <summary>Initializes the attribute with a field or property member.</summary>
+            <param name="member">
+            The field or property member that is promised to be not-null.
+            </param>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MemberNotNullAttribute.#ctor(System.String[])">
+            <summary>Initializes the attribute with the list of field and property members.</summary>
+            <param name="members">
+            The list of field and property members that are promised to be not-null.
+            </param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MemberNotNullAttribute.Members">
+            <summary>Gets field or property member names.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute">
+            <summary>Specifies that the method or property will ensure that the listed field and property members have not-null values when returning with the specified return value condition.</summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.#ctor(System.Boolean,System.String)">
+            <summary>Initializes the attribute with the specified return value condition and a field or property member.</summary>
+            <param name="returnValue">
+            The return value condition. If the method returns this value, the associated parameter will not be null.
+            </param>
+            <param name="member">
+            The field or property member that is promised to be not-null.
+            </param>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.#ctor(System.Boolean,System.String[])">
+            <summary>Initializes the attribute with the specified return value condition and list of field and property members.</summary>
+            <param name="returnValue">
+            The return value condition. If the method returns this value, the associated parameter will not be null.
+            </param>
+            <param name="members">
+            The list of field and property members that are promised to be not-null.
+            </param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.ReturnValue">
+            <summary>Gets the return value condition.</summary>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.Members">
+            <summary>Gets field or property member names.</summary>
+        </member>
+    </members>
+</doc>
