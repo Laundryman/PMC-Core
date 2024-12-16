@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using DiamShopSolution.Models.Shop;
 using dplo.Domain.Entities;
-using DiamShopSolution.Models.Shop;
 
 namespace diam_planogram.Models.Shop
 {
@@ -33,7 +30,7 @@ namespace diam_planogram.Models.Shop
         public IEnumerable<OrderItemInfo> IndividualOrderItems { get; set; }
         public IEnumerable<PlanogramModel> PartialPlanograms { get; set; }
         public IEnumerable<PlanogramModel> FullPlanograms { get; set; }
-        
+
         public static explicit operator OrderModel(Order order)
         {
             OrderModel o = new OrderModel();

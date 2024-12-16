@@ -1,23 +1,14 @@
-﻿using System.Configuration;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net;
-using System.Text;
-using CoreSystem.Controllers.shop;
-using CoreSystem.Helpers;
-using CoreSystem.Models;
-using dplo.Data;
-using dplo.Domain;
-using dplo.Domain.Entities;
-using dplo.Helpers;
-using Dplo.ViewModels;
+﻿using CoreSystem2024.Controllers;
+using CoreSystem2024.Helpers;
 using Dplo.ViewModels.PlanxModels;
-using dplo.Service;
-using System.Net.Http.Headers;
-using Newtonsoft.Json;
-using dplo.Service.MSGraphUtils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using CoreSystem.Controllers;
+using Newtonsoft.Json;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
+using System.Text;
+using Umbraco.Cms.Core.Security;
 
 namespace CoreSystemII.Controllers.Proxy
 {
@@ -25,13 +16,16 @@ namespace CoreSystemII.Controllers.Proxy
     {
 
         #region Services, managers
-        protected UserViewModel _userInfo => AuthHelper.GetUserInfo(User);
+
+        //protected UserViewModel _userInfo => AuthHelper.GetUserInfo(User);
         private ILogger<YourPlanogramApiController> _logger;
+        private readonly IConfiguration Configuration;
+        private readonly IMemberManager _memberManager;
 
-
-        public PlanxProxyController(ILogger<YourPlanogramApiController> logger)
+        public PlanxProxyController(ILogger<YourPlanogramApiController> logger, IConfiguration configuration)
         {
             _logger = logger;
+            Configuration = configuration;
         }
         #endregion
 
@@ -41,11 +35,13 @@ namespace CoreSystemII.Controllers.Proxy
 
         public async Task<IActionResult> GetMenuCall(int planogramId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
             var handler = new JwtSecurityTokenHandler();
             var jwtSecurityToken = handler.ReadJwtToken(accessToken);
             //_logger.LogError("access token " + " ---- " + jwtSecurityToken.ToString());
@@ -68,11 +64,13 @@ namespace CoreSystemII.Controllers.Proxy
 
         public async Task<IActionResult> GetCategoryMenuCall(int planogramId, int categoryId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uri = "api/v2/planx/get-category-menu/" + planogramId + "/" + categoryId;
             var url = string.Format("{0}{1}", domain, uri);
@@ -92,11 +90,13 @@ namespace CoreSystemII.Controllers.Proxy
 
         public async Task<IActionResult> GetMenuCategoriesCall(int planogramId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
 
@@ -119,11 +119,13 @@ namespace CoreSystemII.Controllers.Proxy
 
         public async Task<IActionResult> GetPlanogramCall(int planogramId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var uri = "api/v2/planx/get-planogram/" + planogramId;
@@ -145,11 +147,13 @@ namespace CoreSystemII.Controllers.Proxy
 
         public async Task<IActionResult> GetStandCall(int standId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uri = "api/v2/planx/get-stand/" + standId;
             var url = string.Format("{0}{1}", domain, uri);
@@ -168,11 +172,13 @@ namespace CoreSystemII.Controllers.Proxy
         }
         public async Task<IActionResult> GetPlanogramPreviewCall(int planogramId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var uri = "api/v2/planx/get-planogram-preview/" + planogramId;
@@ -192,11 +198,13 @@ namespace CoreSystemII.Controllers.Proxy
         }
         public async Task<IActionResult> GetLatestVersionCall(int planogramId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uri = "api/v2/planx/get-latest-version/" + planogramId;
             var url = string.Format("{0}{1}", domain, uri);
@@ -215,11 +223,13 @@ namespace CoreSystemII.Controllers.Proxy
         }
         public async Task<IActionResult> GetPlanogramShelvesCall(int planogramId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var uri = "api/v2/planx/get-planogram-shelves/" + planogramId;
@@ -240,11 +250,13 @@ namespace CoreSystemII.Controllers.Proxy
 
         public async Task<IActionResult> GetPlanogramPartsCall(int planogramId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var uri = "api/v2/planx/get-planogram-parts/" + planogramId;
@@ -265,11 +277,13 @@ namespace CoreSystemII.Controllers.Proxy
 
         public async Task<IActionResult> GetNewPlanogramPartsCall(int planogramId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uri = "api/v2/planx/get-new-parts/" + planogramId;
             var url = string.Format("{0}{1}", domain, uri);
@@ -289,11 +303,13 @@ namespace CoreSystemII.Controllers.Proxy
 
         public async Task<IActionResult> GetNonMarketPartsCall(int planogramId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var uri = "api/v2/planx/get-nonmarket-parts/" + planogramId + "/" + UserInfo.DiamCountryId;
@@ -314,11 +330,13 @@ namespace CoreSystemII.Controllers.Proxy
 
         public async Task<IActionResult> GetScratchPadCall(int planogramId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var uri = "api/v2/planx/get-planogram-scratchpad/" + planogramId;
@@ -339,11 +357,13 @@ namespace CoreSystemII.Controllers.Proxy
 
         public async Task<IActionResult> GetPartCall(int partId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var uri = "api/v2/planx/get-part/" + partId;
@@ -364,11 +384,13 @@ namespace CoreSystemII.Controllers.Proxy
 
         public async Task<IActionResult> GetPartProductsCall(int partId, int planogramId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var uri = "api/v2/planx/get-part-products/" + partId + "/" + planogramId;
@@ -390,11 +412,13 @@ namespace CoreSystemII.Controllers.Proxy
 
         public async Task<IActionResult> GetProductShadesCall(int productId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var uri = "api/v2/planx/get-product-shades/" + productId;
@@ -415,16 +439,21 @@ namespace CoreSystemII.Controllers.Proxy
 
         public async Task<IActionResult> GetPlanoLockCall(int planogramId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
+
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
 
             try
             {
                 //we need to re-auth using the reauth process
-                var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope, Globals.WriteTasksScope });
+                var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope, writeScope });
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
-
-                var uri = "api/v2/planx/get-plano-lock/" + planogramId + "/" + _userInfo.Id + "/" + _userInfo.DisplayName;
+                var uri = "api/v2/planx/get-plano-lock/" + planogramId + "/" + userInfo.Id + "/" + userInfo.DisplayName;
                 var url = string.Format("{0}{1}", domain, uri);
                 //maybe log something here
 
@@ -450,11 +479,15 @@ namespace CoreSystemII.Controllers.Proxy
 
         public async Task<IActionResult> GetPlanoComCountCall(int planogramId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
+
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
 
             //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var uri = "api/v2/planogram/getCommentCount/" + planogramId + "/" + brand;
@@ -474,11 +507,13 @@ namespace CoreSystemII.Controllers.Proxy
         }
         public async Task<IActionResult> UnlockCall(int planogramId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var uri = "api/v2/planogram/unlock/" + planogramId;
@@ -504,11 +539,13 @@ namespace CoreSystemII.Controllers.Proxy
             _logger.LogDebug("Save Cassettes call start ");
 
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var json = JsonConvert.SerializeObject(planogramData);
@@ -546,11 +583,13 @@ namespace CoreSystemII.Controllers.Proxy
             _logger.LogDebug("Save Cassettes call start ");
 
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var json = JsonConvert.SerializeObject(shelves);
@@ -587,11 +626,13 @@ namespace CoreSystemII.Controllers.Proxy
         {
             _logger.LogDebug("Save planogram jpg call start ");
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uri = "api/v2/planx/save-planogram-jpeg-image/";
             var url = string.Format("{0}{1}", domain, uri);
@@ -624,11 +665,12 @@ namespace CoreSystemII.Controllers.Proxy
         {
             _logger.LogDebug("Save planogram svg call start ");
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var json = JsonConvert.SerializeObject(planoSvg);
@@ -663,11 +705,13 @@ namespace CoreSystemII.Controllers.Proxy
         {
             _logger.LogDebug("Get planogram pdf call start ");
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var json = JsonConvert.SerializeObject(planoSvg);
@@ -696,11 +740,12 @@ namespace CoreSystemII.Controllers.Proxy
             _logger.LogDebug("Save scratchpad call start ");
 
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
 
-            //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var json = JsonConvert.SerializeObject(scratchpad);

@@ -1,19 +1,20 @@
-﻿using System.Configuration;
-using System.Globalization;
+﻿using CoreSystem2024.Helpers;
+using CoreSystem2024.Models;
+using CoreSystem2024.Models;
 using dplo.Service;
-using CoreSystem.Models;
-using CoreSystem.Helpers;
-using Newtonsoft.Json;
-using UserInfo = CoreSystem.Helpers.UserInfo;
 using dplo.Service.MSGraphUtils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
+using Newtonsoft.Json;
+using System.Globalization;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
+using UserInfo = CoreSystem2024.Helpers.UserInfo;
 
 
 namespace diam_planogram.Controllers
@@ -26,23 +27,27 @@ namespace diam_planogram.Controllers
         #region Services, managers
 
         private IOrderWindowService _orderWindowService;
-
+        private readonly IConfiguration Configuration;
+        private IConfiguration _azureSettings;
         #endregion
 
-        public PlanXController(ILogger<RenderController> logger, ICompositeViewEngine compositeViewEngine, IUmbracoContextAccessor umbracoContextAccessor, IOrderWindowService orderWindowService) : base(logger, compositeViewEngine, umbracoContextAccessor)
+        public PlanXController(ILogger<RenderController> logger, ICompositeViewEngine compositeViewEngine, IUmbracoContextAccessor umbracoContextAccessor, IOrderWindowService orderWindowService, IConfiguration azureSettings, IConfiguration configuration) : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
             _orderWindowService = orderWindowService;
+            Configuration = configuration;
+            _azureSettings = configuration.GetSection("AzureB2C");
         }
+
 
         public async Task<IActionResult> EditPlanX(ContentModel model)
         {
 
             try
             {
-                var proxySupport = new ProxyApiSupport();
+                var proxySupport = new ProxyApiSupport(Configuration);
                 //// Retrieve the token with the specified scopes
                 var result = await proxySupport.AcquireTokenForScopes(new string[]
-                    { Globals.ReadTasksScope, Globals.WriteTasksScope });
+                    { _azureSettings["ReadScope"], _azureSettings["WriteScope"]});
             }
             catch (MsalUiRequiredException)
             {
@@ -62,10 +67,10 @@ namespace diam_planogram.Controllers
                 planXModel.UserFirstName = UserInfo.GivenName;
                 planXModel.UserLastName = UserInfo.Surname;
             }
-            var brandId = ConfigurationManager.AppSettings["brand"];
+            var brandId = Configuration["AppSettings:ClientBrandId"];
 
             planXModel.BrandId = int.Parse(brandId);
-            planXModel.ApiUrl = ConfigurationManager.AppSettings["apiURL"];
+            planXModel.ApiUrl = Configuration["AppSettings:ApiURL"];
 
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
 
@@ -90,34 +95,36 @@ namespace diam_planogram.Controllers
             return CurrentTemplate(planXModel);
         }
 
-        public IActionResult MihLandingPage(ContentModel model)
-        {
+        //public IActionResult MihLandingPage(ContentModel model)
+        //{
 
-            //if (Authorization == null || Authorization.AccessTokenExpirationUtc < DateTime.UtcNow)
-            //{
-            //    //var accessToken = //AuthHelper.ReAuth(Authorization, client);
-            //    if (accessToken == null)
-            //    {
-            //        Response.Redirect("/welcome");
-            //        return null;
-            //    }
+        //    //if (Authorization == null || Authorization.AccessTokenExpirationUtc < DateTime.UtcNow)
+        //    //{
+        //    //    //var accessToken = //AuthHelper.ReAuth(Authorization, client);
+        //    //    if (accessToken == null)
+        //    //    {
+        //    //        Response.Redirect("/welcome");
+        //    //        return null;
+        //    //    }
 
-            //}
+        //    //}
 
-            //we will create a custom model
-            var HomeModel = new HomeModel(model.Content);
-            if (UserInfo.userViewModel != null)
-            {
-                HomeModel.UserFirstName = UserInfo.GivenName;
-                HomeModel.UserLastName = UserInfo.Surname;
-            }
-            HomeModel.BrandId = int.Parse(ConfigurationManager.AppSettings["brand"]);
-            HomeModel.ApiUrl = ConfigurationManager.AppSettings["apiURL"];
+        //    //we will create a custom model
+        //    //var HomeModel = new HomeModel(model.Content);
+        //    //if (UserInfo.userViewModel != null)
+        //    //{
+        //    //    HomeModel.UserFirstName = UserInfo.GivenName;
+        //    //    HomeModel.UserLastName = UserInfo.Surname;
+        //    //}
 
-            //simply use the protected method CurrentTemplate<T>, this does all of the
-            //above for you... must nicer.
-            return CurrentTemplate(HomeModel);
-        }
+        //    //HomeModel.BrandId = int.Parse(Configuration["AppSettings:ClientBrandId"]);
+        //    //HomeModel.ApiUrl = Configuration["AppSettings:ApiURL"];
+
+
+        //    //simply use the protected method CurrentTemplate<T>, this does all of the
+        //    //above for you... must nicer.
+        //    return CurrentTemplate(HomeModel);
+        //}
 
     }
 }

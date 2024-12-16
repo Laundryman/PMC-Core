@@ -1,11 +1,8 @@
 ﻿using dplo.Data;
 using dplo.Data.Infrastructure;
-using Umbraco.Cms.Core.Notifications;
 using dplo.Service;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog;
 using Umbraco.Cms.Core.DependencyInjection;
-using Umbraco.Cms.Web.Common.UmbracoContext;
 using DatabaseFactory = NPoco.DatabaseFactory;
 
 namespace DiamUmbracoClient.UmbracoBuilderExtensions;

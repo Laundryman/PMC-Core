@@ -1,5 +1,5 @@
-﻿using CoreSystem.Helpers;
-using CoreSystem.Models.Shop;
+﻿using CoreSystem2024.Helpers;
+using CoreSystem2024.Models.Shop;
 using diam_planogram.Helpers;
 using diam_planogram.Models.Shop;
 using dplo.Service;
@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
 
-namespace CoreSystem.Controllers.shop
+namespace CoreSystem2024.Controllers.shop
 {
     public class PdfController : RenderController
     {
@@ -24,7 +24,7 @@ namespace CoreSystem.Controllers.shop
             _orderService = orderService;
             _planogramService = planogramService;
         }
-    
+
         #endregion
 
 
@@ -36,20 +36,20 @@ namespace CoreSystem.Controllers.shop
             if (order == null) throw new ArgumentException("Order ID not found");
 
             // TODO: handle authentication
-            var userId = UserInfo.Id;;
+            var userId = UserInfo.Id; ;
             var isAdmin = RolesHelper.IsAdminUser(UserInfo.Roles);
             var isRegionalManager = RolesHelper.IsClientValidator(UserInfo.Roles);
 
             return OrderHelper.BuildFullOrder(order, _orderService, _planogramService);
 
         }
-        
+
         //[Route("pdf/order-confirmation/{id:int}/{pdf:bool}")]
         public IActionResult OrderConfirmation(int id, bool? preview)
         {
             var orderModel = BuildOrderConfirmationModel(id);
 
-            var model = new PdfModel {Order = orderModel };
+            var model = new PdfModel { Order = orderModel };
 
             if (preview.HasValue && preview.Value)
             {
@@ -63,18 +63,18 @@ namespace CoreSystem.Controllers.shop
                 MarginBottom = 10,
                 MarginTop = 5,
                 PageSize = PdfHelper.PageSizes.A4,
-                Dpi=300
+                Dpi = 300
             };
 
             var bytes = html2Pdf.Print(model, PdfHelper.Template.OrderConfirmation);
 
             MemoryStream ms = new MemoryStream(bytes);
 
-           // HttpContext.Response.AddHeader("Content-Disposition:attachment;", $"filename=order-confirmation-{id}.pdf");
+            // HttpContext.Response.AddHeader("Content-Disposition:attachment;", $"filename=order-confirmation-{id}.pdf");
 
             // Return the file as a PDF
             return File(ms, "application/pdf", $"order-confirmation-{id}.pdf");
         }
-        
+
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace CoreSystem.Models.Shop
+﻿namespace CoreSystem2024.Models.Shop
 {
     public class StandTypesModel
     {

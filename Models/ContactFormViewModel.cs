@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CoreSystem.Models
+namespace CoreSystem2024.Models
 {
     public class ContactFormViewModel
     {

@@ -1,11 +1,10 @@
 ﻿using CoreSystemII.Config;
-using dplo.Domain;
-using dplo.Service;
 
-namespace CoreSystem.Helpers
+namespace CoreSystem2024.Helpers
 {
 
-    public enum Role : int {
+    public enum Role : int
+    {
         Administrator = 1,
         Validator = 2,
         Editor = 3,

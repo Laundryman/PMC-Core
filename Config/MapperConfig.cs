@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
 using dplo.Domain;
 using dplo.Domain.Entities;
-using dplo.Service.MSGraphUtils;
 using Dplo.ViewModels;
-using Umbraco.Cms.Core.Models.Membership;
 
 namespace CoreSystemII.Config;
 

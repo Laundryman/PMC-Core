@@ -182,6 +182,10 @@
               "target": "Package",
               "version": "[13.0.1, )"
             },
+            "Bergmania.OpenStreetMap.Core": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            },
             "Microsoft.AspNet.Mvc": {
               "target": "Package",
               "version": "[5.3.0, )"

@@ -1,26 +1,21 @@
-﻿using System.Configuration;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net;
-using System.Text;
-using CoreSystem.Controllers.shop;
-using CoreSystem.Helpers;
-using CoreSystem.Models;
-using dplo.Data;
+﻿using CoreSystem2024.Controllers.shop;
+using CoreSystem2024.Helpers;
+using CoreSystem2024.Models;
+using CoreSystemII.Controllers.Proxy;
 using dplo.Domain;
 using dplo.Domain.Entities;
 using dplo.Helpers;
+using dplo.Service;
 using Dplo.ViewModels;
 using Dplo.ViewModels.PlanxModels;
-using dplo.Service;
-using System.Net.Http.Headers;
-using Newtonsoft.Json;
-using dplo.Service.MSGraphUtils;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using CoreSystemII.Controllers.Proxy;
+using Newtonsoft.Json;
+using System.Configuration;
+using Umbraco.Cms.Core.Security;
 
-namespace CoreSystem.Controllers.Planx
+namespace CoreSystem2024.Controllers.Planx
 {
     public class PlanxApiController : BaseApiController
     {
@@ -32,6 +27,7 @@ namespace CoreSystem.Controllers.Planx
         public ICountryService _countryService;
         public ICategoryService _categoryService;
         private PlanxProxyController proxyApi;
+        private readonly IMemberManager _memberManager;
 
         #endregion
 
@@ -39,9 +35,10 @@ namespace CoreSystem.Controllers.Planx
 
         #region LocalApiCalls
 
-        public PlanxApiController(ICategoryService categoryService, ICatalogueService catalogueService, ICountryService countryService, IPlanogramService planogramService, IOrderService orderService, IStandService standService, ILogger<YourPlanogramApiController> logger) : base(categoryService, catalogueService, countryService, planogramService, orderService, standService)
+        public PlanxApiController(ICategoryService categoryService, ICatalogueService catalogueService, ICountryService countryService, IPlanogramService planogramService, IOrderService orderService, IStandService standService, ILogger<YourPlanogramApiController> logger, IMemberManager memberManager) : base(categoryService, catalogueService, countryService, planogramService, orderService, standService)
         {
             _logger = logger;
+            _memberManager = memberManager;
             _planogramService = planogramService;
             _countryService = countryService;
             _categoryService = categoryService;
@@ -62,32 +59,32 @@ namespace CoreSystem.Controllers.Planx
         {
 
             try
+            {
+
+                var response = await proxyApi.GetMenuCall(data.planogramId);
+                //Get the json data from the result
+                var menu = new List<PlanxMenuPart>();
+                //var response =
+                if (response is OkResult)
                 {
-
-                    var response = await proxyApi.GetMenuCall(data.planogramId);
-                    //Get the json data from the result
-                    var menu = new List<PlanxMenuPart>();
-                    //var response =
-                    if (response is OkResult)
-                    {
-                        var menuJson = response as OkObjectResult;
-                        menu = JsonConvert.DeserializeObject<List<PlanxMenuPart>>(menuJson.Value.ToString());
-                    }
-                    else
-                    {
-                        //Something has gone wrong, handle it here
-                        _logger.LogError("Error getting menu " + " --- ");
-                        return BadRequest();
-                    }
-
-                    return Ok(menu);
+                    var menuJson = response as OkObjectResult;
+                    menu = JsonConvert.DeserializeObject<List<PlanxMenuPart>>(menuJson.Value.ToString());
                 }
-                catch (Exception ex)
+                else
                 {
                     //Something has gone wrong, handle it here
-                    _logger.LogError("Error getting menu " + " --- " + ex.Message + " stack trace -- " + ex.StackTrace);
-                    return BadRequest(ex.Message);
+                    _logger.LogError("Error getting menu " + " --- ");
+                    return BadRequest();
                 }
+
+                return Ok(menu);
+            }
+            catch (Exception ex)
+            {
+                //Something has gone wrong, handle it here
+                _logger.LogError("Error getting menu " + " --- " + ex.Message + " stack trace -- " + ex.StackTrace);
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost]
@@ -306,7 +303,7 @@ namespace CoreSystem.Controllers.Planx
             //we need to re-auth using the reauth process
             ////var accessToken = //AuthHelper.ReAuth(Authorization, client);
             var countryId = _countryService.GetCountry(UserInfo.DiamCountryId);
-           
+
 
             var response = await proxyApi.GetPlanogramPartsCall(planogramId);
             //Get the json data from the result
@@ -460,7 +457,8 @@ namespace CoreSystem.Controllers.Planx
         [Route("/api/planxapi/SavePlanogramV2")]
         public async Task<IActionResult> SavePlanogramV2(PlanxPlanogramInfo planogramData)
         {
-            var userProfile = AuthHelper.GetUserInfo(User);
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userProfile = AuthHelper.GetUserInfo(memberIdentity);
 
             planogramData.UserId = userProfile.Id;
             planogramData.UserName = userProfile.DisplayName;
@@ -521,7 +519,7 @@ namespace CoreSystem.Controllers.Planx
         {
             //we need to re-auth using the reauth process
             //var accessToken = //AuthHelper.ReAuth(Authorization, client);
-            
+
             _logger.LogDebug("Save Planogram Image ");
 
             var response = await proxyApi.SavePlanogramSvgCall(planoSvg);
@@ -656,7 +654,9 @@ namespace CoreSystem.Controllers.Planx
 
             try
             {
-                var userProfile = AuthHelper.GetUserInfo(User);
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+
+                var userProfile = AuthHelper.GetUserInfo(memberIdentity);
                 var isLocked = _planogramService.IsLocked(planogramId, userProfile);
                 if (isLocked)
                 {
@@ -700,7 +700,7 @@ namespace CoreSystem.Controllers.Planx
 
                 var currentUri = new Uri(Request.GetDisplayUrl());
                 string domainURI = currentUri.Scheme + "://" + currentUri.Authority;
-                
+
                 string wPath = string.Format("{0}/files/ExportImport/", domainURI);
                 string webPath = string.Format("{0}{1}", wPath, Uri.EscapeDataString(fileName));
 
@@ -728,7 +728,7 @@ namespace CoreSystem.Controllers.Planx
                 }
                 else
                 {
-                    message =(Ex.Message + Ex.StackTrace);
+                    message = (Ex.Message + Ex.StackTrace);
                 }
                 //log an error
 

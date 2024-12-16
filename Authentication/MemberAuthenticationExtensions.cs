@@ -1,11 +1,6 @@
-﻿using System.Net;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 using System.Security.Claims;
-using dplo.Service.MSGraphUtils;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Extensions;
@@ -121,7 +116,7 @@ namespace CoreSystemII.Authentication
                             };
                         });
                     });
-                });
+            });
             return builder;
         }
     }

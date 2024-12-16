@@ -1,25 +1,18 @@
-﻿using System.Configuration;
-using System.Net;
-using System.Web;
-using CoreSystem.Controllers.shop;
-using CoreSystem.Helpers;
+﻿using CoreSystem2024.Controllers.shop;
+using CoreSystem2024.Helpers;
+using CoreSystem2024.Models;
+using CoreSystemII.Controllers.Proxy;
 using dplo.Domain.Entities;
 using dplo.Service;
-using dplo.Domain;
-using CoreSystem.Models;
 using Dplo.ViewModels;
-using Newtonsoft.Json;
-using UserInfo = CoreSystem.Helpers.UserInfo;
-using dplo.Service.MSGraphUtils;
-using System.Net.Http.Headers;
-using CoreSystem.HttpClientWrapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using NPoco.fastJSON;
 using Microsoft.Extensions.Logging;
-using CoreSystemII.Controllers.Proxy;
+using Newtonsoft.Json;
+using System.Web;
+using UserInfo = CoreSystem2024.Helpers.UserInfo;
 
-namespace CoreSystem.Controllers
+namespace CoreSystem2024.Controllers
 {
 
     public class YourPlanogramApiController : BaseApiController
@@ -93,7 +86,7 @@ namespace CoreSystem.Controllers
 
 
             var response = await proxyApi.GetInProgress();
-            
+
             //Get the json data from the result
             //IEnumerable<SelectListItem> stands = new IEnumerable<SelectListItem>();
             var stands = new List<SelectListItem>();
@@ -152,7 +145,7 @@ namespace CoreSystem.Controllers
         /// <returns>JobViewModel List</returns>
         [HttpPost]
         [Route("/Api/YourPlanogramApi/GetJobFolders")]
-        public async Task<IActionResult> GetJobFolders([FromBody]GetArchivedPlanoParams data)
+        public async Task<IActionResult> GetJobFolders([FromBody] GetArchivedPlanoParams data)
         {
             //we need to re-auth using the reauth process
             //var accessToken = //AuthHelper.ReAuth(Authorization, client);
@@ -219,7 +212,7 @@ namespace CoreSystem.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("/Api/YourPlanogramApi/GetArchivedPlanogramsByJobCode")]
-        public async Task<IActionResult> GetArchivedPlanogramsByJobCode([FromBody]GetArchivedPlanoParams data)
+        public async Task<IActionResult> GetArchivedPlanogramsByJobCode([FromBody] GetArchivedPlanoParams data)
         {
             //we need to re-auth using the reauth process
             //var accessToken = //AuthHelper.ReAuth(Authorization, client);
@@ -274,7 +267,7 @@ namespace CoreSystem.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("/Api/YourPlanogramApi/ArchivePlanogram")]
-        public async Task<IActionResult> ArchivePlanogram([FromBody]ArchivePlanogramData data)
+        public async Task<IActionResult> ArchivePlanogram([FromBody] ArchivePlanogramData data)
         {
             //we need to re-auth using the reauth process
             //var accessToken = //AuthHelper.ReAuth(Authorization, client);
@@ -297,13 +290,14 @@ namespace CoreSystem.Controllers
 
 
         [Route("/Api/YourPlanogramApi/GetReport")]
-        [HttpPost] public async Task<IActionResult> GetReport([FromBody]GetReportParams data)
+        [HttpPost]
+        public async Task<IActionResult> GetReport([FromBody] GetReportParams data)
         {
 
             try
             {
                 var filePath = "";
-                if (data.ReportType == (int) ReportTypes.SkuList)
+                if (data.ReportType == (int)ReportTypes.SkuList)
                 {
                     var response = await proxyApi.CreateSkuList(data.PlanogramId);
 
@@ -380,7 +374,7 @@ namespace CoreSystem.Controllers
                     //Something has gone wrong, handle it here
                     throw new Exception("failed to get the skulist");
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -428,11 +422,11 @@ namespace CoreSystem.Controllers
         {
             //we need to re-auth using the reauth process
             //var accessToken = //AuthHelper.ReAuth(Authorization, client);
-            
+
             var response = await proxyApi.GetOpenOrderCall(planogramId);
-            
+
             Order order;
-            
+
             if (response is OkResult)
             {
                 var result = response as OkObjectResult;
@@ -495,7 +489,7 @@ namespace CoreSystem.Controllers
         public async Task<IActionResult> AddToOrder(AddToOrder model)
         {
             var response = await proxyApi.AddToOrderCall(model.OrderId, model.PlanogramId, model.Quantity, model.IsFullPlano);
-            
+
             if (response is OkResult)
             {
                 return Ok();
@@ -631,7 +625,7 @@ namespace CoreSystem.Controllers
 
         //    string domain = ConfigurationManager.AppSettings["apiUrl"];
         //    string brandId = ConfigurationManager.AppSettings["brand"];
-            
+
         //    var accessToken = await proxyApi.GetAccessToken(new string[] { Globals.ReadTasksScope });
 
         //    var uriSuffix = "api/v2/planogram/get/casslist/" + planogramId;
@@ -743,7 +737,7 @@ namespace CoreSystem.Controllers
         //            var responseBodyAsText = await proxyApi.response.Content.ReadAsStringAsync();
         //            responseBodyAsText = responseBodyAsText.Replace("<br>", Environment.NewLine); // Insert new lines
         //            _logger.LogDebug("response from GetPlanogramsByJobCode = " + responseBodyAsText + " :: " + StatusText);
-                    
+
         //            return Ok(response);
         //        }
         //    }
@@ -933,7 +927,7 @@ namespace CoreSystem.Controllers
         //}
 
 
-        
+
         //private async Task<IActionResult> GetTemplatesCall(int standId)
         //{
 

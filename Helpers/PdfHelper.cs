@@ -1,13 +1,12 @@
-﻿using System.Collections.Specialized;
-using System.Configuration;
-using System.Net;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Hosting;
 using RazorEngine;
 using RazorEngine.Templating;
+using System.Collections.Specialized;
+using System.Configuration;
+using System.Net;
 
 
-namespace CoreSystem.Helpers
+namespace CoreSystem2024.Helpers
 {
     public class PdfHelper
     {
@@ -56,7 +55,7 @@ namespace CoreSystem.Helpers
         public int? MarginBottom { get; set; }
 
         public bool? UseGrayscale { get; set; }
-        public bool? UseLandscape { get; set; } 
+        public bool? UseLandscape { get; set; }
         public bool? DisableJavascript { get; set; }
         public bool? JavascriptDelay { get; set; }
         public int? Dpi { get; set; }
@@ -80,17 +79,17 @@ namespace CoreSystem.Helpers
             string footerString = File.ReadAllText(footerPath);
 
 
-            var parsedTemplate = Engine.Razor.IsTemplateCached("__pdfOrderConfirmation___", null) 
-                ? Engine.Razor.Run("__pdfOrderConfirmation___", null, model) 
+            var parsedTemplate = Engine.Razor.IsTemplateCached("__pdfOrderConfirmation___", null)
+                ? Engine.Razor.Run("__pdfOrderConfirmation___", null, model)
                 : Engine.Razor.RunCompile(templateString, "__pdfOrderConfirmation___", null, model);
 
 
             //var parsedFooter = Engine.Razor.IsTemplateCached("__pdfFooter_", null) 
             //    ? Engine.Razor.Run("__pdfFooter_", null, model) 
             //    : Engine.Razor.RunCompile(footerString, "__pdfFooter_", null, model);
-            
+
             Value = parsedTemplate;
-           // FooterHtml = parsedFooter;
+            // FooterHtml = parsedFooter;
 
             var pdfBytes = GetBytes();
 
@@ -153,6 +152,6 @@ namespace CoreSystem.Helpers
         }
 
 
-        
+
     }
 }

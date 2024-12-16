@@ -1,9 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using dplo.Service;
-using dplo.Data;
+﻿using dplo.Data;
 using dplo.Data.Infrastructure;
-using dplo.Domain.Entities;
+using dplo.Service;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CoreSystemII.DI
 {

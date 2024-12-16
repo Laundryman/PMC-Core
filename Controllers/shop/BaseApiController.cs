@@ -1,22 +1,11 @@
-﻿using System.Configuration;
-using System.Diagnostics;
-using System.Net;
-using System.Security.Claims;
-using CoreSystem.Helpers;
+﻿using CoreSystem2024.Helpers;
 using dplo.Domain;
 using dplo.Service;
-using dplo.Service.MSGraphUtils;
-using Dplo.ViewModels;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Client;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using System.Configuration;
 using Umbraco.Cms.Web.Common.Controllers;
-using ApiResponseModel = dplo_shop.Models.ApiResponseModel;
 
-namespace CoreSystem.Controllers.shop
+namespace CoreSystem2024.Controllers.shop
 {
     [ApiController]
     public class BaseApiController : UmbracoApiController
@@ -24,7 +13,7 @@ namespace CoreSystem.Controllers.shop
         //ClaimsIdentity claimsIdentity = (User as ClaimsPrincipal)?.Identities.FirstOrDefault();
         //protected UserViewModel UserInfo => AuthHelper.GetUserInfo();
 
-        protected UserViewModel UserInfo => AuthHelper.GetUserInfo(User);
+        //protected UserViewModel UserInfo => AuthHelper.GetUserInfo(User);
         protected int BrandId => int.Parse(ConfigurationManager.AppSettings["brand"]);
         protected Country UserCountry
         {
@@ -59,7 +48,7 @@ namespace CoreSystem.Controllers.shop
 
         private IStandService _standService;
 
-        
+
         #endregion
         public BaseApiController(
                 ICategoryService categoryService,

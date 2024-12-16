@@ -1,8 +1,3 @@
-C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\obj\Debug\net9.0\CoreSystem2024.csproj.AssemblyReference.cache
-C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\obj\Debug\net9.0\CoreSystem2024.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\obj\Debug\net9.0\CoreSystem2024.AssemblyInfoInputs.cache
-C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\obj\Debug\net9.0\CoreSystem2024.AssemblyInfo.cs
-C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\obj\Debug\net9.0\CoreSystem2024.csproj.CoreCompileInputs.cache
 C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\bin\Debug\net9.0\CoreSystem2024.staticwebassets.runtime.json
 C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\bin\Debug\net9.0\CoreSystem2024.staticwebassets.endpoints.json
 C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\bin\Debug\net9.0\CoreSystem2024.deps.json
@@ -320,7 +315,6 @@ C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\bin\Debug\ne
 C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\bin\Debug\net9.0\System.Web.Cors.dll
 C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\bin\Debug\net9.0\log4net.dll
 C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\bin\Debug\net9.0\RazorEngine.dll
-C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\bin\Debug\net9.0\Microsoft.Extensions.Caching.SqlServer.dll
 C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\bin\Debug\net9.0\MvcPaging.dll
 C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\bin\Debug\net9.0\Data.pdb
 C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\bin\Debug\net9.0\Data.dll.config
@@ -334,9 +328,11 @@ C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\bin\Debug\ne
 C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\bin\Debug\net9.0\Dplo.ViewModels.dll.config
 C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\bin\Debug\net9.0\EntityFramework.xml
 C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\bin\Debug\net9.0\System.Web.Http.Cors.xml
-C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\bin\Debug\net9.0\log4net.xml
-C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\bin\Debug\net9.0\RazorEngine.xml
-C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\bin\Debug\net9.0\Microsoft.Extensions.Caching.SqlServer.xml
+C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\obj\Debug\net9.0\CoreSystem2024.csproj.AssemblyReference.cache
+C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\obj\Debug\net9.0\CoreSystem2024.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\obj\Debug\net9.0\CoreSystem2024.AssemblyInfoInputs.cache
+C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\obj\Debug\net9.0\CoreSystem2024.AssemblyInfo.cs
+C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\obj\Debug\net9.0\CoreSystem2024.csproj.CoreCompileInputs.cache
 C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\obj\Debug\net9.0\scopedcss\bundle\CoreSystemII.styles.css
 C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\obj\Debug\net9.0\compressed\sz6j1ircmy-cvg1cjziwd.gz
 C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\obj\Debug\net9.0\staticwebassets.build.json

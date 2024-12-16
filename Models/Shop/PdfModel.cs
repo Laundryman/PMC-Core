@@ -1,7 +1,7 @@
-﻿using System.Globalization;
-using diam_planogram.Models.Shop;
+﻿using diam_planogram.Models.Shop;
+using System.Globalization;
 
-namespace CoreSystem.Models.Shop
+namespace CoreSystem2024.Models.Shop
 {
     public class PdfModel
     {

@@ -1,5 +1,4 @@
-﻿using System;
-using dplo.Domain.Entities;
+﻿using dplo.Domain.Entities;
 
 namespace diam_planogram.Models.Shop
 {

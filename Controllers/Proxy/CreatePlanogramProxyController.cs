@@ -1,13 +1,12 @@
-﻿using System.Net.Http.Headers;
-using CoreSystem.Helpers;
-using CoreSystem.HttpClientWrapper;
-using dplo.Service.MSGraphUtils;
+﻿using CoreSystem2024.Controllers;
+using CoreSystem2024.Helpers;
+using CoreSystem2024.HttpClientWrapper;
 using Dplo.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using System.Configuration;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using CoreSystem.Controllers;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Net.Http.Headers;
 
 namespace CoreSystemII.Controllers.Proxy
 {
@@ -17,11 +16,12 @@ namespace CoreSystemII.Controllers.Proxy
         #region Services, managers
 
         private ILogger<YourPlanogramApiController> _logger;
+        private readonly IConfiguration Configuration;
 
-
-        public CreatePlanogramProxyController(ILogger<YourPlanogramApiController> logger)
+        public CreatePlanogramProxyController(ILogger<YourPlanogramApiController> logger, IConfiguration configuration)
         {
             _logger = logger;
+            Configuration = configuration;
         }
         #endregion
 
@@ -31,10 +31,12 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> GetStandsWithClusters(int standTypeId)
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
 
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uriSuffix = "api/v2/stand/getBrandedWithClusters/" + brand + "/" + UserInfo.DiamCountryId + "/" + standTypeId;
 
@@ -58,10 +60,12 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> GetClustersCall(int standId)
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
 
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uriSuffix = "api/v2/clusters/get/" + brand + "/" + standId;
 
@@ -86,10 +90,12 @@ namespace CoreSystemII.Controllers.Proxy
         {
             //var getPartURL = $("#apiURL").val() + "api/planogram/template/get/" + $('#brandId').val() + "/" + standId + "?token=" + _authCode + "&callback=?";
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
 
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uriSuffix = "api/v2/planogram/template/get/" + brand + "/" + standId;
 
@@ -114,10 +120,12 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> ClonePlanogramCall(int planogramId, string planoName)
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
 
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uriSuffix = "api/v2/planogram/clone/" + planogramId + "/" + planoName;
 
@@ -141,10 +149,12 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> CreatePlanogramCall(int clusterId, string planoName)
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brand = Configuration["AppSettings:ClientBrandId"];
+            string readScope = Configuration["AzureB2C:ReadScope"];
+            string writeScope = Configuration["AzureB2CWriteScope"];
             //we need to re-auth using the reauth process
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var url = domain + "api/v2/planogram/create/" + clusterId + "/" + planoName + "/" + brand;
 

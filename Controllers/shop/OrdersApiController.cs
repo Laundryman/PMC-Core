@@ -1,41 +1,41 @@
-﻿using System.Net;
-using System.IO;
-using CoreSystem.Helpers;
-using CoreSystem.Models.Shop.Json;
+﻿using CoreSystem2024.Helpers;
+using CoreSystem2024.Models.Shop.Json;
 using CoreSystemII.Config;
 using diam_planogram.Helpers;
 using diam_planogram.Models.Shop;
-using dplo.Domain;
 using dplo.Domain.Entities;
 using dplo.Helpers;
-using dplo_shop.Models;
 using dplo.Service;
+using dplo_shop.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Hosting;
+using Umbraco.Cms.Core.Security;
 
-namespace CoreSystem.Controllers.shop
+namespace CoreSystem2024.Controllers.shop
 {
     public class OrdersApiController : BaseApiController
     {
         private ILogger<YourPlanogramApiController> _logger;
         private readonly IWebHostEnvironment _webHostEnvironment;
-
+        private readonly IMemberManager _memberManager;
 
 
         #region orders
         //[Route("api/orders")]
-        public OrdersApiController(ICategoryService categoryService, 
-            ICatalogueService catalogueService, 
-            ICountryService countryService, 
-            IPlanogramService planogramService, 
-            IOrderService orderService, 
-            IStandService standService, 
-            ILogger<YourPlanogramApiController> logger, 
+        public OrdersApiController(ICategoryService categoryService,
+            ICatalogueService catalogueService,
+            ICountryService countryService,
+            IPlanogramService planogramService,
+            IOrderService orderService,
+            IStandService standService,
+            ILogger<YourPlanogramApiController> logger,
+            IMemberManager memberManager,
             IWebHostEnvironment webHostEnvironment) : base(categoryService, catalogueService, countryService, planogramService, orderService, standService)
         {
             _logger = logger;
+            _memberManager = memberManager;
             _webHostEnvironment = webHostEnvironment;
         }
         [Route("/api/ordersapi/getorders")]
@@ -44,7 +44,7 @@ namespace CoreSystem.Controllers.shop
         {
 
             //var accessToken = AuthHelper.ReAuth(Authorization, WebServerClient);
-            
+
             List<OrderInfo> orders;
 
             if (RolesHelper.IsAdminUser(Helpers.UserInfo.Roles)) // admin - get all
@@ -79,10 +79,10 @@ namespace CoreSystem.Controllers.shop
                 OrderUpdated = x.OrderUpdated
             }).ToList();
 
-            var ordersInProgress = orderModels.Where(o => o.OrderStatus == (int) OrderStatusEnum.Open);
-            var ordersSubmitted = orderModels.Where(o => o.OrderStatus == (int) OrderStatusEnum.Submitted
-                                                         || o.OrderStatus == (int) OrderStatusEnum.Received);
-            var ordersCompleted = orderModels.Where(o => o.OrderStatus == (int) OrderStatusEnum.Approved);
+            var ordersInProgress = orderModels.Where(o => o.OrderStatus == (int)OrderStatusEnum.Open);
+            var ordersSubmitted = orderModels.Where(o => o.OrderStatus == (int)OrderStatusEnum.Submitted
+                                                         || o.OrderStatus == (int)OrderStatusEnum.Received);
+            var ordersCompleted = orderModels.Where(o => o.OrderStatus == (int)OrderStatusEnum.Approved);
             // var ordersReceived = orders.Where(o => o.OrderStatus == (int)OrderStatusEnum.Received);
             // var ordersCancelled = orders.Where(o => o.OrderStatus == (int)OrderStatusEnum.Cancelled);
 
@@ -96,7 +96,7 @@ namespace CoreSystem.Controllers.shop
                 //  OrdersCancelled = ordersCancelled
             };
 
-            var response = new ApiResponseModel {data = model};
+            var response = new ApiResponseModel { data = model };
 
             return Ok(response);
         }
@@ -105,20 +105,20 @@ namespace CoreSystem.Controllers.shop
         //[Route("api/orders/getactive")]
         [Route("/api/ordersapi/GetActiveOrder")]
 
-        public IActionResult GetActiveOrder()
+        public async Task<IActionResult> GetActiveOrder()
         {
 
 
 
-
-            var aOrderId = AuthHelper.GetActiveOrderId(HttpContext);
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var aOrderId = AuthHelper.GetActiveOrderId(HttpContext, memberIdentity);
 
             var order = _orderService.GetOrder(aOrderId);
 
-            if (order == null || order.OrderStatus != (int) OrderStatusEnum.Open)
+            if (order == null || order.OrderStatus != (int)OrderStatusEnum.Open)
             {
                 AuthHelper.SetActiveOrderId(HttpContext.Request, 0);
-                var response = new ApiResponseModel {data = null};
+                var response = new ApiResponseModel { data = null };
                 return Ok(response);
             }
             else
@@ -160,7 +160,7 @@ namespace CoreSystem.Controllers.shop
         public IActionResult RenameOrder(RenameOrderModel model)
         {
 
-            
+
             if (RolesHelper.IsAdminShopper(Helpers.UserInfo.Roles))
             {
                 var order = _orderService.GetOrder(model.OrderId);
@@ -170,7 +170,7 @@ namespace CoreSystem.Controllers.shop
                 _orderService.SaveOrder();
 
                 var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService);
-                
+
                 var response = new ApiResponseModel { data = orderModel };
 
                 return Ok(response);
@@ -211,7 +211,7 @@ namespace CoreSystem.Controllers.shop
 
             if (string.IsNullOrWhiteSpace(model.OrderTitle))
                 throw new ArgumentNullException(nameof(model.OrderTitle));
-            
+
             try
             {
                 var order = new Order
@@ -234,7 +234,7 @@ namespace CoreSystem.Controllers.shop
                 //LogHelper.LogAction((int)LogActionEnum.CreateOrder,
                 //    url.GetLeftPart(UriPartial.Authority), 0, order.OrderId);
                 var response = new ApiResponseModel { data = order };
-                
+
                 return Ok(response);
             }
             catch (Exception ex)
@@ -249,7 +249,7 @@ namespace CoreSystem.Controllers.shop
         [Route("/api/ordersapi/GetOrder")]
         public IActionResult GetOrder(int id, bool planoView)
         {
-            
+
 
 
 
@@ -295,7 +295,7 @@ namespace CoreSystem.Controllers.shop
 
             var order = _orderService.GetOrder(id);
 
-            if (order.OrderStatus != (int) OrderStatusEnum.Open)
+            if (order.OrderStatus != (int)OrderStatusEnum.Open)
                 throw new ArgumentException("Only open orders can be submitted.");
 
             if (order.OrderItems == null || order.OrderItems.Count == 0)
@@ -313,9 +313,9 @@ namespace CoreSystem.Controllers.shop
                 orderItem.Price = orderItemInfo.Price;
             }
 
-            order.OrderStatus = (int) OrderStatusEnum.Submitted;
+            order.OrderStatus = (int)OrderStatusEnum.Submitted;
             order.OrderUpdated = DateTime.Now;
-            order.OrderUpdatedBy = Helpers.UserInfo.Id;;
+            order.OrderUpdatedBy = Helpers.UserInfo.Id; ;
             order.OrderUpdatedByName = Helpers.UserInfo.FullName;
             order.OrderSubmitted = DateTime.Now;
 
@@ -327,12 +327,12 @@ namespace CoreSystem.Controllers.shop
             var response = new ApiResponseModel { data = order };
 
 
-            var model = new ApiResponseModel {data = (int) OrderStatusEnum.Submitted};
+            var model = new ApiResponseModel { data = (int)OrderStatusEnum.Submitted };
             try
             {
                 _logger.LogDebug("attempting to send emails");
                 if (DiamEmailConfiguration.GetConfig().EmailEnabled)
-                {   await SendSubmittedEmails(id);}
+                { await SendSubmittedEmails(id); }
             }
             catch (Exception ex)
             {
@@ -357,15 +357,15 @@ namespace CoreSystem.Controllers.shop
 
             if (order.OrderStatus != (int)OrderStatusEnum.Submitted)
                 throw new ArgumentException("This order cannot be unsubmitted because it is marked as " + order.OrderStatus);
- 
+
             order.OrderStatus = (int)OrderStatusEnum.Open;
             order.OrderUpdated = DateTime.Now;
-            order.OrderUpdatedBy = Helpers.UserInfo.Id;;
+            order.OrderUpdatedBy = Helpers.UserInfo.Id; ;
             order.OrderUpdatedByName = Helpers.UserInfo.FullName;
 
             _orderService.SaveOrder();
 
-            var model = new ApiResponseModel { data = (int)OrderStatusEnum.Open};
+            var model = new ApiResponseModel { data = (int)OrderStatusEnum.Open };
 
             return Ok(model);
         }
@@ -423,7 +423,8 @@ namespace CoreSystem.Controllers.shop
             var adminResponse = await emailHelper.SendEmail(adminEmail);
             _logger.LogDebug("End Admin Email");
 
-
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
             var userEmail = new Email()
             {
                 //BccList = DiamEmailConfiguration.GetConfig().BCCList,
@@ -431,9 +432,9 @@ namespace CoreSystem.Controllers.shop
                 EmailTrigger = (int)EmailTrigger.UserOrderSubmitted,
                 FromAddress = DiamEmailConfiguration.GetConfig().FromAddress,
                 OrderId = orderId,
-                ToAddress = UserInfo.Email,
-                RecipientName = UserInfo.GivenName + " " + UserInfo.Surname,
-                UserId = UserInfo.Id,
+                ToAddress = userInfo.Email,
+                RecipientName = userInfo.GivenName + " " + userInfo.Surname,
+                UserId = userInfo.Id,
                 EmailEnabled = DiamEmailConfiguration.GetConfig().EmailEnabled,
                 EmailSubject = "Order Submitted"
             };
@@ -453,7 +454,7 @@ namespace CoreSystem.Controllers.shop
             }
 
             if (errors.Count > 0)
-            {   throw new Exception(string.Join(",", errors));}
+            { throw new Exception(string.Join(",", errors)); }
 
             return userResponse;
         }
@@ -490,13 +491,14 @@ namespace CoreSystem.Controllers.shop
         #region orderItems
         [HttpPost]
         [Route("/api/ordersapi/AddOrderItem")]
-        public IActionResult AddOrderItem(AddOrderItemModel model)
+        public async Task<IActionResult> AddOrderItem(AddOrderItemModel model)
         {
 
 
             if (model.OrderId == null)
             {
-                var activeOrderId = AuthHelper.GetActiveOrderId(HttpContext);
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                var activeOrderId = AuthHelper.GetActiveOrderId(HttpContext, memberIdentity);
 
                 if (activeOrderId == 0)
                     throw new ArgumentException("There is no active order.");
@@ -526,14 +528,14 @@ namespace CoreSystem.Controllers.shop
                     PartId = model.PartId,
                     PartName = part.Name,
                     PartNumber = part.PartNumber,
-                  //  Price = itemCost, // I don't think we should even store this until its submitted
+                    //  Price = itemCost, // I don't think we should even store this until its submitted
                     Quantity = model.Quantity,
                     PlanogramId = null
                 };
 
                 _orderService.CreateOrderItem(orderItem);
                 order.OrderUpdated = DateTime.Now;
-                order.OrderUpdatedBy = Helpers.UserInfo.Id;;
+                order.OrderUpdatedBy = Helpers.UserInfo.Id; ;
                 order.OrderUpdatedByName = Helpers.UserInfo.FullName;
 
                 _orderService.SaveOrder();
@@ -545,7 +547,7 @@ namespace CoreSystem.Controllers.shop
                 var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService);
 
                 response.data = orderModel;
-                
+
             }
 
             return Ok(response);
@@ -563,9 +565,9 @@ namespace CoreSystem.Controllers.shop
 
             var orderItem = order.OrderItems.FirstOrDefault(x => x.OrderId == model.OrderItemId);
 
-            
-           // if (!RolesHelper.IsAdminShopper(Helpers.UserInfo.Roles) && orderItem?.PlanogramId != null)
-           //     throw new ArgumentException("This function is only available to admin shoppers.");
+
+            // if (!RolesHelper.IsAdminShopper(Helpers.UserInfo.Roles) && orderItem?.PlanogramId != null)
+            //     throw new ArgumentException("This function is only available to admin shoppers.");
 
 
             if (RolesHelper.IsAdminShopper(Helpers.UserInfo.Roles) || orderItem?.PlanogramId == null)
@@ -573,7 +575,7 @@ namespace CoreSystem.Controllers.shop
                 var response = new ApiResponseModel();
 
 
-                if (order.OrderStatus != (int) OrderStatusEnum.Open)
+                if (order.OrderStatus != (int)OrderStatusEnum.Open)
                     throw new ArgumentException("This order is not currently open.");
 
                 _orderService.DeleteOrderItem(model.OrderItemId);
@@ -583,7 +585,7 @@ namespace CoreSystem.Controllers.shop
                 //    url.GetLeftPart(UriPartial.Authority), 0, order.OrderId);
 
                 order.OrderUpdated = DateTime.Now;
-                order.OrderUpdatedBy = Helpers.UserInfo.Id;;
+                order.OrderUpdatedBy = Helpers.UserInfo.Id; ;
                 order.OrderUpdatedByName = Helpers.UserInfo.FullName;
 
                 var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService);
@@ -604,13 +606,13 @@ namespace CoreSystem.Controllers.shop
         public IActionResult DeletePlanogram(DeletePlanogramModel model)
         {
 
-            
+
             if (!RolesHelper.IsAdminShopper(Helpers.UserInfo.Roles))
                 throw new ArgumentException("This function is only available to admin shoppers.");
 
             var response = new ApiResponseModel();
             var order = _orderService.GetOrder(model.OrderId);
-            
+
             if (order.OrderStatus != (int)OrderStatusEnum.Open)
                 throw new ArgumentException("This order is not currently open.");
 
@@ -623,10 +625,10 @@ namespace CoreSystem.Controllers.shop
                 _orderService.DeleteFullPlanogram(model.OrderId, orderPlanogram.OrderPlanogramId);
             else
                 _orderService.DeletePlanogram(model.OrderId, model.PlanogramId);
-            
+
 
             order.OrderUpdated = DateTime.Now;
-            order.OrderUpdatedBy = Helpers.UserInfo.Id;;
+            order.OrderUpdatedBy = Helpers.UserInfo.Id; ;
             order.OrderUpdatedByName = Helpers.UserInfo.FullName;
 
             _orderService.SaveOrder();
@@ -634,7 +636,7 @@ namespace CoreSystem.Controllers.shop
             var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService);
 
             response.data = orderModel;
-            
+
 
             return Ok(response);
 
@@ -661,7 +663,7 @@ namespace CoreSystem.Controllers.shop
             _orderService.DeleteFullPlanogram(model.OrderId, model.OrderPlanogramId);
 
             order.OrderUpdated = DateTime.Now;
-            order.OrderUpdatedBy = Helpers.UserInfo.Id;;
+            order.OrderUpdatedBy = Helpers.UserInfo.Id; ;
             order.OrderUpdatedByName = Helpers.UserInfo.FullName;
 
             _orderService.SaveOrder();
@@ -711,13 +713,13 @@ namespace CoreSystem.Controllers.shop
             _orderService.SaveOrderItem();
 
             order.OrderUpdated = DateTime.Now;
-            order.OrderUpdatedBy = Helpers.UserInfo.Id;;
+            order.OrderUpdatedBy = Helpers.UserInfo.Id; ;
             order.OrderUpdatedByName = Helpers.UserInfo.FullName;
 
             _orderService.SaveOrder();
 
             var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService);
-                
+
             response.data = orderModel;
 
             return Ok(response);
@@ -771,7 +773,7 @@ namespace CoreSystem.Controllers.shop
             //OrderService.SaveOrderItem();
 
             order.OrderUpdated = DateTime.Now;
-            order.OrderUpdatedBy = Helpers.UserInfo.Id;;
+            order.OrderUpdatedBy = Helpers.UserInfo.Id; ;
             order.OrderUpdatedByName = Helpers.UserInfo.FullName;
 
             _orderService.SaveOrder();
@@ -828,16 +830,16 @@ namespace CoreSystem.Controllers.shop
             catch (Exception Ex)
             {
                 _logger.LogDebug("CreateOrderExportLink fail " + Ex.Message);
-                    //IActionResult message = new IActionResult(HttpStatusCode.BadRequest);
+                //IActionResult message = new IActionResult(HttpStatusCode.BadRequest);
 
-                    // Get stack trace for the exception with source file information
-                    //var st = new StackTrace(ex, true);
-                    // Get the top stack frame
-                    //var frame = st.GetFrame(0);
-                    // Get the line number from the stack frame
-                    //var line = frame.GetFileLineNumber();
+                // Get stack trace for the exception with source file information
+                //var st = new StackTrace(ex, true);
+                // Get the top stack frame
+                //var frame = st.GetFrame(0);
+                // Get the line number from the stack frame
+                //var line = frame.GetFileLineNumber();
 
-                    throw;
+                throw;
             }
 
         }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace diam_planogram.Models.Shop
+﻿namespace diam_planogram.Models.Shop
 {
     public class PartModel
     {

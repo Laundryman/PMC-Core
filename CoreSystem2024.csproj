@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Bergmania.OpenStreetMap.Core" Version="7.0.0" />
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.3.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.3.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
@@ -53,5 +54,10 @@
     <ProjectReference Include="..\laundromat_dcl\dplo.Helpers\dplo.Helpers.csproj" />
     <ProjectReference Include="..\laundromat_dcl\dplo.Service\dplo.Service.csproj" />
     <ProjectReference Include="..\laundromat_dcl\Dplo.ViewModels\dplo.ViewModels.csproj" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="CMSModelBuilderModels\" />
   </ItemGroup>
 </Project>

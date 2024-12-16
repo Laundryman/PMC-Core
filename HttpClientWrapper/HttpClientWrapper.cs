@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
+using System.Configuration;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
-using System.Configuration;
 
-namespace CoreSystem.HttpClientWrapper
+namespace CoreSystem2024.HttpClientWrapper
 {
 
     /// <summary>
@@ -41,7 +41,7 @@ namespace CoreSystem.HttpClientWrapper
 
             T result = default(T);
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                
+
             var response = httpClient.GetAsync(_addressSuffix).Result;
 
             response.EnsureSuccessStatusCode();

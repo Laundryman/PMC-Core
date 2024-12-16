@@ -1,27 +1,32 @@
-﻿using System.Configuration;
+﻿using CoreSystem2024.Models;
+//using System.Web.Http.Owin;
+using CoreSystemII.Config;
+using dplo.Service.MSGraphUtils;
+using Dplo.ViewModels;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Identity.Client;
+using System.Diagnostics;
 using System.Globalization;
 using System.Security.Claims;
 using System.Text;
-using CoreSystem.Models;
-using dplo.Service.MSGraphUtils;
-using Dplo.ViewModels;
-//using System.Web.Http.Owin;
-using CoreSystem.Controllers.Planx;
-using CoreSystemII.Config;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Identity.Client;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Diagnostics;
+using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Security;
+using ConfigurationManager = System.Configuration.ConfigurationManager;
 
-namespace CoreSystem.Helpers
+namespace CoreSystem2024.Helpers
 {
-  public static class AuthHelper
-  {
+    public static class AuthHelper
+    {
         private static readonly CultureInfo UnitedKingdom = CultureInfo.GetCultureInfo("en-GB");
         private static readonly CultureInfo UnitedStates = CultureInfo.GetCultureInfo("en-US");
-        //private static readonly ILog _logger = LogManager.GetLogger(typeof(PlanxApiController));
 
+        public static IConfiguration config = new ConfigurationBuilder().SetBasePath(AppDomain.CurrentDomain.BaseDirectory).AddJsonFile("appsettings.json").Build();
+
+        public static void Initialize(IConfiguration Configuration)
+        {
+            config = Configuration;
+        }
 
         /// <summary>
         /// Removes the query string from the passed uri
@@ -29,101 +34,119 @@ namespace CoreSystem.Helpers
         /// <param name="uri"></param>
         /// <returns></returns>
         public static string RemoveQueryStringFromUri(string uri)
-    {
-        int index = uri.IndexOf('?');
-        if (index > -1)
         {
-            uri = uri.Substring(0, index);
-        }
-        return uri;
-    }
-
-    /// <summary>
-    /// The set of characters that are unreserved in RFC 2396 but are NOT unreserved in RFC 3986.
-    /// </summary>
-    private static readonly string[] UriRfc3986CharsToEscape = new[] { "!", "*", "'", "(", ")" };
-
-    /// <summary>
-    /// Escapes a string according to the URI data string rules given in RFC 3986.
-    /// </summary>
-    /// <param name="value">The value to escape.</param>
-    /// <returns>The escaped value.</returns>
-    /// <remarks>
-    /// The <see cref="Uri.EscapeDataString"/> method is <i>supposed</i> to take on
-    /// RFC 3986 behavior if certain elements are present in a .config file.  Even if this
-    /// actually worked (which in my experiments it <i>doesn't</i>), we can't rely on every
-    /// host actually having this configuration element present.
-    /// </remarks>
-    public static string EscapeUriDataStringRfc3986(string value)
-    {
-      //Requires.NotNull(value, "value");
-
-      // Start with RFC 2396 escaping by calling the .NET method to do the work.
-      // This MAY sometimes exhibit RFC 3986 behavior (according to the documentation).
-      // If it does, the escaping we do that follows it will be a no-op since the
-      // characters we search for to replace can't possibly exist in the string.
-      StringBuilder escaped = new StringBuilder(Uri.EscapeDataString(value));
-
-      // Upgrade the escaping to RFC 3986, if necessary.
-      for (int i = 0; i < UriRfc3986CharsToEscape.Length; i++)
-      {
-        escaped.Replace(UriRfc3986CharsToEscape[i], Uri.HexEscape(UriRfc3986CharsToEscape[i][0]));
-      }
-
-      // Return the fully-RFC3986-escaped string.
-      return escaped.ToString();
-    }
-
-    public static void ClearSessionCookie(HttpRequest request, HttpResponse response)
-    {
-        string sessionName = DiamConfiguration.GetConfig().SessionName;
-        var diamSessionCookie = request.Cookies[sessionName];
-
-        if (diamSessionCookie == null) return;
-
-        var cookieOptions = new CookieOptions();
-        cookieOptions.Expires = DateTime.Now.AddMinutes(-20);
-        response.Cookies.Append(sessionName, "", cookieOptions);
-    }
-
-        public static UserViewModel GetUserInfo(ClaimsPrincipal user)
-        {
-            string sessionName = DiamConfiguration.GetConfig().SessionName;
-            //var diamSessionCookie = request.Cookies.Get(sessionName);
-            //if (diamSessionCookie != null)
-            //{
-            //    var sessionGuid = new Guid(diamSessionCookie[sessionName]);
-            if (!user.Identity.IsAuthenticated)
+            int index = uri.IndexOf('?');
+            if (index > -1)
             {
-                var proxySupport = new ProxyApiSupport();
-                //// Retrieve the token with the specified scopes
-                Task<AuthenticationResult> result = proxySupport.AcquireTokenForScopes(new string[] { Globals.ReadTasksScope, Globals.WriteTasksScope });
+                uri = uri.Substring(0, index);
+            }
+            return uri;
+        }
+
+        /// <summary>
+        /// The set of characters that are unreserved in RFC 2396 but are NOT unreserved in RFC 3986.
+        /// </summary>
+        private static readonly string[] UriRfc3986CharsToEscape = new[] { "!", "*", "'", "(", ")" };
+
+        /// <summary>
+        /// Escapes a string according to the URI data string rules given in RFC 3986.
+        /// </summary>
+        /// <param name="value">The value to escape.</param>
+        /// <returns>The escaped value.</returns>
+        /// <remarks>
+        /// The <see cref="Uri.EscapeDataString"/> method is <i>supposed</i> to take on
+        /// RFC 3986 behavior if certain elements are present in a .config file.  Even if this
+        /// actually worked (which in my experiments it <i>doesn't</i>), we can't rely on every
+        /// host actually having this configuration element present.
+        /// </remarks>
+        public static string EscapeUriDataStringRfc3986(string value)
+        {
+            //Requires.NotNull(value, "value");
+
+            // Start with RFC 2396 escaping by calling the .NET method to do the work.
+            // This MAY sometimes exhibit RFC 3986 behavior (according to the documentation).
+            // If it does, the escaping we do that follows it will be a no-op since the
+            // characters we search for to replace can't possibly exist in the string.
+            StringBuilder escaped = new StringBuilder(Uri.EscapeDataString(value));
+
+            // Upgrade the escaping to RFC 3986, if necessary.
+            for (int i = 0; i < UriRfc3986CharsToEscape.Length; i++)
+            {
+                escaped.Replace(UriRfc3986CharsToEscape[i], Uri.HexEscape(UriRfc3986CharsToEscape[i][0]));
             }
 
+            // Return the fully-RFC3986-escaped string.
+            return escaped.ToString();
+        }
+
+        public static void ClearSessionCookie(HttpRequest request, HttpResponse response)
+        {
+            IConfigurationSection appSettings = config.GetSection("AppSettings");
+            var sessionName = appSettings["SessionName"];
+            var diamSessionCookie = request.Cookies[sessionName];
+
+            if (diamSessionCookie == null) return;
+
+            var cookieOptions = new CookieOptions();
+            cookieOptions.Expires = DateTime.Now.AddMinutes(-20);
+            response.Cookies.Append(sessionName, "", cookieOptions);
+        }
+
+        public static void CheckIdentityClaims(MemberIdentityUser user, IMember member)
+        {
+            //user.Claims.Add(new IdentityUserClaim<string>
+            //{
+            //    ClaimType = extClaim.Type,
+            //    ClaimValue = extClaim.Value,
+            //    UserId = user.Id
+            //});
+        }
+
+        public static UserViewModel GetUserInfo(MemberIdentityUser user)
+        {
+            IConfigurationSection appSettings = config.GetSection("AppSettings");
+            var sessionName = appSettings["SessionName"];
+            string readScope = config["AzureB2C:ReadScope"];
+            string writeScope = config["AzureB2CWriteScope"];
+            //if (!user.Identity.IsAuthenticated)
+            //{
+            //    var proxySupport = new ProxyApiSupport(config);
+            //    //// Retrieve the token with the specified scopes
+            //    Task<AuthenticationResult> result = proxySupport.AcquireTokenForScopes(new string[] { readScope, writeScope });
+            //}
+            //else
+            //{
+            //    if (user.Claims.FirstOrDefault((c => c.Type == ClaimTypes.GivenName)).Value != null)
+            //    {
+            //        //reauth
+
+            //    }
+            //}
+
             try
-                {
-                    //var user = HttpRequest.GetOwinContext().Authentication.User.Claims;
-                    //Check here if userinfo exists in the session (will be faster to use that)
-                    var userInfo = new UserViewModel();
-                            userInfo.GivenName = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.GivenName).Value;
-                            userInfo.Surname = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Surname).Value;
-                            userInfo.Email = user.Claims.FirstOrDefault(c => c.Type == "extension_userEmailAddress").Value;
-                            userInfo.Id = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;;
-                            userInfo.Roles = user.Claims.FirstOrDefault(c => c.Type == "extension_diamRoles").Value;
-                            userInfo.DisplayName = user.Claims.FirstOrDefault(c => c.Type == "name").Value;
-                            userInfo.DiamCountryId = int.Parse(user.Claims.FirstOrDefault(c => c.Type == "extension_diamCountryId").Value);
-                            //if (user.FirstOrDefault(c => c.Type == "extension_diamUserId") != null) 
-                            //    userInfo.DiamUserId = int.Parse(user.FirstOrDefault(c => c.Type == "extension_diamUserId").Value);
-                            userInfo.Brands = user.Claims.FirstOrDefault(c => c.Type == "extension_brands").Value;
+            {
+                //var user = HttpRequest.GetOwinContext().Authentication.User.Claims;
+                //Check here if userinfo exists in the session (will be faster to use that)
+                var userInfo = new UserViewModel();
+                userInfo.GivenName = user.Claims.FirstOrDefault(c => c.ClaimType == "given_name").ClaimValue;
+                userInfo.Email = user.Claims.FirstOrDefault(c => c.ClaimType == "extension_userEmailAddress").ClaimValue;
+                userInfo.Id = user.Id; ;
+                userInfo.Roles = user.Claims.FirstOrDefault(c => c.ClaimType == "extension_diamRoles").ClaimValue;
+                userInfo.DisplayName = user.Claims.FirstOrDefault(c => c.ClaimType == "name").ClaimValue;
+                userInfo.DiamCountryId = int.Parse(user.Claims.FirstOrDefault(c => c.ClaimType == "extension_diamCountryId").ClaimValue);
+                //if (user.FirstOrDefault(c => c.Type == "extension_diamUserId") != null) 
+                //    userInfo.DiamUserId = int.Parse(user.FirstOrDefault(c => c.Type == "extension_diamUserId").Value);
+                userInfo.Brands = user.Claims.FirstOrDefault(c => c.ClaimType == "extension_brands").ClaimValue;
 
 
 
-                    return userInfo;
-                }
-                catch (Exception ex)
-                {
-                    //If it fails then there is something wrong with the auth - need to login again
-                }
+
+                return userInfo;
+            }
+            catch (Exception ex)
+            {
+                //If it fails then there is something wrong with the auth - need to login again
+            }
             //}
             //else
             //{
@@ -134,8 +157,10 @@ namespace CoreSystem.Helpers
         public static void SetUserSession(UserViewModel userInfo, HttpContext httpContext)
         {
             //Check User is valid for this client (scope should contain the client Id)
-            var clientBrandId = ConfigurationManager.AppSettings["brand"];
-            var connString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+            IConfigurationSection appSettings = config.GetSection("AppSettings");
+            string readScope = config["AzureB2C:ReadScope"];
+            string writeScope = config["AzureB2CWriteScope"];
+            var connString = config["ConnectionStrings:umbracoDbDSN"]; //ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
             var userContext = new UsersContext(connString);
 
             try
@@ -185,11 +210,12 @@ namespace CoreSystem.Helpers
 
         public static int SetActiveOrderId(HttpRequest request, int ActiveOrderId)
         {
-            string sessionName = DiamConfiguration.GetConfig().SessionName;
+            IConfigurationSection appSettings = config.GetSection("AppSettings");
+            var sessionName = appSettings["SessionName"];
             var diamSessionCookie = request.Cookies[sessionName];
 
             var sessionGuid = new Guid(diamSessionCookie);
-            var connString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+            var connString = config["ConnectionStrings:umbracoDbDSN"]; //ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
             var userContext = new UsersContext(connString);
 
             UserSession userSession = null;
@@ -205,11 +231,12 @@ namespace CoreSystem.Helpers
             return userSession.ActiveOrderId;
         }
 
-        public static int GetActiveOrderId(HttpContext httpContext)
+        public static int GetActiveOrderId(HttpContext httpContext, MemberIdentityUser user)
         {
-            var userInfo = GetUserInfo(httpContext.User);
+            var userInfo = GetUserInfo(user);
             SetUserSession(userInfo, httpContext);
-            string sessionName = DiamConfiguration.GetConfig().SessionName;
+            IConfigurationSection appSettings = config.GetSection("AppSettings");
+            var sessionName = appSettings["SessionName"];
             var diamSessionCookie = httpContext.Request.Cookies[sessionName];
             var sessionGuid = new Guid(diamSessionCookie);
 
@@ -239,12 +266,13 @@ namespace CoreSystem.Helpers
         {
             //we need to re-auth using the reauth process
             string accessToken = null;
-            var proxySupport = new ProxyApiSupport();
-
+            var proxySupport = new ProxyApiSupport(config);
+            string readScope = config["AzureB2C:ReadScope"];
+            string writeScope = config["AzureB2CWriteScope"];
             try
             {
                 var result = await proxySupport.AcquireTokenForScopes(new string[]
-                    { Globals.ReadTasksScope, Globals.WriteTasksScope });
+                    { readScope, writeScope });
                 accessToken = result.AccessToken;
             }
             catch (MsalUiRequiredException ex)
@@ -256,7 +284,7 @@ namespace CoreSystem.Helpers
                 try
                 {
                     var result = await proxySupport.AcquireTokenInteractive(new string[]
-                        { Globals.ReadTasksScope, Globals.WriteTasksScope });
+                        { readScope, writeScope });
                     accessToken = result.IdToken;
                 }
                 catch (MsalException msalex)
@@ -279,8 +307,9 @@ namespace CoreSystem.Helpers
         }
         public static async Task<AuthenticationResult> AcquireTokenForScopes(string[] scopes)
         {
+            string signInPolicy = config["AzureB2C:SignInPolicyId"];
             IConfidentialClientApplication cca = MsalAppBuilder.BuildConfidentialClientApplication();
-            string accountId = ClaimsPrincipal.Current.GetB2CMsalAccountIdentifier(Globals.SignInPolicyId);
+            string accountId = ClaimsPrincipal.Current.GetB2CMsalAccountIdentifier(signInPolicy);
             var account = await cca.GetAccountAsync(accountId);
             return await cca.AcquireTokenSilent(scopes, account).ExecuteAsync();
         }

@@ -1,21 +1,17 @@
-﻿using System.Configuration;
-using CoreSystem.Helpers;
-using CoreSystem.Models;
+﻿using CoreSystem2024.Helpers;
+using CoreSystem2024.Models;
 using dplo.Domain;
 using dplo.Service;
 using dplo.Service.MSGraphUtils;
 using Dplo.ViewModels;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
-using System.Web.Mvc;
-using ActionResult = Microsoft.AspNetCore.Mvc.ActionResult;
 using RedirectResult = Microsoft.AspNetCore.Mvc.RedirectResult;
 
 namespace diam_planogram.Controllers
@@ -31,12 +27,22 @@ namespace diam_planogram.Controllers
         public ICountryService _countryService;
         public IRegionService _regionService;
         #endregion
+        private readonly IConfiguration Configuration;
+        private string domain;
+        private string brandId;
+        private string readScope;
+        private string writeScope;
         // GET: CreateStand
-        public YourPlanogramsController(ILogger<RenderController> logger, ICompositeViewEngine compositeViewEngine, IUmbracoContextAccessor umbracoContextAccessor, IStandService standService, ICountryService countryService, IRegionService regionService) : base(logger, compositeViewEngine, umbracoContextAccessor)
+        public YourPlanogramsController(ILogger<RenderController> logger, ICompositeViewEngine compositeViewEngine, IUmbracoContextAccessor umbracoContextAccessor, IStandService standService, ICountryService countryService, IRegionService regionService, IConfiguration configuration) : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
             _standService = standService;
             _countryService = countryService;
             _regionService = regionService;
+            Configuration = configuration;
+            domain = Configuration["AppSettings:ApiUrl"];
+            brandId = Configuration["AppSettings:ClientBrandId"];
+            readScope = Configuration["AzureB2C:ReadScope"];
+            writeScope = Configuration["AzureB2CWriteScope"];
         }
 
         public async Task<IActionResult> YourPlanograms(ContentModel model)
@@ -44,10 +50,10 @@ namespace diam_planogram.Controllers
 
             try
             {
-                var proxySupport = new ProxyApiSupport();
+                var proxySupport = new ProxyApiSupport(Configuration);
                 //// Retrieve the token with the specified scopes
                 var result = await proxySupport.AcquireTokenForScopes(new string[]
-                    { Globals.ReadTasksScope, Globals.WriteTasksScope });
+                    { readScope, writeScope });
             }
             catch (MsalUiRequiredException)
             {
@@ -67,8 +73,8 @@ namespace diam_planogram.Controllers
             {
                 UserFirstName = UserInfo.GivenName,
                 UserLastName = UserInfo.Surname,
-                BrandId = int.Parse(ConfigurationManager.AppSettings["brand"]),
-                ApiUrl = ConfigurationManager.AppSettings["apiURL"],
+                BrandId = int.Parse(brandId),
+                ApiUrl = domain,
                 UserRoles = UserInfo.Roles,
                 SystemRole = (int)systemRole
 
@@ -80,7 +86,7 @@ namespace diam_planogram.Controllers
             {
 
                 var regions = _regionService.GetRegionsByBrand(yourPlanogramsModel.BrandId).ToList();
-                    //regionFilter = IsInteger(this.regionFilterList.SelectedValue) ? int.Parse(this.regionFilterList.SelectedValue) : 0;
+                //regionFilter = IsInteger(this.regionFilterList.SelectedValue) ? int.Parse(this.regionFilterList.SelectedValue) : 0;
                 var regionId = 0;
 
                 if (regionId == 0)
@@ -94,14 +100,14 @@ namespace diam_planogram.Controllers
                 countries = _countryService.GetCountriesByRegion(regionId).ToList();
 
                 yourPlanogramsModel.Countries = countries.ToSelectListItems(-1).ToList();
-                yourPlanogramsModel.Countries.Insert(0, new System.Web.Mvc.SelectListItem { Selected = true, Text = "Select a region first", Value = "0"});
+                yourPlanogramsModel.Countries.Insert(0, new System.Web.Mvc.SelectListItem { Selected = true, Text = "Select a region first", Value = "0" });
                 yourPlanogramsModel.Regions = regions.ToSelectListItems(-1).ToList();
-                yourPlanogramsModel.Regions.Insert(0, new System.Web.Mvc.SelectListItem { Selected = true, Text = "Select a region", Value = "0"});
+                yourPlanogramsModel.Regions.Insert(0, new System.Web.Mvc.SelectListItem { Selected = true, Text = "Select a region", Value = "0" });
 
             }
-                var brandedStandTypes = _standService.GetStandTypes(yourPlanogramsModel.BrandId).ToList();
-                yourPlanogramsModel.StandTypes = brandedStandTypes.ToSelectListItems(-1).ToList();
-                yourPlanogramsModel.StandTypes.Insert(0, new System.Web.Mvc.SelectListItem { Selected = true, Text = "Select a stand type", Value = "0"});
+            var brandedStandTypes = _standService.GetStandTypes(yourPlanogramsModel.BrandId).ToList();
+            yourPlanogramsModel.StandTypes = brandedStandTypes.ToSelectListItems(-1).ToList();
+            yourPlanogramsModel.StandTypes.Insert(0, new System.Web.Mvc.SelectListItem { Selected = true, Text = "Select a stand type", Value = "0" });
 
 
 

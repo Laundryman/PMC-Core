@@ -1,4 +1,4 @@
-﻿namespace CoreSystem.Models
+﻿namespace CoreSystem2024.Models
 {
     public class ContactUsModel
     {

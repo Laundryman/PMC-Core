@@ -1,28 +1,31 @@
-﻿using System.Configuration;
-using CoreSystem.Helpers;
+﻿using CoreSystem2024.Helpers;
 using diam_planogram.Models.Shop;
 using dplo.Domain.Entities;
-using dplo_shop.Models;
 using dplo.Service;
+using dplo_shop.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Configuration;
+using Umbraco.Cms.Core.Security;
 
 //using Dplo.ViewModels;
 
-namespace CoreSystem.Controllers.shop
+namespace CoreSystem2024.Controllers.shop
 {
     public class NavigationApiController : BaseApiController
     {
         private ICategoryService _categoryService;
-        public NavigationApiController(ICategoryService categoryService, ICatalogueService catalogueService, ICountryService countryService, IPlanogramService planogramService, IOrderService orderService, IStandService standService) : base(categoryService, catalogueService, countryService, planogramService, orderService, standService)
+        private IMemberManager _memberManager;
+        public NavigationApiController(ICategoryService categoryService, ICatalogueService catalogueService, ICountryService countryService, IPlanogramService planogramService, IOrderService orderService, IStandService standService, IMemberManager memberManager) : base(categoryService, catalogueService, countryService, planogramService, orderService, standService)
         {
             _categoryService = categoryService;
+            _memberManager = memberManager;
         }
 
         [System.Web.Http.HttpGet]
         [Route("/api/navigationapi/get")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            
+
 
             //AuthHelper.ReAuth(Authorization, WebServerClient);
 
@@ -39,11 +42,11 @@ namespace CoreSystem.Controllers.shop
                 //if (!notthese.Contains(cat.CategoryId))
                 if (!notthese.Contains(shopCategory.CategoryId))
                 {
-                    var catModel = new CategoryModel{Id = shopCategory.CategoryId, Name = shopCategory.Name};
+                    var catModel = new CategoryModel { Id = shopCategory.CategoryId, Name = shopCategory.Name };
                     pCatsToDisplay.Add(catModel);
                 }
             }
-            
+
             var navModel = new NavModel
             {
                 Categories = pCatsToDisplay,
@@ -53,14 +56,14 @@ namespace CoreSystem.Controllers.shop
                 IsAdminShopper = RolesHelper.IsAdminShopper(Helpers.UserInfo.Roles)
             };
 
-
-            var aOrderId = AuthHelper.GetActiveOrderId(HttpContext);
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var aOrderId = AuthHelper.GetActiveOrderId(HttpContext, memberIdentity);
 
             if (aOrderId != 0)
             {
                 var order = _orderService.GetOrder(aOrderId);
 
-                if (order != null && order.OrderStatus == (int) OrderStatusEnum.Open)
+                if (order != null && order.OrderStatus == (int)OrderStatusEnum.Open)
                 {
                     navModel.CurrentOrderTitle = order.OrderTitle;
                 }

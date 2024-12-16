@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using diam_planogram.Models.Shop;
+﻿using diam_planogram.Models.Shop;
+using DiamShopSolution.Models.Shop;
 using dplo.Domain;
 using dplo.Domain.Entities;
 using dplo.Service;
-using DiamShopSolution.Models.Shop;
+using System.Configuration;
 
 namespace diam_planogram.Helpers
 {
@@ -15,7 +12,7 @@ namespace diam_planogram.Helpers
         public static decimal GetPartItemCost(this PartInfo part)
         {
             if (!part.LaunchDate.IsMinNullOrEmpty()
-                && part.LaunchDate >= DateTime.Now 
+                && part.LaunchDate >= DateTime.Now
                 && part.LaunchPrice != null)
             {
                 return part.LaunchPrice.Value;
@@ -27,8 +24,8 @@ namespace diam_planogram.Helpers
 
         public static bool IsMinNullOrEmpty(this DateTime? date)
         {
-            return date == null 
-                || date == new DateTime() 
+            return date == null
+                || date == new DateTime()
                 || date == DateTime.MinValue;
         }
 
@@ -76,7 +73,7 @@ namespace diam_planogram.Helpers
 
                 // use the orderPlanograms link table relationship for the full planos only
                 var orderPlanogramIds = fullPlanoOrderItems.OrderByDescending(oi => oi.DateAdded).Select(x => x.OrderPlanogramId).Distinct().ToList();
-                
+
                 foreach (var orderPlanogramId in orderPlanogramIds)
                 {
                     var orderItems = fullPlanoOrderItems.Where(x => x.OrderPlanogramId == orderPlanogramId).OrderBy(x => x.PartName).ToList();
@@ -111,7 +108,7 @@ namespace diam_planogram.Helpers
 
             // get the order items NOT associated with a full plano (should be backwards compatible with before we added the OrderPlanogram link relationship)
             List<OrderItemInfo> partialPlanoOrderItems = allOrderItems
-                .Where(oi => oi.PlanogramId != null 
+                .Where(oi => oi.PlanogramId != null
                           && (!oi.IsFullPlano.HasValue || !oi.IsFullPlano.Value)).ToList();
 
             // make each partial plano and add to partial planos collection

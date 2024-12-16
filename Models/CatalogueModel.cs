@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.ComponentModel.DataAnnotations;  
-using dplo.Domain;
+﻿using dplo.Domain;
 using dplo.Domain.Entities;
 using Dplo.ViewModels;
-using Dplo.ViewModels;
 
-namespace CoreSystem.Models
+namespace CoreSystem2024.Models
 {
-  public class CatalogueModel
-  {
+    public class CatalogueModel
+    {
         public CatalogueModel()
         {
             this.Products = new HashSet<Product>();
@@ -34,5 +28,5 @@ namespace CoreSystem.Models
         public virtual ICollection<Part> Parts { get; set; }
 
 
-  }
+    }
 }

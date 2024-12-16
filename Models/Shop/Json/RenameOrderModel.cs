@@ -1,4 +1,4 @@
-﻿namespace CoreSystem.Models.Shop.Json
+﻿namespace CoreSystem2024.Models.Shop.Json
 {
     public class RenameOrderModel
     {

@@ -1,22 +1,19 @@
-﻿using System.Configuration;
-using System.Net;
-using System.Net.Http.Headers;
-using CoreSystem.Controllers;
-using CoreSystem.Controllers.shop;
-using CoreSystem.Helpers;
-using CoreSystem.HttpClientWrapper;
-using CoreSystem.Models;
+﻿using CoreSystem2024.Controllers;
+using CoreSystem2024.Controllers.shop;
+using CoreSystem2024.Helpers;
+using CoreSystem2024.Models;
 using CoreSystemII.Controllers.Proxy;
 using dplo.Domain;
 using dplo.Domain.Entities;
 using dplo.Service;
-using dplo.Service.MSGraphUtils;
 using Dplo.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Configuration;
+using Umbraco.Cms.Core.Security;
 
 namespace CoreSystemII.Controllers
 {
@@ -32,17 +29,19 @@ namespace CoreSystemII.Controllers
         public IBrandService _brandService;
         public ICountryService _countryService;
         private CreatePlanogramProxyController proxyApi;
+        private IMemberManager _memberManager;
 
         #endregion
 
 
         #region LocalApiCalls
 
-        public CreatePlanogramApiController(ICategoryService categoryService, ICatalogueService catalogueService, ICountryService countryService, IPlanogramService planogramService, IOrderService orderService, IStandService standService, IBrandService brandService, ILogger<YourPlanogramApiController> logger) : base(categoryService, catalogueService, countryService, planogramService, orderService, standService)
+        public CreatePlanogramApiController(ICategoryService categoryService, ICatalogueService catalogueService, ICountryService countryService, IPlanogramService planogramService, IOrderService orderService, IStandService standService, IBrandService brandService, ILogger<YourPlanogramApiController> logger, IMemberManager memberManager) : base(categoryService, catalogueService, countryService, planogramService, orderService, standService)
         {
             _planogramService = planogramService;
             _brandService = brandService;
             _logger = logger;
+            _memberManager = memberManager;
             _countryService = countryService;
         }
 
@@ -56,7 +55,7 @@ namespace CoreSystemII.Controllers
             //AuthHelper.ReAuth(Authorization, client);
 
             var response = await proxyApi.GetStandsWithClusters(standTypeId);
-            
+
             //Get the json data from the result
             //IEnumerable<SelectListItem> stands = new IEnumerable<SelectListItem>();
             var stands = new List<SelectListItem>();
@@ -79,7 +78,7 @@ namespace CoreSystemII.Controllers
                 //Something has gone wrong, handle it here
             }
 
-            return Ok( stands);
+            return Ok(stands);
         }
 
         /// <summary>
@@ -155,12 +154,12 @@ namespace CoreSystemII.Controllers
 
                 //We've removed the make template option, so now we just always create a new planogram.
                 var planogramId = 0;
-                    var response = await proxyApi.CreatePlanogramCall(baseItemId, planogramName);
-                    if (response is OkResult)
-                    {
-                        var result = response as OkObjectResult;
-                        planogramId = int.Parse(result.Value.ToString());
-                    }
+                var response = await proxyApi.CreatePlanogramCall(baseItemId, planogramName);
+                if (response is OkResult)
+                {
+                    var result = response as OkObjectResult;
+                    planogramId = int.Parse(result.Value.ToString());
+                }
 
 
                 return Ok(planogramId);
@@ -180,7 +179,7 @@ namespace CoreSystemII.Controllers
             {
                 Planogram planogram = _planogramService.GetPlanogram(planogramId);
 
-                var countryId = UserInfo.DiamCountryId;;
+                var countryId = UserInfo.DiamCountryId; ;
                 Country country = _countryService.GetCountry(countryId);
                 var brand = _brandService.GetBrand(int.Parse(ConfigurationManager.AppSettings["brand"]));
                 var editPCreds = new EditPlanogramCreds
@@ -211,12 +210,14 @@ namespace CoreSystemII.Controllers
 
         [HttpPost]
         [Route("/Api/CreatePlanogramApi/UnlockPlano")]
-        public IActionResult UnlockPlano(int planogramId)
+        public async Task<IActionResult> UnlockPlano(int planogramId)
         {
 
             try
             {
-                _planogramService.UnLockPlanogram(planogramId, UserInfo);
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                var userProfile = AuthHelper.GetUserInfo(memberIdentity);
+                _planogramService.UnLockPlanogram(planogramId, userProfile);
                 return Ok();
             }
             catch (Exception Ex)

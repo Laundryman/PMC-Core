@@ -1,27 +1,24 @@
-﻿using System.Configuration;
+﻿using dplo.Service;
 using dplo_shop.Models;
-using dplo.Service;
 using Microsoft.AspNetCore.Mvc;
+using System.Configuration;
 using Umbraco.Cms.Core;
-using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Services;
-using Umbraco.Cms.Core.Web;
-using Umbraco.Cms.Web.Common.Controllers;
 using Umbraco.Extensions;
 
-namespace CoreSystem.Controllers.shop
+namespace CoreSystem2024.Controllers.shop
 {
     public class UmbracoContentApiController : BaseApiController
     {
         private readonly IPublishedContentQuery _publishedContentQuery;
         private readonly IRelationService _relationService;
-        public UmbracoContentApiController(ICategoryService categoryService, 
-            ICatalogueService catalogueService, 
-            ICountryService countryService, 
-            IPlanogramService planogramService, 
-            IOrderService orderService, 
-            IStandService standService, 
-            IRelationService relationService, 
+        public UmbracoContentApiController(ICategoryService categoryService,
+            ICatalogueService catalogueService,
+            ICountryService countryService,
+            IPlanogramService planogramService,
+            IOrderService orderService,
+            IStandService standService,
+            IRelationService relationService,
             IPublishedContentQuery publishedContentQuery) : base(categoryService, catalogueService, countryService, planogramService, orderService, standService)
         {
             _relationService = relationService;

@@ -1,17 +1,17 @@
-﻿using System.Configuration;
-using CoreSystem.Helpers;
-using CoreSystem.Models.Shop;
+﻿using CoreSystem2024.Helpers;
+using CoreSystem2024.Models.Shop;
 using diam_planogram.Helpers;
 using diam_planogram.Models.Shop;
 using dplo.Domain;
 using dplo.Domain.Entities;
-using dplo_shop.Models;
 using dplo.Service;
+using dplo_shop.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Configuration;
 using HttpGetAttribute = System.Web.Http.HttpGetAttribute;
 
 
-namespace CoreSystem.Controllers.shop
+namespace CoreSystem2024.Controllers.shop
 {
     public class PartsApiController : BaseApiController
     {
@@ -19,7 +19,7 @@ namespace CoreSystem.Controllers.shop
         private const int DefaultPartTypeId = 1;
         private IStandService _standService;
         private ICategoryService _categoryService;
-        
+
 
         public PartsApiController(ICategoryService categoryService, ICatalogueService catalogueService, ICountryService countryService, IPlanogramService planogramService, IOrderService orderService, IStandService standService) : base(categoryService, catalogueService, countryService, planogramService, orderService, standService)
         {
@@ -57,7 +57,7 @@ namespace CoreSystem.Controllers.shop
 
             var model = new StandTypesModel
             {
-                StandTypes = standTypes.Select(x => new StandTypeModel {Id = x.StandTypeId, Name = x.Name}).ToList()
+                StandTypes = standTypes.Select(x => new StandTypeModel { Id = x.StandTypeId, Name = x.Name }).ToList()
             };
 
 
@@ -73,8 +73,8 @@ namespace CoreSystem.Controllers.shop
 
         public IActionResult GetParts(int? parentCategoryId = null, int? page = 1, int? pageSize = PageSize, int? standTypeId = null)
         {
-            
-            
+
+
             //var accessToken = AuthHelper.ReAuth(Authorization, WebServerClient);
 
             if (parentCategoryId == 0) parentCategoryId = null;
@@ -84,7 +84,7 @@ namespace CoreSystem.Controllers.shop
                 standTypeId = _standService.GetStandTypes(BrandId).FirstOrDefault()?.StandTypeId;
             }
 
-            var userId = Helpers.UserInfo.Id;;
+            var userId = Helpers.UserInfo.Id; ;
             //var country = _countryService.GetCountry(defaultCountryId);
             var pageTitle = "ALL PARTS";
 
@@ -101,7 +101,7 @@ namespace CoreSystem.Controllers.shop
                 null, parentCategoryId, null,
                 UserCountry.CountryId, null, standTypeId);
 
-                
+
 
 
 
@@ -117,8 +117,8 @@ namespace CoreSystem.Controllers.shop
                 standTypeId = standTypeId
             };
 
-            var response = new ApiResponseModel {data = model};
-            
+            var response = new ApiResponseModel { data = model };
+
             return Ok(response);
 
         }
@@ -130,7 +130,7 @@ namespace CoreSystem.Controllers.shop
         [Route("/api/partsapi/Search")]
         public IActionResult Search(string q = null, int? standTypeId = null)
         {
-            
+
 
             //var accessToken = AuthHelper.ReAuth(Authorization, WebServerClient);
 
@@ -139,7 +139,7 @@ namespace CoreSystem.Controllers.shop
                 return Ok(new ApiResponseModel { data = null });
             }
 
-            
+
             IEnumerable<PartInfo> parts;
 
             //if (RolesHelper.IsAdminUser(Helpers.UserInfo.Roles)) // admin - get all
@@ -180,8 +180,8 @@ namespace CoreSystem.Controllers.shop
 
             var model = new PartsListModel
             {
-               // categoryId = parentCategoryId,
-               // pageTitle = pageTitle,
+                // categoryId = parentCategoryId,
+                // pageTitle = pageTitle,
                 parts = partModels
             };
 

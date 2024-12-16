@@ -1,18 +1,18 @@
-﻿using System.Configuration;
-using System.Globalization;
+﻿using CoreSystem2024.Helpers;
+using CoreSystem2024.Models;
 using dplo.Service;
-using CoreSystem.Models;
-using CoreSystem.Helpers;
-using Newtonsoft.Json;
-using UserInfo = CoreSystem.Helpers.UserInfo;
-using dplo.Service.MSGraphUtils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
+using Newtonsoft.Json;
+using System.Globalization;
+using CoreSystem2024.CMSModelBuilderModels;
 using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
+using Umbraco.Cms.Web.Common.PublishedModels;
 
 
 namespace diam_planogram.Controllers
@@ -27,11 +27,18 @@ namespace diam_planogram.Controllers
         private readonly IOrderWindowService _orderWindowService;
         private readonly IPlanogramService _planogramService;
         private readonly ICountryService _countryService;
-        public HomeController(ILogger<RenderController> logger, ICompositeViewEngine compositeViewEngine, IUmbracoContextAccessor umbracoContextAccessor, IOrderWindowService orderWindowService, IPlanogramService planogramService, ICountryService countryService) : base(logger, compositeViewEngine, umbracoContextAccessor)
+        private IConfiguration _azureSettings;
+        private readonly IConfiguration Configuration;
+        private readonly IMemberManager _memberManager;
+
+        public HomeController(ILogger<RenderController> logger, ICompositeViewEngine compositeViewEngine, IUmbracoContextAccessor umbracoContextAccessor, IOrderWindowService orderWindowService, IPlanogramService planogramService, ICountryService countryService, IConfiguration azureSettings, IMemberManager memberManager) : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
             _orderWindowService = orderWindowService;
             _planogramService = planogramService;
             _countryService = countryService;
+            _azureSettings = azureSettings.GetSection("AzureB2C");
+            Configuration = azureSettings;
+            _memberManager = memberManager;
         }
 
         private static string RemoveQueryStringFromUri(string uri)
@@ -49,44 +56,46 @@ namespace diam_planogram.Controllers
 
 
 
-        public async Task<IActionResult> Home(ContentModel model)
+        public async Task<IActionResult> Home(Home model)
         {
-            try
-            {
-                var proxySupport = new ProxyApiSupport();
-                //// Retrieve the token with the specified scopes
-                var result = await proxySupport.AcquireTokenForScopes(new string[]
-                    { Globals.ReadTasksScope, Globals.WriteTasksScope });
-            }
-            catch (MsalUiRequiredException)
-            {
-                //var proxySupport = new ProxyApiSupport();
-                //var result = await proxySupport.AcquireTokenInteractive(new string[]
-                //    { Globals.ReadTasksScope, Globals.WriteTasksScope });
-                return new RedirectResult("/Welcome");
-            }
+            //try
+            //{
+            //    var proxySupport = new ProxyApiSupport(Configuration);
+            //    //// Retrieve the token with the specified scopes
+            //    var result = await proxySupport.AcquireTokenForScopes(new string[]
+            //        { _azureSettings["ReadScope"], _azureSettings["WriteScope"]});
+            //}
+            //catch (MsalUiRequiredException)
+            //{
+            //    //var proxySupport = new ProxyApiSupport();
+            //    //var result = await proxySupport.AcquireTokenInteractive(new string[]
+            //    //    { Globals.ReadTasksScope, Globals.WriteTasksScope });
+            //    return new RedirectResult("/Welcome");
+            //}
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             if (User.Identity.IsAuthenticated)
             {
                 var userClaims = User.Claims;
 
                 //we will create a custom model
-                var homeModel = new HomeModel(model.Content);
-                if (UserInfo.userViewModel != null)
+
+                if (userInfo.GivenName != null)
                 {
-                    homeModel.UserFirstName = UserInfo.GivenName;
-                    homeModel.UserLastName = UserInfo.Surname;
+                    model.UserFirstName = userInfo.GivenName;
+                    model.UserLastName = userInfo.Surname;
                 }
 
-                var brandId = ConfigurationManager.AppSettings["brand"];
+                var brandId = Configuration["AppSettings:ClientBrandId"];
 
-                homeModel.BrandId = int.Parse(brandId);
-                homeModel.ApiUrl = ConfigurationManager.AppSettings["apiURL"];
-                homeModel.CountryId = UserInfo.DiamCountryId;
-                var country = _countryService.GetCountry(UserInfo.DiamCountryId);
-                UserInfo.userViewModel.DiamCountryName = country.Name;
-                homeModel.CountryName = country.Name;
-                homeModel.CountryFlag = country.FlagFileName;
+                model.BrandId = int.Parse(brandId);
+                model.ApiUrl = Configuration["AppSettings:ApiURL"];
+                model.CountryId = userInfo.DiamCountryId;
+                var country = _countryService.GetCountry(userInfo.DiamCountryId);
+                userInfo.DiamCountryName = country.Name;
+                model.CountryName = country.Name;
+                model.CountryFlag = country.FlagFileName;
                 Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
 
 
@@ -96,52 +105,46 @@ namespace diam_planogram.Controllers
 
                 if (orderWindow != null)
                 {
-                    homeModel.OrderWindowOpening = orderWindow.StartDate.AsUtc().ToString("O");
-                    homeModel.OrderWindowClosing = orderWindow.EndDate.AsUtc().ToString("O");
+                    model.OrderWindowOpening = orderWindow.StartDate.AsUtc().ToString("O");
+                    model.OrderWindowClosing = orderWindow.EndDate.AsUtc().ToString("O");
                 }
 
                 var orderWindowCalendar = _orderWindowService.GetOrderWindowCalendar(int.Parse(brandId));
 
                 if (orderWindowCalendar != null && orderWindowCalendar.Any())
                 {
-                    homeModel.OrderWindowCalendar = JsonConvert.SerializeObject(orderWindowCalendar);
+                    model.OrderWindowCalendar = JsonConvert.SerializeObject(orderWindowCalendar);
                 }
 
-                return CurrentTemplate(homeModel);
+                return CurrentTemplate(model);
             }
-            else             {
+            else
+            {
                 Response.Redirect("/Welcome");
                 return null;
             }
         }
 
-        public IActionResult MihLandingPage(ContentModel model)
+        public async Task<IActionResult> MihLandingPage(ContentModel model)
         {
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
-            //if (Authorization == null || Authorization.AccessTokenExpirationUtc < DateTime.UtcNow)
+
+
+            ////we will create a custom model
+            //var model = new model(model.Content);
+            //if (userInfo != null)
             //{
-            //    //var accessToken = //AuthHelper.ReAuth(Authorization, client);
-            //    if (accessToken == null)
-            //    {
-            //        Response.Redirect("/welcome");
-            //        return null;
-            //    }
-
+            //    model.UserFirstName = userInfo.GivenName;
+            //    model.UserLastName = userInfo.Surname;
             //}
-
-            //we will create a custom model
-            var HomeModel = new HomeModel(model.Content);
-            if (UserInfo.userViewModel != null)
-            {
-                HomeModel.UserFirstName = UserInfo.GivenName;
-                HomeModel.UserLastName = UserInfo.Surname;
-            }
-            HomeModel.BrandId = int.Parse(ConfigurationManager.AppSettings["brand"]);
-            HomeModel.ApiUrl = ConfigurationManager.AppSettings["apiURL"];
+            //model.BrandId = int.Parse(Configuration["AppSettings:ClientBrandId"]);
+            //model.ApiUrl = Configuration["AppSettings:ApiURL"];
 
             //simply use the protected method CurrentTemplate<T>, this does all of the
             //above for you... must nicer.
-            return CurrentTemplate(HomeModel);
+            return CurrentTemplate(model);
         }
 
     }

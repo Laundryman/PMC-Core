@@ -1,15 +1,15 @@
-﻿using System.Configuration;
-using Dplo.ViewModels;
+﻿using AutoMapper;
+using CoreSystem2024.Helpers;
+using CoreSystem2024.Models;
 using dplo.Domain;
 using dplo.Service;
-using CoreSystem.Models;
-using CoreSystem.Helpers;
+using Dplo.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Umbraco.Cms.Web.Common.Controllers;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.Extensions.Logging;
+using System.Configuration;
 using Umbraco.Cms.Core.Web;
-using AutoMapper;
+using Umbraco.Cms.Web.Common.Controllers;
 
 namespace diam_planogram.Controllers
 {
@@ -27,8 +27,8 @@ namespace diam_planogram.Controllers
         private IMapper _mapper;
 
         public CatalogueController(
-            ILogger<RenderController> logger, 
-            ICompositeViewEngine compositeViewEngine, 
+            ILogger<RenderController> logger,
+            ICompositeViewEngine compositeViewEngine,
             IUmbracoContextAccessor umbracoContextAccessor,
             IStandService standService,
             IPlanogramService planogramService,
@@ -90,7 +90,7 @@ namespace diam_planogram.Controllers
             //TODO: we need to associate member with brands and with regions
 
             List<Country> countries = new List<Country>();
-            countries.Add(country); 
+            countries.Add(country);
 
             IEnumerable<Category> parentCats = _categoryService.GetParentCategories();
             List<int> notthese = new List<int>(new int[] { 8, 28, 37 }); //Non product bearing categories

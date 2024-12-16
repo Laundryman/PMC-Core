@@ -1,20 +1,14 @@
 ﻿using Dplo.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Web;
-using Dplo.ViewModels;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
+using Umbraco.Cms.Core.Security;
 
-namespace CoreSystem.Helpers
+namespace CoreSystem2024.Helpers
 {
     public class UserInfo
     {
         private static UserViewModel user;
-        public UserInfo(ClaimsPrincipal principal)
+        public UserInfo(MemberIdentityUser mUser)
         {
-             user = AuthHelper.GetUserInfo(principal);
+            user = AuthHelper.GetUserInfo(mUser);
         }
 
         public static UserViewModel userViewModel => user;

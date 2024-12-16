@@ -173,7 +173,7 @@ namespace CoreSystemII.Config
         {
             get
             {
-                return (bool) (this["EmailEnabled"]);
+                return (bool)(this["EmailEnabled"]);
             }
         }
     }

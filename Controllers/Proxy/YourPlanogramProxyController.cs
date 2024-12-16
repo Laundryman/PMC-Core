@@ -1,16 +1,14 @@
-﻿using CoreSystem.Helpers;
-using CoreSystem.HttpClientWrapper;
-using dplo.Domain.Entities;
+﻿using CoreSystem2024.Helpers;
+using CoreSystem2024.HttpClientWrapper;
 using dplo.Domain;
-using dplo.Service.MSGraphUtils;
+using dplo.Domain.Entities;
+using dplo.Service;
 using Dplo.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http.Headers;
-using System.Configuration;
-using UserInfo = CoreSystem.Helpers.UserInfo;
-using CoreSystem.Controllers;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using dplo.Service;
+using System.Net.Http.Headers;
+using UserInfo = CoreSystem2024.Helpers.UserInfo;
 
 namespace CoreSystemII.Controllers.Proxy
 {
@@ -19,20 +17,30 @@ namespace CoreSystemII.Controllers.Proxy
 
         private readonly ILogger<YourPlanogramProxyController> _logger;
         private ICountryService _countryService;
-        public YourPlanogramProxyController(ILogger<YourPlanogramProxyController> logger, ICountryService countryService)
+        private readonly IConfiguration Configuration;
+        private string domain;
+        private string brandId;
+        private string readScope;
+        private string writeScope;
+        public YourPlanogramProxyController(ILogger<YourPlanogramProxyController> logger, ICountryService countryService, IConfiguration configuration)
         {
             _logger = logger;
             _countryService = countryService;
+            Configuration = configuration;
+            domain = Configuration["AppSettings:ApiUrl"];
+            brandId = Configuration["AppSettings:ClientBrandId"];
+            readScope = Configuration["AzureB2C:ReadScope"];
+            writeScope = Configuration["AzureB2CWriteScope"];
+
+
         }
 
         #region remote api calls
 
         public async Task<IActionResult> LockPlanogramCall(int planogramId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
 
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var uriSuffix = "api/v2/planogram/lock/" + planogramId;
@@ -54,10 +62,10 @@ namespace CoreSystemII.Controllers.Proxy
         }
         public async Task<IActionResult> GetCommentsCountCall(int planogramId)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brandId = ConfigurationManager.AppSettings["brand"];
+
+
             //Confirm the authorization so we can call the api 
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var uriSuffix = "api/v2/planogram/getCommentCount/" + planogramId + "/" + brandId;
@@ -82,10 +90,10 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> CreateSkuList(int planogramId)
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brandId = ConfigurationManager.AppSettings["brand"];
+
+
             //Confirm the authorization so we can call the api 
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var isPowerUser = false;
             var isDiamUser = false;
@@ -112,10 +120,10 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> CreateJsonSkuList(int planogramId)
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brandId = ConfigurationManager.AppSettings["brand"];
+
+
             //Confirm the authorization so we can call the api 
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var isPowerUser = false;
             var isDiamUser = false;
@@ -143,10 +151,10 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> CreateCassetteList(int planogramId)
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brandId = ConfigurationManager.AppSettings["brand"];
 
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uriSuffix = "api/v2/planogram/get/casslist/" + planogramId;
 
@@ -172,10 +180,10 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> ArchivePlanogramCall(int planogramId, string jobNumber)
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brandId = ConfigurationManager.AppSettings["brand"];
 
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uriSuffix = "api/v2/planogram/archive/" + planogramId + "/" + jobNumber;
 
@@ -199,8 +207,8 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> GetArchivedPlanogramsByJobCodeCall(string jobCode, int countryId = 0, int regionId = 0, int standTypeId = 0)
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brandId = ConfigurationManager.AppSettings["brand"];
+
+
 
             var isPowerUser = false;
             var isDiamUser = false;
@@ -241,7 +249,7 @@ namespace CoreSystemII.Controllers.Proxy
 
             var uri = "api/v2/planogram/get/archived/jobcode/" + isPowerUser + "/" + jobCode + "/" + brandId + "/" + countryId + "/" + regionId + "/" + standTypeId + "/" + isDiamUser.ToString();
 
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var url = string.Format("{0}{1}", domain, uri);
@@ -267,8 +275,8 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> GetInProgress(int countryId = 0, int regionId = 0, int standTypeId = 0)
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brandId = ConfigurationManager.AppSettings["brand"];
+
+
             //Confirm the authorization so we can call the api 
             //var currentAuth = AuthHelper.GetAuth(HttpContext.Current.Request);
             //var accessToken = currentAuth.AccessToken;
@@ -306,7 +314,7 @@ namespace CoreSystemII.Controllers.Proxy
                 }
             }
 
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uriSuffix = "api/v2/planogram/get/inprogress/" + countryId + "/" + regionId + "/" + standTypeId + "/" + isDiamUser + "";
 
@@ -330,10 +338,10 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> GetJobNumbersCall()
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brandId = ConfigurationManager.AppSettings["brand"];
 
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uriSuffix = "api/v2/jobs/get/" + brandId;
 
@@ -357,8 +365,8 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> GetJobFoldersCall(int countryId = 0, int regionId = 0, int standTypeId = 0)
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brandId = ConfigurationManager.AppSettings["brand"];
+
+
             //Confirm the authorization so we can call the api 
             //var currentAuth = AuthHelper.GetAuth(HttpContext.Current.Request);
             //var accessToken = currentAuth.AccessToken;
@@ -394,7 +402,7 @@ namespace CoreSystemII.Controllers.Proxy
                 }
             }
 
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uriSuffix = "api/v2/jobFolders/get/" + brandId + "/" + countryId + "/" + regionId + "/" + standTypeId + "/" + isDiamUser;
 
@@ -418,9 +426,9 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> GetJobNumbersForFoldersCall(int jobFolderId)
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brandId = ConfigurationManager.AppSettings["brand"];
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
 
             var uri = "api/v2/jobNumbersForFolder/get/" + jobFolderId;
@@ -451,12 +459,9 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> GetTemplatesCall(int standId)
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
-
-            var uriSuffix = "api/v2/planogram/template/get/" + brand + "/" + standId;
+            var uriSuffix = "api/v2/planogram/template/get/" + brandId + "/" + standId;
 
             //maybe log something here
 
@@ -479,10 +484,7 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> ClonePlanogramCall(int planogramId, string planoName)
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
-
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uriSuffix = "api/v2/planogram/clone/" + planogramId + "/" + planoName;
 
@@ -506,10 +508,7 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> CreatePlanogramCall(int clusterId, string planoName)
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
-
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uriSuffix = "api/v2/planogram/create/" + clusterId + "/" + planoName;
 
@@ -533,12 +532,12 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> GetOpenOrderCall(int planogramId)
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brandId = ConfigurationManager.AppSettings["brand"];
+
+
 
             var uri = domain + "api/v2/order/getOpen/" + brandId + "/" + planogramId;
 
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uriSuffix = "api/v2/order/getOpen/" + brandId + "/" + planogramId;
 
@@ -562,10 +561,10 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> GetOpenOrdersCall(int planogramId)
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brandId = ConfigurationManager.AppSettings["brand"];
 
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+
+
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uriSuffix = "api/v2/order/getOpenOrders/" + brandId + "/" + planogramId;
 
@@ -592,14 +591,14 @@ namespace CoreSystemII.Controllers.Proxy
         public async Task<IActionResult> AddToOrderCall(int orderId, int planogramId, int quantity, bool isFullPlano)
         {
 
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
+
             //Confirm the authorization so we can call the api 
             //var currentAuth = AuthHelper.GetAuth(HttpContext.Current.Request);
             //var accessToken = currentAuth.AccessToken;
 
             var userId = UserInfo.Id; ;
 
-            var accessToken = await AuthHelper.GetAccessToken(new string[] { Globals.ReadTasksScope });
+            var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
 
             var uriSuffix = "api/v2/order/addToOrder/" + orderId + "/" + planogramId + "/" + quantity + "/" + userId + "/" + isFullPlano;
 

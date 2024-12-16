@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace diam_planogram.Models.Shop
+﻿namespace diam_planogram.Models.Shop
 {
     public class PartsListModel
     {

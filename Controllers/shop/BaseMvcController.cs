@@ -1,28 +1,20 @@
-﻿using System.Configuration;
-using System.Net;
-using System.Security.Claims;
-using CoreSystem.Helpers;
+﻿using CoreSystem2024.Helpers;
 using dplo.Domain;
 using dplo.Service;
-using dplo.Service.MSGraphUtils;
-using Dplo.ViewModels;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using System.Configuration;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
 
-namespace CoreSystem.Controllers.shop
+namespace CoreSystem2024.Controllers.shop
 {
     public class BaseMvcController : RenderController
     {
         //private readonly JsonMediaTypeFormatter _jsonMediaTypeFormatter;
 
         //protected static WebServerClient WebServerClient = AuthHelper.CreateClient();
-        protected UserViewModel UserInfo => AuthHelper.GetUserInfo(HttpContext.User);
+        //protected UserViewModel UserInfo => AuthHelper.GetUserInfo(HttpContext.User);
 
         //protected static IAuthorizationState Authorization => (AuthorizationState)AuthHelper.GetAuth(HttpContext.Current.Request);
 
@@ -64,8 +56,8 @@ namespace CoreSystem.Controllers.shop
 
         #endregion
         public BaseMvcController(
-            ILogger<RenderController> logger, 
-            ICompositeViewEngine compositeViewEngine, 
+            ILogger<RenderController> logger,
+            ICompositeViewEngine compositeViewEngine,
             IUmbracoContextAccessor umbracoContextAccessor,
             ICountryService countryService)
             : base(logger, compositeViewEngine, umbracoContextAccessor)
@@ -77,25 +69,25 @@ namespace CoreSystem.Controllers.shop
 
 
 
-        protected async Task<string> GetAccessToken(string[] scopes)
-        {
-            //we need to re-auth using the reauth process
-            string accessToken = null;
+        //protected async Task<string> GetAccessToken(string[] scopes)
+        //{
+        //    //we need to re-auth using the reauth process
+        //    string accessToken = null;
 
-            // Retrieve the token with the specified scopes
-            AuthenticationResult result = await AcquireTokenForScopes(new string[] { Globals.WriteTasksScope });
-            accessToken = result.AccessToken;
+        //    // Retrieve the token with the specified scopes
+        //    AuthenticationResult result = await AcquireTokenForScopes(new string[] { Globals.WriteTasksScope });
+        //    accessToken = result.AccessToken;
 
-            return accessToken;
+        //    return accessToken;
 
-        }
-        protected async Task<AuthenticationResult> AcquireTokenForScopes(string[] scopes)
-        {
-            IConfidentialClientApplication cca = MsalAppBuilder.BuildConfidentialClientApplication();
-            string accountId = ClaimsPrincipal.Current.GetB2CMsalAccountIdentifier(Globals.SignInPolicyId);
-            var account = await cca.GetAccountAsync(accountId);
-            return await cca.AcquireTokenSilent(scopes, account).ExecuteAsync();
-        }
+        //}
+        //protected async Task<AuthenticationResult> AcquireTokenForScopes(string[] scopes)
+        //{
+        //    IConfidentialClientApplication cca = MsalAppBuilder.BuildConfidentialClientApplication();
+        //    string accountId = ClaimsPrincipal.Current.GetB2CMsalAccountIdentifier(Globals.SignInPolicyId);
+        //    var account = await cca.GetAccountAsync(accountId);
+        //    return await cca.AcquireTokenSilent(scopes, account).ExecuteAsync();
+        //}
     }
 }
 

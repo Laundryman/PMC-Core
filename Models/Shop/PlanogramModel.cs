@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using dplo.Domain.Entities;
+﻿using dplo.Domain.Entities;
 
 namespace DiamShopSolution.Models.Shop
 {
