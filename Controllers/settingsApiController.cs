@@ -1,12 +1,16 @@
-﻿using dplo.Domain;
+﻿//using System.Web.Http;
+using dplo.Domain;
 using dplo.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Umbraco.Cms.Web.Common.Controllers;
+using Umbraco.Cms.Web.Common.Filters;
 
 namespace diam_planogram.Controllers
 {
-    public class SettingsApiController : UmbracoApiController
+    [UmbracoMemberAuthorize]
+    [ApiController]
+    public class SettingsApiController : Controller
     {
 
         #region Services, managers
@@ -14,9 +18,16 @@ namespace diam_planogram.Controllers
         public ICatalogueService _catalogueService;
         public ICountryService _countryService;
 
+        public SettingsApiController(ICatalogueService catalogueService, ICountryService countryService)
+        {
+            _catalogueService = catalogueService;
+            _countryService = countryService;
+        }
+
         #endregion
         #region Countries
-
+        [HttpGet]
+        [Route("/Api/settingsapi/getCountryList")]
         public IEnumerable<SelectListItem> GetCountryList(int regionId)
         {
 
@@ -31,6 +42,8 @@ namespace diam_planogram.Controllers
 
         }
 
+        [HttpPost]
+        [Route("/Api/settingsapi/getPartList")]
         public IEnumerable<SelectListItem> GetPartList(int brandId, int categoryId, int standTypeId, [FromQuery] string[] countries)
         {
 

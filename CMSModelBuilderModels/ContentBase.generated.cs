@@ -31,6 +31,11 @@ namespace CoreSystem2024.CMSModelBuilderModels
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		string PageTitle { get; }
+
+		/// <summary>Section Image</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		global::Umbraco.Cms.Core.Models.MediaWithCrops SectionImage { get; }
 	}
 
 	/// <summary>Content Base</summary>
@@ -89,5 +94,18 @@ namespace CoreSystem2024.CMSModelBuilderModels
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
 		[return: global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		public static string GetPageTitle(IContentBase that, IPublishedValueFallback publishedValueFallback) => that.Value<string>(publishedValueFallback, "pageTitle");
+
+		///<summary>
+		/// Section Image
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("sectionImage")]
+		public virtual global::Umbraco.Cms.Core.Models.MediaWithCrops SectionImage => GetSectionImage(this, _publishedValueFallback);
+
+		/// <summary>Static getter for Section Image</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
+		[return: global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		public static global::Umbraco.Cms.Core.Models.MediaWithCrops GetSectionImage(IContentBase that, IPublishedValueFallback publishedValueFallback) => that.Value<global::Umbraco.Cms.Core.Models.MediaWithCrops>(publishedValueFallback, "sectionImage");
 	}
 }

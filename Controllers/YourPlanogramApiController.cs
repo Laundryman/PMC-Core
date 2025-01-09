@@ -1,16 +1,19 @@
 ﻿using CoreSystem2024.Controllers.shop;
 using CoreSystem2024.Helpers;
 using CoreSystem2024.Models;
-using CoreSystemII.Controllers.Proxy;
 using dplo.Domain.Entities;
 using dplo.Service;
 using Dplo.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System.Web;
-using UserInfo = CoreSystem2024.Helpers.UserInfo;
+using CoreSystem2024.ProxyServices;
+using Microsoft.Extensions.Configuration;
+using Umbraco.Cms.Core.Security;
+using CoreSystemII.Config;
+using Umbraco.Cms.Core;
+using System.Text.Json;
 
 namespace CoreSystem2024.Controllers
 {
@@ -19,18 +22,32 @@ namespace CoreSystem2024.Controllers
     {
         //private static readonly ILog _logger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private readonly ILogger<YourPlanogramApiController> _logger;
-        private YourPlanogramProxyController proxyApi;
+        //private YourPlanogramProxyController _proxyApi = new ProxiApi();
 
         #region Services, managers
 
         private ICountryService _countryService;
+        private IYourPlanogramProxyApiService _proxyApi;
+        private readonly IConfiguration _config;
+        private readonly IMemberManager _memberManager;
+        private readonly EmailHelper _emailHelper;
+
         #endregion
 
         #region LocalApiCalls
 
-        public YourPlanogramApiController(ICategoryService categoryService, ICatalogueService catalogueService, ICountryService countryService, IPlanogramService planogramService, IOrderService orderService, IStandService standService) : base(categoryService, catalogueService, countryService, planogramService, orderService, standService)
+
+
+        public YourPlanogramApiController(ICategoryService categoryService, ICatalogueService catalogueService, ICountryService countryService, 
+            IPlanogramService planogramService, IOrderService orderService, 
+            IStandService standService, IYourPlanogramProxyApiService proxyApi, IMemberManager memberManager, IConfiguration config, EmailHelper emailHelper, ILogger<YourPlanogramApiController> logger) : base(config)
         {
             _countryService = countryService;
+            _proxyApi = proxyApi;
+            _memberManager = memberManager;
+            _config = config;
+            _emailHelper = emailHelper;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -41,7 +58,7 @@ namespace CoreSystem2024.Controllers
             //var accessToken = //AuthHelper.ReAuth(Authorization, client);
 
 
-            var response = await proxyApi.LockPlanogramCall(planogramId);
+            var response = await _proxyApi.LockPlanogramCall(planogramId);
 
             if (response is OkResult)
             {
@@ -55,6 +72,78 @@ namespace CoreSystem2024.Controllers
         }
 
 
+        [HttpPost]
+        [Route("/Api/YourPlanogramApi/RenamePlanogram")]
+        public async Task<IActionResult> RenamePlanogram([FromBody] PlanogramUpdate data)
+        {
+            //we need to re-auth using the reauth process
+            //var accessToken = //AuthHelper.ReAuth(Authorization, client);
+
+            try
+            {
+                var response = await _proxyApi.RenamePlanogramCall(data);
+                return Ok(response);
+            }
+            catch (Exception ex) {
+    
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("/Api/YourPlanogramApi/GetStandTypes")]
+        public async Task<IActionResult> GetStandTypes(int brandId)
+        {
+            try
+            {
+                var response = await _proxyApi.GetStandTypesCall(brandId);
+
+                return Ok(response);
+            }
+
+            catch
+            {
+                return BadRequest(brandId);
+            }
+        }
+
+        [HttpGet]
+        [Route("/Api/YourPlanogramApi/GetRegions")]
+        public async Task<IActionResult> GetRegions(int brandId)
+        {
+            //we need to re-auth using the reauth process
+            //var accessToken = //AuthHelper.ReAuth(Authorization, client);
+
+
+            try {
+                var response = await _proxyApi.GetRegionsCall(brandId);
+                return Ok(response);
+            }
+            catch
+            {
+                return BadRequest(brandId);
+            }
+        }
+
+        [HttpGet]
+        [Route("/Api/YourPlanogramApi/GetCountriesByRegion")]
+        public async Task<IActionResult> GetCountriesByRegion(int regionId)
+        {
+            //we need to re-auth using the reauth process
+            //var accessToken = //AuthHelper.ReAuth(Authorization, client);
+
+            try {
+                var response = await _proxyApi.GetCountriesByRegionCall(regionId);
+
+                return Ok(response);
+
+            }
+            catch
+            {
+                return BadRequest(regionId);
+            }
+        }
+
         [HttpGet]
         [Route("/Api/YourPlanogramApi/GetCommentCount")]
         public async Task<IActionResult> GetCommentsCount(int planogramId)
@@ -62,50 +151,18 @@ namespace CoreSystem2024.Controllers
             //we need to re-auth using the reauth process
             //var accessToken = //AuthHelper.ReAuth(Authorization, client);
 
-
-            var response = await proxyApi.GetCommentsCountCall(planogramId);
-            if (response is OkResult)
-            {
-                var result = response as OkObjectResult;
-                return Ok(result.Value);
+            try {
+                var response = await _proxyApi.GetCommentsCountCall(planogramId);
+                return Ok(response);
 
             }
-            else
+            catch
             {
                 return BadRequest(planogramId);
             }
         }
 
 
-        [HttpGet]
-        [Route("/Api/YourPlanogramApi/GetYourInProgress")]
-        public async Task<IActionResult> GetYourInProgress(int standTypeId)
-        {
-            //we need to re-auth using the reauth process
-            //var accessToken = //AuthHelper.ReAuth(Authorization, client);
-
-
-            var response = await proxyApi.GetInProgress();
-
-            //Get the json data from the result
-            //IEnumerable<SelectListItem> stands = new IEnumerable<SelectListItem>();
-            var stands = new List<SelectListItem>();
-
-
-
-            if (response is OkResult)
-            {
-                var result = response as OkObjectResult;
-                stands = (List<SelectListItem>)result.Value;
-
-            }
-            else
-            {
-                return BadRequest();
-            }
-
-            return Ok(stands);
-        }
 
         /// <summary>
         /// Gets the job numbers for the brand
@@ -118,24 +175,18 @@ namespace CoreSystem2024.Controllers
             //we need to re-auth using the reauth process
             //var accessToken = //AuthHelper.ReAuth(Authorization, client);
 
-
-            var response = await proxyApi.GetJobNumbersCall();
-
-            //Get the json data from the result
-            var jobs = new List<JobViewModel>();
-            //var response =
-            if (response is OkResult)
+            try
             {
-                var result = response as OkObjectResult;
-                var jobsJson = result.Value.ToString();
-                jobs = JsonConvert.DeserializeObject<List<JobViewModel>>(jobsJson);
+                var response = await _proxyApi.GetJobNumbersCall();
+
+                return Ok(response);
             }
-            else
+            catch
+
             {
                 //Something has gone wrong, handle it here
                 return BadRequest();
             }
-            return Ok(jobs);
 
         }
 
@@ -145,34 +196,24 @@ namespace CoreSystem2024.Controllers
         /// <returns>JobViewModel List</returns>
         [HttpPost]
         [Route("/Api/YourPlanogramApi/GetJobFolders")]
-        public async Task<IActionResult> GetJobFolders([FromBody] GetArchivedPlanoParams data)
+        public async Task<IActionResult> GetJobFolders([FromBody] GetPlanoParams data)
         {
-            //we need to re-auth using the reauth process
-            //var accessToken = //AuthHelper.ReAuth(Authorization, client);
-
-
-            var response = await proxyApi.GetJobFoldersCall(data.CountryId, data.RegionId, data.StandTypeId);
-            //Get the json data from the result
-            var jobs = new List<JobFolderViewModel>();
-            //var response =
-            if (response is OkResult)
+            try
             {
-                var result = response as OkObjectResult;
-                var jobsJson = result.Value.ToString();
-                jobs = JsonConvert.DeserializeObject<List<JobFolderViewModel>>(jobsJson);
+                var response = await _proxyApi.GetJobFoldersCall(data.CountryId, data.RegionId, data.StandTypeId);
+                //Get the json data from the result
 
-                if (jobs.Any())
+                if (response.Any())
                 {
-                    jobs = jobs.OrderBy(j => j.Name).ToList();
+                    response = response.OrderBy(j => j.Name).ToList();
                 }
+
+                return Ok(response);
             }
-            else
+            catch
             {
-                //Something has gone wrong, handle it here
                 return BadRequest();
             }
-            return Ok(jobs);
-
         }
 
         [HttpGet]
@@ -181,25 +222,16 @@ namespace CoreSystem2024.Controllers
         {
             //we need to re-auth using the reauth process
             //var accessToken = //AuthHelper.ReAuth(Authorization, client);
+            try {
 
-
-            var response = await proxyApi.GetJobNumbersForFoldersCall(jobFolderId);
-
-            //Get the json data from the result
-            var jobs = new List<JobViewModel>();
-            //var response =
-            if (response is OkResult)
-            {
-                var result = response as OkObjectResult;
-                var jobsJson = result.Value.ToString();
-                jobs = JsonConvert.DeserializeObject<List<JobViewModel>>(jobsJson);
+            var response = await _proxyApi.GetJobNumbersForFoldersCall(jobFolderId);
+                return Ok(response);
             }
-            else
+            catch
             {
                 //Something has gone wrong, handle it here
                 return BadRequest();
             }
-            return Ok(jobs);
 
         }
 
@@ -211,51 +243,176 @@ namespace CoreSystem2024.Controllers
         /// <param name="jobNumber"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("/Api/YourPlanogramApi/GetArchivedPlanogramsByJobCode")]
-        public async Task<IActionResult> GetArchivedPlanogramsByJobCode([FromBody] GetArchivedPlanoParams data)
+        [Route("/Api/YourPlanogramApi/GetPlanograms")]
+        public async Task<IActionResult> GetPlanograms([FromBody] GetPlanoParams data)
         {
-            //we need to re-auth using the reauth process
-            //var accessToken = //AuthHelper.ReAuth(Authorization, client);
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            RolesHelper.Initialize(_config);
 
-
-            IActionResult response;
+            IEnumerable<PlanogramInfo> response;
             try
             {
-                if (RolesHelper.IsAdministrator(UserInfo.Roles) || (RolesHelper.IsValidator(UserInfo.Roles))
-                    || (RolesHelper.IsApprover(UserInfo.Roles)))
+                PlanaogramStatusEnum status = (PlanaogramStatusEnum)data.Status;
+                if (RolesHelper.IsAdministrator(userInfo.Roles) || (RolesHelper.IsValidator(userInfo.Roles))
+                    || (RolesHelper.IsApprover(userInfo.Roles)))
                 {
-                    if (RolesHelper.IsSuperUser(UserInfo.Roles))
+                    if (RolesHelper.IsSuperUser(userInfo.Roles))
                     {
-                        response = await proxyApi.GetArchivedPlanogramsByJobCodeCall(data.JobCode, _countryService.GetCountry(UserInfo.DiamCountryId).CountryId, data.RegionId, data.StandTypeId);
+                        response = await _proxyApi.GetPlanogramsCall(status, _countryService.GetCountry(userInfo.DiamCountryId).CountryId, data.RegionId, data.StandTypeId);
                     }
                     else
                     {
-                        response = await proxyApi.GetArchivedPlanogramsByJobCodeCall(data.JobCode, data.CountryId, data.RegionId, data.StandTypeId);
+                        response = await _proxyApi.GetPlanogramsCall(status, data.CountryId, data.RegionId, data.StandTypeId);
                     }
                 }
                 else
                 {
-                    response = await proxyApi.GetArchivedPlanogramsByJobCodeCall(data.JobCode, _countryService.GetCountry(UserInfo.DiamCountryId).CountryId, data.RegionId, data.StandTypeId);
+                    response = await _proxyApi.GetArchivedPlanogramsByJobCodeCall(data.JobCode, _countryService.GetCountry(userInfo.DiamCountryId).CountryId, data.RegionId, data.StandTypeId);
                 }
-                //Get the json data from the result
-                var planos = new List<PlanogramInfo>();
-                if (response is OkResult)
-                {
-                    var result = response as OkObjectResult;
-                    var planosJson = result.Value.ToString();
-                    planos = JsonConvert.DeserializeObject<List<PlanogramInfo>>(planosJson);
-                    return Ok(planos);
 
-                }
-                else
-                {
-                    return BadRequest();
-                }
+                    return Ok(response);
+
+
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        /// <summary>
+        /// Archives a planogram
+        /// </summary>
+        /// <param name="planogramId"></param>
+        /// <param name="jobNumber"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("/Api/YourPlanogramApi/GetArchivedPlanogramsByJobCode")]
+        public async Task<IActionResult> GetArchivedPlanogramsByJobCode([FromBody] GetPlanoParams data)
+        {
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+
+
+            IEnumerable<PlanogramInfo> response;
+            try
+            {
+                if (RolesHelper.IsAdministrator(userInfo.Roles) || (RolesHelper.IsValidator(userInfo.Roles))
+                    || (RolesHelper.IsApprover(userInfo.Roles)))
+                {
+                    if (RolesHelper.IsSuperUser(userInfo.Roles))
+                    {
+                        response = await _proxyApi.GetArchivedPlanogramsByJobCodeCall(data.JobCode, _countryService.GetCountry(userInfo.DiamCountryId).CountryId, data.RegionId, data.StandTypeId);
+                    }
+                    else
+                    {
+                        response = await _proxyApi.GetArchivedPlanogramsByJobCodeCall(data.JobCode, data.CountryId, data.RegionId, data.StandTypeId);
+                    }
+                }
+                else
+                {
+                    response = await _proxyApi.GetArchivedPlanogramsByJobCodeCall(data.JobCode, _countryService.GetCountry(userInfo.DiamCountryId).CountryId, data.RegionId, data.StandTypeId);
+                }
+
+                    return Ok(response);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        /// <summary>
+        /// Submits a planogram
+        /// </summary>
+        /// <param name="planogramId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("/Api/YourPlanogramApi/SubmitPlanogram/")]
+        public async Task<IActionResult> SubmitPlanogram(int planogramId)
+        {
+            //we need to re-auth using the reauth process
+            //var accessToken = //AuthHelper.ReAuth(Authorization, client);
+            try {
+
+            var response = await _proxyApi.SubmitPlanogramCall(planogramId);
+
+                ///////////////
+                //if we get an ok we need to save an entry in the audit tracking table - used to use the Logger for this - but maybe not anymore
+                /// We Also need to send an email
+                /// ////////////
+                //var planogram = await _proxyApi.GetPlanogramCall(planogramId);
+                SendSubmittedEmail(planogramId, _config);
+                return Ok(planogramId);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+
+        /// <summary>
+        /// Approves a planogram to approved
+        /// </summary>
+        /// <param name="planogramId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("/Api/YourPlanogramApi/ApprovePlanogram/")]
+        public async Task<IActionResult> ApprovePlanogram(int planogramId)
+        {
+            //we need to re-auth using the reauth process
+            //var accessToken = //AuthHelper.ReAuth(Authorization, client);
+            try
+            {
+
+                var response = await _proxyApi.ApprovePlanogramCall(planogramId);
+
+                ///////////////
+                //if we get an ok we need to save an entry in the audit tracking table - used to use the Logger for this - but maybe not anymore
+                /// We Also need to send an email
+                /// ////////////
+                //var planogram = await _proxyApi.GetPlanogramCall(planogramId);
+                return Ok(planogramId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+        /// <summary>
+        /// Rejects a planogram from approved to submitted
+        /// </summary>
+        /// <param name="planogramId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("/Api/YourPlanogramApi/RejectPlanogram/")]
+        public async Task<IActionResult> RejectPlanogram(int planogramId)
+        {
+            //we need to re-auth using the reauth process
+            //var accessToken = //AuthHelper.ReAuth(Authorization, client);
+            try
+            {
+
+                var response = await _proxyApi.ApprovePlanogramCall(planogramId);
+
+                ///////////////
+                //if we get an ok we need to save an entry in the audit tracking table - used to use the Logger for this - but maybe not anymore
+                /// We Also need to send an email
+                /// ////////////
+                return Ok(planogramId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
         }
 
 
@@ -273,7 +430,7 @@ namespace CoreSystem2024.Controllers
             //var accessToken = //AuthHelper.ReAuth(Authorization, client);
 
 
-            var response = await proxyApi.ArchivePlanogramCall(data.PlanogramId, data.JobNumber);
+            var response = await _proxyApi.ArchivePlanogramCall(data.PlanogramId, data.JobNumber);
 
             //Get the result
             if (response is OkResult)
@@ -299,35 +456,18 @@ namespace CoreSystem2024.Controllers
                 var filePath = "";
                 if (data.ReportType == (int)ReportTypes.SkuList)
                 {
-                    var response = await proxyApi.CreateSkuList(data.PlanogramId);
+                    var response = await _proxyApi.CreateSkuList(data.PlanogramId);
 
-                    if (response is OkResult)
-                    {
-                        var result = response as OkObjectResult;
-                        var fileJson = result.Value.ToString();
-                        filePath = fileJson;
-                    }
-                    else
-                    {
-                        //Something has gone wrong, handle it here
-                    }
+                    return Ok(response);
 
                 }
 
                 if (data.ReportType == (int)ReportTypes.CassetteList)
                 {
-                    var response = await proxyApi.CreateCassetteList(data.PlanogramId);
+                    var response = await _proxyApi.CreateCassetteList(data.PlanogramId);
 
-                    if (response is OkResult)
-                    {
-                        var result = response as OkObjectResult;
-                        var fileJson = result;
-                        filePath = fileJson.Value.ToString();
-                    }
-                    else
-                    {
-                        //Something has gone wrong, handle it here
-                    }
+                        var fileJson = response;
+                        filePath = fileJson.ToString();
 
                 }
                 return Ok(filePath);
@@ -354,31 +494,20 @@ namespace CoreSystem2024.Controllers
             {
                 _logger.LogDebug("Calling CreateSkuList");
 
-                var response = await proxyApi.CreateSkuList(planogramId);
+                var response = await _proxyApi.CreateSkuList(planogramId);
 
-                //Get the json data from the result
-                //var result = "";
-                //var response =
-                if (response is OkResult)
-                {
-                    var result = response as OkObjectResult;
-                    var fileJson = result.Value;
+                    var fileJson = response;
                     //result = fileJson;
                     return Ok(HttpUtility.UrlEncode(fileJson.ToString()));
-                }
-                else
-                {
-                    var result = response as BadRequestObjectResult;
-                    _logger.LogDebug("response from CreateSkuList = " + result.Value);
-
-                    //Something has gone wrong, handle it here
-                    throw new Exception("failed to get the skulist");
-                }
 
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                _logger.LogDebug("response from CreateSkuList = " + ex.Message);
+
+                //Something has gone wrong, handle it here
+                throw new Exception("failed to get the skulist");
+
             }
         }
         [HttpGet]
@@ -389,23 +518,18 @@ namespace CoreSystem2024.Controllers
             {
                 _logger.LogDebug("Calling CreateSkuList with planogramId " + planogramId.ToString());
 
-                var response = await proxyApi.CreateJsonSkuList(planogramId);
-
-                if (response is OkResult)
+                var response = await _proxyApi.CreateJsonSkuList(planogramId);
+                //IEnumerable<SkuList> SkuList = response;
+                if (response != null)
                 {
-                    var result = response as OkObjectResult;
-                    var json = result;
-                    return Ok(HttpUtility.UrlEncode(json.Value.ToString()));
+                    var skuList = response.ToList();
+                    var json = JsonSerializer.Serialize(skuList);
+                    return Ok(HttpUtility.UrlEncode(json.ToString()));
                 }
                 else
                 {
-                    var result = response as BadRequestObjectResult;
-                    _logger.LogError("response from CreateSkuList = " + result.Value.ToString());
-
-                    //Something has gone wrong, handle it here
-                    throw new Exception("failed to get the skulist");
+                    return BadRequest("Nothing found");
                 }
-
             }
             catch (Exception ex)
             {
@@ -420,32 +544,21 @@ namespace CoreSystem2024.Controllers
         [Route("/Api/YourPlanogramApi/GetOpenOrder")]
         public async Task<IActionResult> GetOpenOrder(int planogramId)
         {
-            //we need to re-auth using the reauth process
-            //var accessToken = //AuthHelper.ReAuth(Authorization, client);
-
-            var response = await proxyApi.GetOpenOrderCall(planogramId);
-
-            Order order;
-
-            if (response is OkResult)
+            try
             {
-                var result = response as OkObjectResult;
-                if (result != null)
-                {
-                    var responseJson = result.Value.ToString();
-                    order = JsonConvert.DeserializeObject<Order>(responseJson);
-                }
-                else
-                {
-                    return BadRequest();
-                }
+                var response = await _proxyApi.GetOpenOrderCall(planogramId);
+
+                Order order;
+
+                var responseJson = response.ToString();
+                order = JsonSerializer.Deserialize<Order>(responseJson);
+
+                return Ok(order);
             }
-            else
+            catch
             {
                 return BadRequest();
             }
-
-            return Ok(order);
 
         }
 
@@ -453,33 +566,17 @@ namespace CoreSystem2024.Controllers
         [Route("/Api/YourPlanogramApi/GetOpenOrders")]
         public async Task<IActionResult> GetOpenOrders(int planogramId)
         {
-            //we need to re-auth using the reauth process
-            //var accessToken = //AuthHelper.ReAuth(Authorization, client);
 
-            var response = await proxyApi.GetOpenOrdersCall(planogramId);
-
-            List<Order> orders;
-
-            if (response is OkResult)
-            {
-                var result = response as OkObjectResult;
-                if (result != null)
-                {
-                    var responseJson = result.Value.ToString();
-                    orders = JsonConvert.DeserializeObject<List<Order>>(responseJson);
-                }
-                else
-                {
-                    return BadRequest();
-                }
-
+            try {
+                var response = await _proxyApi.GetOpenOrdersCall(planogramId);
+                List<Order> orders;
+                orders = response.ToList();
+                return Ok(orders);
             }
-            else
+            catch
             {
-                return response;
+                return BadRequest();
             }
-
-            return Ok(orders);
 
         }
 
@@ -488,15 +585,13 @@ namespace CoreSystem2024.Controllers
         [Route("/Api/YourPlanogramApi/AddToOrder")]
         public async Task<IActionResult> AddToOrder(AddToOrder model)
         {
-            var response = await proxyApi.AddToOrderCall(model.OrderId, model.PlanogramId, model.Quantity, model.IsFullPlano);
-
-            if (response is OkResult)
-            {
+            try {
+                var response = await _proxyApi.AddToOrderCall(model.OrderId, model.PlanogramId, model.Quantity, model.IsFullPlano);
                 return Ok();
             }
-            else
+            catch
             {
-                return response;
+                return BadRequest();
             }
         }
 
@@ -504,608 +599,41 @@ namespace CoreSystem2024.Controllers
 
         #endregion
 
-
-        //#region remote api calls
-
-        //private async Task<IActionResult> LockPlanogramCall(int planogramId)
-        //{
-        //    string domain = ConfigurationManager.AppSettings["apiUrl"];
-        //    string brand = ConfigurationManager.AppSettings["brand"];
-
-        //    var accessToken = await proxyApi.GetAccessToken(new string[] { Globals.ReadTasksScope });
-
-
-        //    var uriSuffix = "api/v2/planogram/lock/" + planogramId;
-
-
-        //    using (SecureHttpClient<string> httpClient = new SecureHttpClient<string>(domain, uriSuffix))
-        //    {
-        //        try
-        //        {
-        //            var result = await proxyApi.httpClient.Get(accessToken);
-        //            return Ok(result);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            return BadRequest(ex.Message);
-        //        }
-        //    }
-
-        //}
-        //private async Task<IActionResult> GetCommentsCountCall(int planogramId)
-        //{
-        //    string domain = ConfigurationManager.AppSettings["apiUrl"];
-        //    string brandId = ConfigurationManager.AppSettings["brand"];
-        //    //Confirm the authorization so we can call the api 
-        //    var accessToken = await proxyApi.GetAccessToken(new string[] { Globals.ReadTasksScope });
-
-
-        //    var uriSuffix = "api/v2/planogram/getCommentCount/" + planogramId + "/" + brandId ;
-
-
-        //    using (SecureHttpClient<int> httpClient = new SecureHttpClient<int>(domain, uriSuffix))
-        //    {
-        //        try
-        //        {
-        //            var result = await proxyApi.httpClient.Get(accessToken);
-        //            return Ok(result);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            return BadRequest(ex.Message);
-        //        }
-        //    }
-
-
-        //}
-
-        //private async Task<IActionResult> CreateSkuList(int planogramId)
-        //{
-
-        //    string domain = ConfigurationManager.AppSettings["apiUrl"];
-        //    string brandId = ConfigurationManager.AppSettings["brand"];
-        //    //Confirm the authorization so we can call the api 
-        //    var accessToken = await proxyApi.GetAccessToken(new string[] { Globals.ReadTasksScope });
-
-        //    var isPowerUser = false;
-        //    var isDiamUser = false;
-
-        //    var uriSuffix = "api/v2/planogram/get/skulist/" + planogramId ;
-
-        //    //maybe log something here
-
-        //    using (SecureHttpClient<string> httpClient = new SecureHttpClient<string>(domain, uriSuffix ))
-        //    {
-        //        try
-        //        {
-        //            var result = await proxyApi.httpClient.Get(accessToken);
-        //            return Ok(result);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //           return BadRequest(ex.Message);
-        //        }
-        //    }
-
-        //}
-
-        //private async Task<IActionResult> CreateJsonSkuList(int planogramId)
-        //{
-
-        //    string domain = ConfigurationManager.AppSettings["apiUrl"];
-        //    string brandId = ConfigurationManager.AppSettings["brand"];
-        //    //Confirm the authorization so we can call the api 
-        //    var accessToken = await proxyApi.GetAccessToken(new string[] { Globals.ReadTasksScope });
-
-        //    var isPowerUser = false;
-        //    var isDiamUser = false;
-
-        //    var uriSuffix = "api/v2/planogram/get/jsonskulist/" + planogramId;
-        //    _logger.LogDebug("making api call with url " + uriSuffix);
-        //    //maybe log something here
-
-        //    using (SecureHttpClient<IEnumerable<SkuList>> httpClient = new SecureHttpClient<IEnumerable<SkuList>>(domain, uriSuffix))
-        //    {
-        //        try
-        //        {
-        //            var result = await proxyApi.httpClient.Get(accessToken);
-        //            return Ok(result);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            _logger.LogDebug("error calling dssapi from createjsonskulist " + ex.Message);
-        //            return BadRequest(ex.Message);
-        //        }
-        //    }
-
-        //}
-
-        //private async Task<IActionResult> CreateCassetteList(int planogramId)
-        //{
-
-        //    string domain = ConfigurationManager.AppSettings["apiUrl"];
-        //    string brandId = ConfigurationManager.AppSettings["brand"];
-
-        //    var accessToken = await proxyApi.GetAccessToken(new string[] { Globals.ReadTasksScope });
-
-        //    var uriSuffix = "api/v2/planogram/get/casslist/" + planogramId;
-
-        //    //maybe log something here
-
-        //    using (SecureHttpClient<string> httpClient = new SecureHttpClient<string>(domain, uriSuffix))
-        //    {
-        //        try
-        //        {
-        //            var result = await proxyApi.httpClient.Get(accessToken);
-        //            return Ok(result);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            return BadRequest(ex.Message);
-        //        }
-        //    }
-
-
-        //}
-
-
-        //private async Task<IActionResult> ArchivePlanogramCall(int planogramId, string jobNumber)
-        //{
-
-        //    string domain = ConfigurationManager.AppSettings["apiUrl"];
-        //    string brandId = ConfigurationManager.AppSettings["brand"];
-
-        //    var accessToken = await proxyApi.GetAccessToken(new string[] { Globals.ReadTasksScope });
-
-        //    var uriSuffix = "api/v2/planogram/archive/" + planogramId + "/" + jobNumber;
-
-        //    //maybe log something here
-
-        //    using (SecureHttpClient<string> httpClient = new SecureHttpClient<string>(domain, uriSuffix))
-        //    {
-        //        try
-        //        {
-        //            var result = await proxyApi.httpClient.Get(accessToken);
-        //            return Ok(result);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            return BadRequest(ex.Message);
-        //        }
-        //    }
-
-        //}
-
-        //private async Task<IActionResult> GetArchivedPlanogramsByJobCodeCall(string jobCode, int countryId = 0, int regionId = 0, int standTypeId = 0)
-        //{
-
-        //    string domain = ConfigurationManager.AppSettings["apiUrl"];
-        //    string brandId = ConfigurationManager.AppSettings["brand"];
-
-        //    var isPowerUser = false;
-        //    var isDiamUser = false;
-
-        //    if (RolesHelper.IsAdministrator(UserInfo.Roles))
-        //    {
-        //        isDiamUser = true;
-        //        isPowerUser = true;
-        //        //planograms = planogramService.GetInProgressPlanograms(0, BrandId, countryFilter, regionFilter, standTypeFilter, true);
-
-        //    }
-        //    else if (RolesHelper.IsValidator(UserInfo.Roles))
-        //    {
-        //        isPowerUser = true;
-        //        //planograms = planogramService.GetInProgressPlanograms(0, BrandId, UserCountry.CountryId, 0, standTypeFilter, false);
-        //        if (countryId == 0)
-        //        {
-        //            Country country = _countryService.GetCountry(UserInfo.DiamCountryId);
-
-        //        }
-        //    }
-        //    else if (RolesHelper.IsApprover(UserInfo.Roles))
-        //    {
-        //        isPowerUser = true;
-
-        //    }
-        //    else
-        //    {
-        //        //planograms = planogramService.GetInProgressPlanograms(0, BrandId, UserCountry.CountryId, 0, standTypeFilter, false);
-        //        if (countryId == 0)
-        //        {
-        //            //need to make this a non local call - either api - or get the ID from the userInfo
-        //            Country country = _countryService.GetCountry(UserInfo.DiamCountryId);
-
-        //        }
-        //    }
-
-
-        //    var uri = "api/v2/planogram/get/archived/jobcode/" + isPowerUser + "/" + jobCode + "/" + brandId + "/" + countryId + "/" + regionId + "/" + standTypeId + "/" + isDiamUser.ToString() ;
-
-        //    var accessToken = await proxyApi.GetAccessToken(new string[] { Globals.ReadTasksScope });
-
-
-        //    var url = string.Format("{0}{1}", domain, uri);
-
-        //    using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
-        //    {
-        //        using (HttpClient httpClient = new HttpClient())
-        //        {
-        //            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        //            var response = await proxyApi.httpClient.SendAsync(request);
-
-        //            var StatusText = response.StatusCode + " " + response.ReasonPhrase + Environment.NewLine;
-        //            var responseBodyAsText = await proxyApi.response.Content.ReadAsStringAsync();
-        //            responseBodyAsText = responseBodyAsText.Replace("<br>", Environment.NewLine); // Insert new lines
-        //            _logger.LogDebug("response from GetPlanogramsByJobCode = " + responseBodyAsText + " :: " + StatusText);
-
-        //            return Ok(response);
-        //        }
-        //    }
-
-        //}
-
-        //private async Task<IActionResult> GetInProgress(int countryId =0, int regionId = 0, int standTypeId = 0)
-        //{
-
-        //    string domain = ConfigurationManager.AppSettings["apiUrl"];
-        //    string brandId = ConfigurationManager.AppSettings["brand"];
-        //    //Confirm the authorization so we can call the api 
-        //    //var currentAuth = AuthHelper.GetAuth(HttpContext.Current.Request);
-        //    //var accessToken = currentAuth.AccessToken;
-        //    //var country = CountryService.GetCountry(UserInfo.DiamCountryId);
-
-        //    var isDiamUser = false;
-
-        //    if (RolesHelper.IsAdministrator(UserInfo.Roles))
-        //    {
-        //        isDiamUser = true;
-        //        //planograms = planogramService.GetInProgressPlanograms(0, BrandId, countryFilter, regionFilter, standTypeFilter, true);
-
-        //    }
-        //    else if (RolesHelper.IsValidator(UserInfo.Roles))
-        //    {
-        //        //planograms = planogramService.GetInProgressPlanograms(0, BrandId, UserCountry.CountryId, 0, standTypeFilter, false);
-        //        if (countryId == 0)
-        //        {
-        //            Country country = _countryService.GetCountry(UserInfo.DiamCountryId);
-
-        //        }
-        //    }
-        //    else if (RolesHelper.IsApprover(UserInfo.Roles))
-        //    {
-
-        //    }
-        //    else
-        //    {
-        //        //planograms = planogramService.GetInProgressPlanograms(0, BrandId, UserCountry.CountryId, 0, standTypeFilter, false);
-        //        if (countryId == 0)
-        //        {
-        //            //need to make this a non local call - either api - or get the ID from the userInfo
-        //            Country country = _countryService.GetCountry(UserInfo.DiamCountryId);
-
-        //        }
-        //    }
-
-        //    var accessToken = await proxyApi.GetAccessToken(new string[] { Globals.ReadTasksScope });
-
-        //    var uriSuffix = "api/v2/planogram/get/inprogress/" + countryId + "/" + regionId + "/" + standTypeId + "/" + isDiamUser + "";
-
-        //    //maybe log something here
-
-        //    using (SecureHttpClient<IEnumerable<PlanogramInfo>> httpClient = new SecureHttpClient<IEnumerable<PlanogramInfo>>(domain, uriSuffix))
-        //    {
-        //        try
-        //        {
-        //            var result = await proxyApi.httpClient.Get(accessToken);
-        //            return Ok(result);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            return BadRequest(ex.Message);
-        //        }
-        //    }
-
-        //}
-
-        //private async Task<IActionResult> GetJobNumbersCall()
-        //{
-
-        //    string domain = ConfigurationManager.AppSettings["apiUrl"];
-        //    string brandId = ConfigurationManager.AppSettings["brand"];
-
-        //    var accessToken = await proxyApi.GetAccessToken(new string[] { Globals.ReadTasksScope });
-
-        //    var uriSuffix = "api/v2/jobs/get/" + brandId;
-
-        //    //maybe log something here
-
-        //    using (SecureHttpClient<IEnumerable<JobViewModel>> httpClient = new SecureHttpClient<IEnumerable<JobViewModel>>(domain, uriSuffix))
-        //    {
-        //        try
-        //        {
-        //            var result = await proxyApi.httpClient.Get(accessToken);
-        //            return Ok(result);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            return BadRequest(ex.Message);
-        //        }
-        //    }
-
-        //}
-
-        //private async Task<IActionResult> GetJobFoldersCall(int countryId = 0, int regionId = 0, int standTypeId = 0)
-        //{
-
-        //    string domain = ConfigurationManager.AppSettings["apiUrl"];
-        //    string brandId = ConfigurationManager.AppSettings["brand"];
-        //    //Confirm the authorization so we can call the api 
-        //    //var currentAuth = AuthHelper.GetAuth(HttpContext.Current.Request);
-        //    //var accessToken = currentAuth.AccessToken;
-
-        //    var isPowerUser = false;
-        //    var isDiamUser = false;
-
-        //    if (RolesHelper.IsAdministrator(UserInfo.Roles))
-        //    {
-        //        isDiamUser = true;
-        //        isPowerUser = true;
-        //    }
-        //    else if (RolesHelper.IsValidator(UserInfo.Roles))
-        //    {
-        //        isPowerUser = true;
-        //        if (countryId == 0)
-        //        {
-        //            Country country = _countryService.GetCountry(UserInfo.DiamCountryId);
-
-        //        }
-        //    }
-        //    else if (RolesHelper.IsApprover(UserInfo.Roles))
-        //    {
-        //        isPowerUser = true;
-        //    }
-        //    else
-        //    {
-        //        if (countryId == 0)
-        //        {
-        //            //need to make this a non local call - either api - or get the ID from the userInfo
-        //            Country country = _countryService.GetCountry(UserInfo.DiamCountryId);
-
-        //        }
-        //    }
-
-        //    var accessToken = await proxyApi.GetAccessToken(new string[] { Globals.ReadTasksScope });
-
-        //    var uriSuffix = "api/v2/jobFolders/get/" + brandId + "/" + countryId + "/" + regionId + "/" + standTypeId + "/" + isDiamUser;
-
-        //    //maybe log something here
-
-        //    using (SecureHttpClient<IEnumerable<JobFolderViewModel>> httpClient = new SecureHttpClient<IEnumerable<JobFolderViewModel>>(domain, uriSuffix))
-        //    {
-        //        try
-        //        {
-        //            var result = await proxyApi.httpClient.Get(accessToken);
-        //            return Ok(result);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            return BadRequest(ex.Message);
-        //        }
-        //    }
-
-        //}
-
-        //private async Task<IActionResult> GetJobNumbersForFoldersCall(int jobFolderId)
-        //{
-
-        //    string domain = ConfigurationManager.AppSettings["apiUrl"];
-        //    string brandId = ConfigurationManager.AppSettings["brand"];
-        //    var accessToken = await proxyApi.GetAccessToken(new string[] { Globals.ReadTasksScope });
-
-
-        //    var uri = "api/v2/jobNumbersForFolder/get/" + jobFolderId ;
-        //    var url = string.Format("{0}{1}", domain, uri);
-        //    //maybe log something here
-
-        //    using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
-        //    {
-        //        //request.Content = content;
-        //        using (HttpClient httpClient = new HttpClient())
-        //        {
-        //            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        //            var response = await proxyApi.httpClient.SendAsync(request);
-
-        //            var StatusText = response.StatusCode + " " + response.ReasonPhrase + Environment.NewLine;
-        //            var responseBodyAsText = await proxyApi.response.Content.ReadAsStringAsync();
-        //            responseBodyAsText = responseBodyAsText.Replace("<br>", Environment.NewLine); // Insert new lines
-        //            _logger.LogDebug("response from GetJobNumbersForFolder = " + responseBodyAsText + " :: " + StatusText);
-
-        //            return Ok(response);
-        //        }
-        //    }
-
-        //}
-
-
-
-        //private async Task<IActionResult> GetTemplatesCall(int standId)
-        //{
-
-        //    string domain = ConfigurationManager.AppSettings["apiUrl"];
-        //    string brand = ConfigurationManager.AppSettings["brand"];
-
-        //    var accessToken = await proxyApi.GetAccessToken(new string[] { Globals.ReadTasksScope });
-
-        //    var uriSuffix = "api/v2/planogram/template/get/" + brand + "/" + standId;
-
-        //    //maybe log something here
-
-        //    using (SecureHttpClient<IEnumerable<PlanogramClusterModel>> httpClient = new SecureHttpClient<IEnumerable<PlanogramClusterModel>>(domain, uriSuffix))
-        //    {
-        //        try
-        //        {
-        //            var result = await proxyApi.httpClient.Get(accessToken);
-        //            return Ok(result);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            return BadRequest(ex.Message);
-        //        }
-        //    }
-
-        //}
-
-
-        //private async Task<IActionResult> ClonePlanogramCall(int planogramId, string planoName)
-        //{
-
-        //    string domain = ConfigurationManager.AppSettings["apiUrl"];
-        //    string brand = ConfigurationManager.AppSettings["brand"];
-
-        //    var accessToken = await proxyApi.GetAccessToken(new string[] { Globals.ReadTasksScope });
-
-        //    var uriSuffix = "api/v2/planogram/clone/" + planogramId + "/" + planoName;
-
-        //    //maybe log something here
-
-        //    using (SecureHttpClient<int> httpClient = new SecureHttpClient<int>(domain, uriSuffix))
-        //    {
-        //        try
-        //        {
-        //            var result = await proxyApi.httpClient.Get(accessToken);
-        //            return Ok(result);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            return BadRequest(ex.Message);
-        //        }
-        //    }
-
-        //}
-
-        //private async Task<IActionResult> CreatePlanogramCall(int clusterId, string planoName)
-        //{
-
-        //    string domain = ConfigurationManager.AppSettings["apiUrl"];
-        //    string brand = ConfigurationManager.AppSettings["brand"];
-
-        //    var accessToken = await proxyApi.GetAccessToken(new string[] { Globals.ReadTasksScope });
-
-        //    var uriSuffix = "api/v2/planogram/create/" + clusterId + "/" + planoName;
-
-        //    //maybe log something here
-
-        //    using (SecureHttpClient<int> httpClient = new SecureHttpClient<int>(domain, uriSuffix))
-        //    {
-        //        try
-        //        {
-        //            var result = await proxyApi.httpClient.Get(accessToken);
-        //            return Ok(result);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            return BadRequest(ex.Message);
-        //        }
-        //    }
-
-        //}
-
-        //private async Task<IActionResult> GetOpenOrderCall(int planogramId)
-        //{
-
-        //    string domain = ConfigurationManager.AppSettings["apiUrl"];
-        //    string brandId = ConfigurationManager.AppSettings["brand"];
-
-        //    var uri = domain + "api/v2/order/getOpen/" + brandId + "/" + planogramId ;
-
-        //    var accessToken = await proxyApi.GetAccessToken(new string[] { Globals.ReadTasksScope });
-
-        //    var uriSuffix = "api/v2/order/getOpen/" + brandId + "/" + planogramId;
-
-        //    //maybe log something here
-
-        //    using (SecureHttpClient<Order> httpClient = new SecureHttpClient<Order>(domain, uriSuffix))
-        //    {
-        //        try
-        //        {
-        //            var result = await proxyApi.httpClient.Get(accessToken);
-        //            return Ok(result);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            return BadRequest(ex.Message);
-        //        }
-        //    }
-
-        //}
-
-        //private async Task<IActionResult> GetOpenOrdersCall(int planogramId)
-        //{
-
-        //    string domain = ConfigurationManager.AppSettings["apiUrl"];
-        //    string brandId = ConfigurationManager.AppSettings["brand"];
-
-        //    var accessToken = await proxyApi.GetAccessToken(new string[] { Globals.ReadTasksScope });
-
-        //    var uriSuffix = "api/v2/order/getOpenOrders/" + brandId + "/" + planogramId;
-
-        //    //maybe log something here
-
-        //    using (SecureHttpClient<IEnumerable<Order>> httpClient = new SecureHttpClient<IEnumerable<Order>>(domain, uriSuffix))
-        //    {
-        //        try
-        //        {
-        //            var result = await proxyApi.httpClient.Get(accessToken);
-        //            return Ok(result);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            return BadRequest(ex.Message);
-        //        }
-        //    }
-
-        //}
-
-
-
-
-        //private async Task<IActionResult> AddToOrderCall(int orderId, int planogramId, int quantity, bool isFullPlano)
-        //{
-
-        //    string domain = ConfigurationManager.AppSettings["apiUrl"];
-        //    //Confirm the authorization so we can call the api 
-        //    //var currentAuth = AuthHelper.GetAuth(HttpContext.Current.Request);
-        //    //var accessToken = currentAuth.AccessToken;
-
-        //    var userId = UserInfo.Id;;
-
-        //    var accessToken = await proxyApi.GetAccessToken(new string[] { Globals.ReadTasksScope });
-
-        //    var uriSuffix = "api/v2/order/addToOrder/" + orderId + "/" + planogramId + "/" + quantity + "/" + userId + "/" + isFullPlano;
-
-        //    //maybe log something here
-
-        //    using (SecureHttpClient<string> httpClient = new SecureHttpClient<string>(domain, uriSuffix))
-        //    {
-        //        try
-        //        {
-        //            var result = await proxyApi.httpClient.Get(accessToken);
-        //            return Ok(result);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            return BadRequest(ex.Message);
-        //        }
-        //    }
-
-        //}
-
-
-
-
-        //#endregion
-
         #region helper functions
+
+        private async Task SendSubmittedEmail(int planogramId, IConfiguration config)
+        {
+
+            if (config["EmailSettings:EmailEnabled"] == "true")
+            {
+                try
+                {
+
+                    var email = new Email()
+                    {
+                        BccList = config["EmailSettings:BCCList"],
+                        DateSent = DateTime.Now,
+                        EmailTrigger = (int)EmailTrigger.PlanogramSubmitted,
+                        FromAddress = config["EmailSettings:FromAddress"],
+                        PlanogramId = planogramId,
+                        ToAddress = config["EmailSettings:ToAddress"],
+                        RecipientName = config["EmailSettings:RecipientName"],
+                        //UserId = UserInfo.Id,
+                        EmailEnabled = config["EmailSettings:EmailEnabled"] == "true",
+                        EmailSubject = "Planogram Submitted"
+                    };
+                    var response = await _emailHelper.PlanogramSubmittedEmail(email);
+
+                }
+                catch (Exception ex)
+                {
+                    //SystemLog.DebugFormat("asyncSendMail exception " + ex.ToString());
+                    _logger.LogError("planogram submitted email exception " + ex.Message);
+                }
+                //}
+            }
+        }
+
         #endregion
     }
 }

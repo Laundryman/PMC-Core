@@ -1,28 +1,24 @@
 ﻿using dplo.Service;
 using dplo_shop.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Configuration;
+using Microsoft.Extensions.Configuration;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Extensions;
+using ConfigurationManager = System.Configuration.ConfigurationManager;
 
 namespace CoreSystem2024.Controllers.shop
 {
     public class UmbracoContentApiController : BaseApiController
     {
         private readonly IPublishedContentQuery _publishedContentQuery;
-        private readonly IRelationService _relationService;
-        public UmbracoContentApiController(ICategoryService categoryService,
-            ICatalogueService catalogueService,
-            ICountryService countryService,
-            IPlanogramService planogramService,
-            IOrderService orderService,
-            IStandService standService,
-            IRelationService relationService,
-            IPublishedContentQuery publishedContentQuery) : base(categoryService, catalogueService, countryService, planogramService, orderService, standService)
+        private readonly IConfiguration _config;
+
+        public UmbracoContentApiController(
+            IPublishedContentQuery publishedContentQuery, IConfiguration config) : base(config)
         {
-            _relationService = relationService;
             _publishedContentQuery = publishedContentQuery;
+            _config = config;
         }
 
         [System.Web.Http.HttpGet]

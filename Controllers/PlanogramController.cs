@@ -1,84 +1,93 @@
-﻿using CoreSystem2024.Models;
+﻿using AutoMapper;
+using CoreSystem2024.Controllers.shop;
+using CoreSystem2024.Helpers;
+using CoreSystem2024.Models;
 using dplo.Domain.Entities;
 using dplo.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Configuration;
+using Dplo.ViewModels;
+using Microsoft.Extensions.Configuration;
+using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Web.Common.Controllers;
+using ConfigurationManager = System.Configuration.ConfigurationManager;
 using UserInfo = CoreSystem2024.Helpers.UserInfo;
 
-
+/// NEED TO MOVE THI CALLS TO THE API VIA PROXY
 namespace diam_planogram.Controllers
 {
     [Authorize]
-    public class PlanogramController : UmbracoApiController
+    public class PlanogramController : BaseApiController
     {
 
         #region constructor
-        private IStandService _standService;
+
         private IPlanogramService _planogramService;
-        private ICatalogueService _catalogueService;
         private ICountryService _countryService;
-        private ICategoryService _categoryService;
-        private IProductService _productService;
+        private readonly IMemberManager _memberManager;
+        private IConfiguration _config;
+        private readonly IMapper _mapper;
 
 
-        public PlanogramController(
-            IStandService standService,
-            IPlanogramService planogramService,
-            ICatalogueService catalogueService,
-            ICountryService countryService,
-            ICategoryService categoryService,
-            IProductService productService
-            )
+        public PlanogramController(ICountryService countryService, IPlanogramService planogramService, IMemberManager memberManager, IConfiguration config, IMapper mapper) : base(config)
         {
-            _standService = standService;
             _planogramService = planogramService;
-            _catalogueService = catalogueService;
             _countryService = countryService;
-            _categoryService = categoryService;
-            _productService = productService;
+            _memberManager = memberManager;
+            _config = config;
+            _mapper = mapper;
         }
         #endregion
 
-        public PlanogramNotesModel GetPlanogramNotes(int planogramId)
+        [HttpGet]
+        [Route("/Api/Planogram/GetPlanogramNotes")]
+        public async Task<PlanogramNotesModel> GetPlanogramNotes(int planogramId)
         {
+
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+
+            //var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
             //we will create a custom model
             var planogramNotesModel = new PlanogramNotesModel();
-            planogramNotesModel.BrandId = int.Parse(ConfigurationManager.AppSettings["brand"]);
-            var country = _countryService.GetCountry(UserInfo.DiamCountryId);
+            planogramNotesModel.BrandId = int.Parse(_config["AppSettings:ClientBrandId"] ?? "0");
+            var country = _countryService.GetCountry(userInfo.DiamCountryId);
 
             //We're not using the country and region here: but we need to think about how we might regarding users.
-            var notes = _planogramService.GetPlanogramNotes(UserInfo.Id, planogramNotesModel.BrandId, country.CountryId, default(int), planogramId).ToList();
-            List<PNotesViewModel> pComments = new List<PNotesViewModel>();
+            var notes = _planogramService.GetPlanogramNotes(userInfo.Id, planogramNotesModel.BrandId, country.CountryId, default(int), planogramId).ToList();
+            //List<PNotesViewModel> pComments = new List<PNotesViewModel>();
 
             notes.Sort((x, y) => DateTime.Compare(y.NoteDate, x.NoteDate));
-            foreach (PlanogramNote note in notes)
-            {
-                PNotesViewModel inReplyTo;
+            //foreach (PlanogramNote note in notes)
+            //{
+            //    PNotesViewModel inReplyTo;
 
-                PNotesViewModel newPv = (PNotesViewModel)note;
-                var repliedNoteID = note.NoteInReplyTo ?? default(long);
-                //if we have a replied to id then use it
-                if (repliedNoteID != 0)
-                {
-                    inReplyTo = (PNotesViewModel)_planogramService.GetNote(repliedNoteID);
-                    newPv.InReplyTo = inReplyTo;
-                }
-                pComments.Add(newPv);
+            //    PNotesViewModel newPv = (PNotesViewModel)note;
+            //    var repliedNoteID = note.NoteInReplyTo ?? default(long);
+            //    //if we have a replied to id then use it
+            //    if (repliedNoteID != 0)
+            //    {
+            //        inReplyTo = (PNotesViewModel)_planogramService.GetNote(repliedNoteID);
+            //        newPv.InReplyTo = inReplyTo;
+            //        pComments.Add(newPv);
+            //    }
+            var pComments = _mapper.Map<List<PNotesViewModel>>(notes);
 
+            //}
 
-            }
-
-            planogramNotesModel.ApiUrl = ConfigurationManager.AppSettings["apiURL"];
+            planogramNotesModel.ApiUrl = _config["AppSettings:ApiIdentifier"] ?? String.Empty;
             planogramNotesModel.Notes = pComments;
             return planogramNotesModel;
 
         }
 
-        public IActionResult AddPlanogramNote([FromBody] NewNoteModel note)
+        [HttpPost]
+        [Route("/Api/Planogram/AddPlanogramNote")]
+        public async Task<IActionResult> AddPlanogramNote([FromBody] NewNoteModel note)
         {
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
             var planogramId = note.PlanogramId;
 
             try
@@ -87,9 +96,9 @@ namespace diam_planogram.Controllers
                 newPNote.Note = note.Note;
                 newPNote.PlanogramId = note.PlanogramId;
                 newPNote.NoteDate = DateTime.Now;
-                newPNote.UserId = UserInfo.Id; ;
-                newPNote.UserName = UserInfo.UserName;
-                newPNote.NoteTitle = UserInfo.UserName +
+                newPNote.UserId = userInfo.Id; ;
+                newPNote.UserName = userInfo.UserName;
+                newPNote.NoteTitle = userInfo.UserName +
                                      String.Format("{0:d/M/yyyy HH:mm:ss}", newPNote.NoteDate);
                 _planogramService.CreatePlanogramNote(newPNote);
                 return Ok("Saved");
@@ -100,9 +109,12 @@ namespace diam_planogram.Controllers
             }
 
         }
-
-        public IActionResult ReplyPlanogramNote([FromBody] NewNoteModel note)
+        [HttpPost]
+        [Route("/Api/Planogram/ReplyPlanogramNote")]
+        public async Task<IActionResult> ReplyPlanogramNote([FromBody] NewNoteModel note)
         {
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
             var planogramId = note.PlanogramId;
             var noteId = note.ReplyNoteId;
             var inReplyTo = _planogramService.GetNote(noteId);
@@ -114,8 +126,8 @@ namespace diam_planogram.Controllers
                 newPNote.NoteDate = DateTime.Now;
                 newPNote.NoteInReplyTo = noteId;
                 newPNote.InReplyTo = inReplyTo;
-                newPNote.UserId = UserInfo.Id; ;
-                newPNote.NoteTitle = UserInfo.UserName +
+                newPNote.UserId = userInfo.Id; ;
+                newPNote.NoteTitle = userInfo.UserName +
                                      String.Format("{0:d/M/yyyy HH:mm:ss}", newPNote.NoteDate);
                 _planogramService.CreatePlanogramNote(newPNote);
                 return Ok("Saved");
@@ -126,13 +138,17 @@ namespace diam_planogram.Controllers
             }
 
         }
-
-        public IActionResult DuplicatePlanogram([FromBody] DupPlanoModel dupPlano)
+        [HttpPost]
+        [Route("/Api/Planogram/DuplicatePlanogram")]
+        public async Task<IActionResult> DuplicatePlanogram([FromBody] DupPlanoModel dupPlano)
         {
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            UserViewModel userInfo = AuthHelper.GetUserInfo(memberIdentity);
+
             Planogram planogram = _planogramService.GetPlanogram(dupPlano.PlanogramId);
             if (dupPlano.NewPlanoName != planogram.Name)
             {
-                _planogramService.ClonePlanogram(planogram.PlanogramId, dupPlano.NewPlanoName, UserInfo.userViewModel, dupPlano.IsUpdate);
+                _planogramService.ClonePlanogram(planogram.PlanogramId, dupPlano.NewPlanoName, userInfo, dupPlano.IsUpdate);
             }
 
             return Ok("Saved");

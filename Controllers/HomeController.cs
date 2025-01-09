@@ -28,7 +28,7 @@ namespace diam_planogram.Controllers
         private readonly IPlanogramService _planogramService;
         private readonly ICountryService _countryService;
         private IConfiguration _azureSettings;
-        private readonly IConfiguration Configuration;
+        private readonly IConfiguration _config;
         private readonly IMemberManager _memberManager;
 
         public HomeController(ILogger<RenderController> logger, ICompositeViewEngine compositeViewEngine, IUmbracoContextAccessor umbracoContextAccessor, IOrderWindowService orderWindowService, IPlanogramService planogramService, ICountryService countryService, IConfiguration azureSettings, IMemberManager memberManager) : base(logger, compositeViewEngine, umbracoContextAccessor)
@@ -37,7 +37,7 @@ namespace diam_planogram.Controllers
             _planogramService = planogramService;
             _countryService = countryService;
             _azureSettings = azureSettings.GetSection("AzureB2C");
-            Configuration = azureSettings;
+            _config = azureSettings;
             _memberManager = memberManager;
         }
 
@@ -73,6 +73,7 @@ namespace diam_planogram.Controllers
             //    return new RedirectResult("/Welcome");
             //}
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var logins = _memberManager.GetLoginsAsync(memberIdentity);
             var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             if (User.Identity.IsAuthenticated)
@@ -87,10 +88,11 @@ namespace diam_planogram.Controllers
                     model.UserLastName = userInfo.Surname;
                 }
 
-                var brandId = Configuration["AppSettings:ClientBrandId"];
+                var brandId = _config["AppSettings:ClientBrandId"];
 
                 model.BrandId = int.Parse(brandId);
-                model.ApiUrl = Configuration["AppSettings:ApiURL"];
+                model.ApiUrl = _config["AppSettings:ApiURL"];
+                model.ShopUrl = _config["AppSettings:ShopURL"];
                 model.CountryId = userInfo.DiamCountryId;
                 var country = _countryService.GetCountry(userInfo.DiamCountryId);
                 userInfo.DiamCountryName = country.Name;
@@ -105,8 +107,8 @@ namespace diam_planogram.Controllers
 
                 if (orderWindow != null)
                 {
-                    model.OrderWindowOpening = orderWindow.StartDate.AsUtc().ToString("O");
-                    model.OrderWindowClosing = orderWindow.EndDate.AsUtc().ToString("O");
+                    model.OrderWindowOpening = orderWindow.StartDate;
+                    model.OrderWindowClosing = orderWindow.EndDate;
                 }
 
                 var orderWindowCalendar = _orderWindowService.GetOrderWindowCalendar(int.Parse(brandId));

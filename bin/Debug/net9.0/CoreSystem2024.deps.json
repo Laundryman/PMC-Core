@@ -4045,7 +4045,7 @@
         "runtime": {
           "dplo.Domain.dll": {
             "assemblyVersion": "1.0.0",
-            "fileVersion": "2.1.9113.27816"
+            "fileVersion": "2.1.9137.29606"
           }
         },
         "compile": {
@@ -4062,7 +4062,7 @@
         "runtime": {
           "dplo.Helpers.dll": {
             "assemblyVersion": "1.0.0",
-            "fileVersion": "2.1.9113.27817"
+            "fileVersion": "2.1.9139.22960"
           }
         },
         "compile": {
@@ -4078,7 +4078,7 @@
         "runtime": {
           "dplo.Service.dll": {
             "assemblyVersion": "1.0.0",
-            "fileVersion": "2.1.9113.27816"
+            "fileVersion": "2.1.9139.22960"
           }
         },
         "compile": {

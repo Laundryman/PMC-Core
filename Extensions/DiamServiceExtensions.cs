@@ -1,9 +1,14 @@
-﻿using dplo.Data;
+﻿using AutoMapper;
+using CoreSystem2024.AutoMapper;
+using CoreSystem2024.Helpers;
+using CoreSystem2024.ProxyServices;
+using dplo.Data;
 using dplo.Data.Infrastructure;
 using dplo.Service;
 using Microsoft.Extensions.DependencyInjection;
 using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Security;
+using Umbraco.Cms.Core.Services;
 
 namespace CoreSystem2024.Extensions
 {
@@ -11,6 +16,7 @@ namespace CoreSystem2024.Extensions
     {
         public static IUmbracoBuilder AddDiamServices(this IUmbracoBuilder builder)
         {
+            builder.Services.AddAutoMapper(typeof(DiamClientProfile));
             builder.Services.AddTransient<ICategoryService, CategoryService>();
             builder.Services.AddTransient<ICatalogueService, CatalogueService>();
             builder.Services.AddTransient<ICountryService, CountryService>();
@@ -24,6 +30,10 @@ namespace CoreSystem2024.Extensions
             builder.Services.AddTransient<IRegionService, RegionService>();
             builder.Services.AddTransient<IStandService, StandService>();
             builder.Services.AddScoped<IMemberManager, DiamMemberManager>();
+            builder.Services.AddScoped<IYourPlanogramProxyApiService, YourPlanogramProxyApiService>();
+            builder.Services.AddScoped<IPlanxProxyApiService, PlanxProxyApiService>();
+            builder.Services.AddScoped<ICreatePlanogramProxyService, CreatePlanogramProxyApiService>();
+            builder.Services.AddScoped<EmailHelper>();
             return builder;
         }
 

@@ -14,6 +14,7 @@ namespace CoreSystem2024.Models
         public String NoteDate { get; set; }
         public Int64? NoteInReplyTo { get; set; }
         public string NoteTitle { get; set; }
+
         public int PlanogramId { get; set; }
 
         //public virtual ICollection<PNotesViewModel> RelatedNotes { get; set; }

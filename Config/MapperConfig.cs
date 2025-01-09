@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CoreSystem2024.Models;
 using dplo.Domain;
 using dplo.Domain.Entities;
 using Dplo.ViewModels;
@@ -18,6 +19,7 @@ public class MapperConfig
             cfg.CreateMap<Brand, BrandViewModel>();
             cfg.CreateMap<Country, CountryViewModel>();
             cfg.CreateMap<Category, CategoryModel>();
+            cfg.CreateMap<PlanogramNote, PNotesViewModel>();
             //Any Other Mapping Configuration ....
         });
         ////Create an Instance of Mapper and return that Instance

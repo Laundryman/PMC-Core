@@ -82,7 +82,7 @@ namespace CoreSystem2024.CMSModelBuilderModels
 		public virtual string Givenname => this.Value<string>(_publishedValueFallback, "givenname");
 
 		///<summary>
-		/// Id: http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier
+		/// AzureB2CId: http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]

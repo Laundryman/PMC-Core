@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -19,6 +19,7 @@
     <Compile Remove="Controllers\AzureAccountController.cs" />
     <Compile Remove="Controllers\EditSectionPlanogramApiController.cs" />
     <Compile Remove="Controllers\LogoutController.cs" />
+    <Compile Remove="DI\diExtensions.cs" />
     <Compile Remove="Helpers\ControllerExtensions.cs" />
     <Compile Remove="Helpers\DictionaryExensions.cs" />
     <Compile Remove="Helpers\LogHelper.cs" />
@@ -59,5 +60,8 @@
 
   <ItemGroup>
     <Folder Include="CMSModelBuilderModels\" />
+    <Folder Include="Controllers\Proxy\" />
+    <Folder Include="DI\" />
+    <Folder Include="UmbracoBuilderExtensions\" />
   </ItemGroup>
 </Project>

@@ -130,15 +130,15 @@ namespace CoreSystem2024.Helpers
                 var userInfo = new UserViewModel();
                 userInfo.GivenName = user.Claims.FirstOrDefault(c => c.ClaimType == "given_name").ClaimValue;
                 userInfo.Email = user.Claims.FirstOrDefault(c => c.ClaimType == "extension_userEmailAddress").ClaimValue;
-                userInfo.Id = user.Id; ;
+                userInfo.Id = user.Claims.FirstOrDefault(c => c.ClaimType == "sub").ClaimValue;
                 userInfo.Roles = user.Claims.FirstOrDefault(c => c.ClaimType == "extension_diamRoles").ClaimValue;
                 userInfo.DisplayName = user.Claims.FirstOrDefault(c => c.ClaimType == "name").ClaimValue;
                 userInfo.DiamCountryId = int.Parse(user.Claims.FirstOrDefault(c => c.ClaimType == "extension_diamCountryId").ClaimValue);
                 //if (user.FirstOrDefault(c => c.Type == "extension_diamUserId") != null) 
                 //    userInfo.DiamUserId = int.Parse(user.FirstOrDefault(c => c.Type == "extension_diamUserId").Value);
                 userInfo.Brands = user.Claims.FirstOrDefault(c => c.ClaimType == "extension_brands").ClaimValue;
-
-
+                userInfo.UserName = user.Claims.FirstOrDefault(c => c.ClaimType == "name").ClaimValue;
+                userInfo.Surname = user.Claims.FirstOrDefault(c => c.ClaimType == "family_name").ClaimValue;
 
 
                 return userInfo;
@@ -266,7 +266,7 @@ namespace CoreSystem2024.Helpers
         {
             //we need to re-auth using the reauth process
             string accessToken = null;
-            var proxySupport = new ProxyApiSupport(config);
+            var proxySupport = new ProxyApiSupport();
             string readScope = config["AzureB2C:ReadScope"];
             string writeScope = config["AzureB2CWriteScope"];
             try

@@ -1,7 +1,7 @@
 ﻿using CoreSystem2024.Controllers.shop;
 using CoreSystem2024.Helpers;
 using CoreSystem2024.Models;
-using CoreSystemII.Controllers.Proxy;
+using CoreSystem2024.ProxyServices;
 using dplo.Domain;
 using dplo.Domain.Entities;
 using dplo.Helpers;
@@ -12,8 +12,11 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System.Configuration;
+using System.Net;
+using System.Net.Http.Headers;
+using Microsoft.Extensions.Configuration;
 using Umbraco.Cms.Core.Security;
+using ConfigurationManager = System.Configuration.ConfigurationManager;
 
 namespace CoreSystem2024.Controllers.Planx
 {
@@ -22,12 +25,14 @@ namespace CoreSystem2024.Controllers.Planx
 
         #region Services, managers
 
-        private ILogger<YourPlanogramApiController> _logger;
-        public IPlanogramService _planogramService;
-        public ICountryService _countryService;
-        public ICategoryService _categoryService;
-        private PlanxProxyController proxyApi;
+        private readonly ILogger<PlanxApiController> _logger;
+        private readonly IPlanogramService _planogramService;
+        private readonly ICountryService _countryService;
+        private readonly ICategoryService _categoryService;
+        private readonly IPlanxProxyApiService proxyApi;
         private readonly IMemberManager _memberManager;
+        private readonly IOrderService _orderService;
+        private readonly IConfiguration _config;
 
         #endregion
 
@@ -35,11 +40,14 @@ namespace CoreSystem2024.Controllers.Planx
 
         #region LocalApiCalls
 
-        public PlanxApiController(ICategoryService categoryService, ICatalogueService catalogueService, ICountryService countryService, IPlanogramService planogramService, IOrderService orderService, IStandService standService, ILogger<YourPlanogramApiController> logger, IMemberManager memberManager) : base(categoryService, catalogueService, countryService, planogramService, orderService, standService)
+        public PlanxApiController(ICategoryService categoryService, ICatalogueService catalogueService, ICountryService countryService, IPlanogramService planogramService, IOrderService orderService, IStandService standService, ILogger<PlanxApiController> logger, IMemberManager memberManager, IPlanxProxyApiService proxyApi, IConfiguration config) : base(config)
         {
             _logger = logger;
             _memberManager = memberManager;
+            this.proxyApi = proxyApi;
+            _config = config;
             _planogramService = planogramService;
+            _orderService = orderService;
             _countryService = countryService;
             _categoryService = categoryService;
         }
@@ -99,19 +107,8 @@ namespace CoreSystem2024.Controllers.Planx
 
             var response = await proxyApi.GetCategoryMenuCall(data.planogramId, parentCat.CategoryId);
             //Get the json data from the result
-            var menu = new List<PlanxMenuPart>();
-            //var response =
-            if (response is OkResult)
-            {
-                var menuJson = response as OkObjectResult;
-                menu = JsonConvert.DeserializeObject<List<PlanxMenuPart>>(menuJson.Value.ToString());
-            }
-            else
-            {
-                //Something has gone wrong, handle it here
-                return response;
-            }
-            return Ok(menu);
+
+            return Ok(response);
         }
 
 
@@ -124,20 +121,8 @@ namespace CoreSystem2024.Controllers.Planx
 
 
             var response = await proxyApi.GetMenuCategoriesCall(data.planogramId);
-            //Get the json data from the result
-            var menu = new PlanXMenuViewModel();
-            //var response =
-            if (response is OkResult)
-            {
-                var menuJson = response as OkObjectResult;
-                menu = JsonConvert.DeserializeObject<PlanXMenuViewModel>(menuJson.Value.ToString());
-            }
-            else
-            {
-                //Something has gone wrong, handle it here
-                return response;
-            }
-            return Ok(menu);
+
+            return Ok(response);
         }
 
 
@@ -149,22 +134,7 @@ namespace CoreSystem2024.Controllers.Planx
             ////var accessToken = //AuthHelper.ReAuth(Authorization, client);
 
             var response = await proxyApi.GetPlanogramCall(planogramId);
-            //Get the json data from the result
-            var planogram = new PlanXPlanogramViewModel();
-            //var response =
-            if (response is OkResult)
-            {
-                var standJson = response as OkObjectResult;
-                planogram = JsonConvert.DeserializeObject<PlanXPlanogramViewModel>(standJson.Value.ToString());
-            }
-            else
-            {
-                //Something has gone wrong, handle it here
-                _logger.LogWarning("Error getting planogram " + " --- ");
-
-                return response;
-            }
-            return Ok(planogram);
+            return Ok(response);
         }
 
         [HttpPost]
@@ -176,20 +146,8 @@ namespace CoreSystem2024.Controllers.Planx
 
 
             var response = await proxyApi.GetScratchPadCall(data.planogramId);
-            //Get the json data from the result
-            var parts = new List<PlanxPartInfo>();
-            //var response =
-            if (response is OkResult)
-            {
-                var partsJson = response as OkObjectResult;
-                parts = JsonConvert.DeserializeObject<List<PlanxPartInfo>>(partsJson.Value.ToString());
-            }
-            else
-            {
-                //Something has gone wrong, handle it here
-                return response;
-            }
-            return Ok(parts);
+            //Something has gone wrong, handle it here
+            return Ok(response);
         }
 
         [HttpGet]
@@ -202,19 +160,7 @@ namespace CoreSystem2024.Controllers.Planx
 
             var response = await proxyApi.GetStandCall(standId);
             //Get the json data from the result
-            var stand = new PlanXStandViewModel();
-            //var response =
-            if (response is OkResult)
-            {
-                var standJson = response as OkObjectResult;
-                stand = JsonConvert.DeserializeObject<PlanXStandViewModel>(standJson.Value.ToString());
-            }
-            else
-            {
-                //Something has gone wrong, handle it here
-                return response;
-            }
-            return Ok(stand);
+            return Ok(response);
         }
 
         [HttpGet]
@@ -228,44 +174,20 @@ namespace CoreSystem2024.Controllers.Planx
             var response = await proxyApi.GetPlanogramPreviewCall(planogramId);
             //Get the json data from the result
             //var svg = new PlanXStandViewModel();
-            var svgVersion = "";
-            if (response is OkResult)
-            {
-                var versionJson = response as OkObjectResult;
-                svgVersion = versionJson.Value.ToString();
-            }
-            else
-            {
-                //Something has gone wrong, handle it here
-                return response;
-            }
-            return Ok(svgVersion);
+            return Ok(response);
         }
 
-        [HttpGet]
-        [Route("/api/planxapi/GetLatestVersion")]
-        public async Task<IActionResult> GetLatestVersion(int planogramId)
-        {
-            //we need to re-auth using the reauth process
-            //var accessToken = //AuthHelper.ReAuth(Authorization, client);
+        //[HttpGet]
+        //[Route("/api/planxapi/GetLatestVersion")]
+        //public async Task<IActionResult> GetLatestVersion(int planogramId)
+        //{
+        //    //we need to re-auth using the reauth process
+        //    //var accessToken = //AuthHelper.ReAuth(Authorization, client);
 
 
-            var response = await proxyApi.GetLatestVersionCall(planogramId);
-            //Get the json data from the result
-            //var svg = new PlanXStandViewModel();
-            var svgVersion = "";
-            if (response is OkResult)
-            {
-                var versionJson = response as OkObjectResult;
-                svgVersion = versionJson.Value.ToString();
-            }
-            else
-            {
-                //Something has gone wrong, handle it here
-                return response;
-            }
-            return Ok(svgVersion);
-        }
+        //    var response = await proxyApi.GetLatestVersionCall(planogramId);
+        //    return Ok(response);
+        //}
 
 
 
@@ -278,20 +200,8 @@ namespace CoreSystem2024.Controllers.Planx
 
 
             var response = await proxyApi.GetPlanogramShelvesCall(planogramId);
-            //Get the json data from the result
-            var shelves = new List<PlanxPartInfo>();
-            //var response =
-            if (response is OkResult)
-            {
-                var shelvesJson = response as OkObjectResult;
-                shelves = JsonConvert.DeserializeObject<List<PlanxPartInfo>>(shelvesJson.Value.ToString());
-            }
-            else
-            {
-                //Something has gone wrong, handle it here
-                return response;
-            }
-            return Ok(shelves);
+
+            return Ok(response);
             //return Ok(shelves);
         }
 
@@ -300,26 +210,14 @@ namespace CoreSystem2024.Controllers.Planx
         [Route("/api/planxapi/GetPlanogramParts")]
         public async Task<IActionResult> GetPlanogramParts(int planogramId)
         {
-            //we need to re-auth using the reauth process
-            ////var accessToken = //AuthHelper.ReAuth(Authorization, client);
-            var countryId = _countryService.GetCountry(UserInfo.DiamCountryId);
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var countryId = _countryService.GetCountry(userInfo.DiamCountryId);
 
 
             var response = await proxyApi.GetPlanogramPartsCall(planogramId);
-            //Get the json data from the result
-            var parts = new List<PlanxPartInfo>();
-            //var response =
-            if (response is OkResult)
-            {
-                var partsJson = response as OkObjectResult;
-                parts = JsonConvert.DeserializeObject<List<PlanxPartInfo>>(partsJson.Value.ToString());
-            }
-            else
-            {
-                //Something has gone wrong, handle it here
-                return response;
-            }
-            return Ok(parts);
+
+            return Ok(response);
             //return Ok(parts);
         }
 
@@ -327,26 +225,14 @@ namespace CoreSystem2024.Controllers.Planx
         [Route("/api/planxapi/GetNewPlanogramParts")]
         public async Task<IActionResult> GetNewPlanogramParts(int planogramId)
         {
-            //we need to re-auth using the reauth process
-            //var accessToken = //AuthHelper.ReAuth(Authorization, client);
-            var countryId = _countryService.GetCountry(UserInfo.DiamCountryId);
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var countryId = _countryService.GetCountry(userInfo.DiamCountryId);
 
 
             var response = await proxyApi.GetNewPlanogramPartsCall(planogramId);
-            //Get the json data from the result
-            var parts = new List<PlanxPartInfo>();
-            //var response =
-            if (response is OkResult)
-            {
-                var partsJson = response as OkObjectResult;
-                parts = JsonConvert.DeserializeObject<List<PlanxPartInfo>>(partsJson.Value.ToString());
-            }
-            else
-            {
-                //Something has gone wrong, handle it here
-                return response;
-            }
-            return Ok(parts);
+
+            return Ok(response);
             //return Ok(parts);
         }
 
@@ -359,21 +245,7 @@ namespace CoreSystem2024.Controllers.Planx
 
 
             var response = await proxyApi.GetNonMarketPartsCall(planogramId);
-            //Get the json data from the result
-            var parts = new List<PlanogramPart>();
-            //var response =
-            if (response is OkResult)
-            {
-                var partsJson = response as OkObjectResult;
-                parts = JsonConvert.DeserializeObject<List<PlanogramPart>>(partsJson.Value.ToString());
-            }
-            else
-            {
-                //Something has gone wrong, handle it here
-                return response;
-            }
-            return Ok(parts);
-            //return Ok(parts);
+            return Ok(response);
         }
 
         [HttpGet]
@@ -385,20 +257,7 @@ namespace CoreSystem2024.Controllers.Planx
 
 
             var response = await proxyApi.GetPartCall(partId);
-            //Get the json data from the result
-            var part = new PlanogramPartViewModel();
-            //var response =
-            if (response is OkResult)
-            {
-                var partJson = response as OkObjectResult;
-                part = JsonConvert.DeserializeObject<PlanogramPartViewModel>(partJson.Value.ToString());
-            }
-            else
-            {
-                //Something has gone wrong, handle it here
-                return response;
-            }
-            return Ok(part);
+            return Ok(response);
         }
 
 
@@ -411,20 +270,7 @@ namespace CoreSystem2024.Controllers.Planx
 
 
             var response = await proxyApi.GetPartProductsCall(partId, planogramId);
-            //Get the json data from the result
-            var partProducts = new PartProductsViewModel();
-            //var response =
-            if (response is OkResult)
-            {
-                var partJson = response as OkObjectResult;
-                partProducts = JsonConvert.DeserializeObject<PartProductsViewModel>(partJson.Value.ToString());
-            }
-            else
-            {
-                //Something has gone wrong, handle it here
-                return response;
-            }
-            return Ok(partProducts);
+            return Ok(response);
         }
 
 
@@ -437,25 +283,12 @@ namespace CoreSystem2024.Controllers.Planx
 
 
             var response = await proxyApi.GetProductShadesCall(productId);
-            //Get the json data from the result
-            var productShades = new ProductShadesViewModel();
-            //var response =
-            if (response is OkResult)
-            {
-                var partJson = response as OkObjectResult;
-                productShades = JsonConvert.DeserializeObject<ProductShadesViewModel>(partJson.Value.ToString());
-            }
-            else
-            {
-                //Something has gone wrong, handle it here
-                return response;
-            }
-            return Ok(productShades);
+            return Ok(response);
         }
 
         [HttpPost]
         [Route("/api/planxapi/SavePlanogramV2")]
-        public async Task<IActionResult> SavePlanogramV2(PlanxPlanogramInfo planogramData)
+        public async Task<HttpResponseMessage> SavePlanogramV2(PlanxPlanogramInfo planogramData)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             var userProfile = AuthHelper.GetUserInfo(memberIdentity);
@@ -515,7 +348,7 @@ namespace CoreSystem2024.Controllers.Planx
         }
         [HttpPost]
         [Route("/api/planxapi/SavePlanogramSvg")]
-        public async Task<IActionResult> SavePlanogramSvg(PlanogramImageViewModel planoSvg)
+        public async Task<HttpResponseMessage> SavePlanogramSvg(PlanogramImageViewModel planoSvg)
         {
             //we need to re-auth using the reauth process
             //var accessToken = //AuthHelper.ReAuth(Authorization, client);
@@ -544,7 +377,7 @@ namespace CoreSystem2024.Controllers.Planx
 
         [HttpPost]
         [Route("/api/planxapi/GetPlanoPDF")]
-        public async Task<IActionResult> GetPlanoPDF(PlanogramImageViewModel planoSvg)
+        public async Task<HttpResponseMessage> GetPlanoPDF(PlanogramImageViewModel planoSvg)
         {
             //we need to re-auth using the reauth process
             //var accessToken = //AuthHelper.ReAuth(Authorization, client);
@@ -560,16 +393,22 @@ namespace CoreSystem2024.Controllers.Planx
             //var response =
             if (response is OkResult)
             {
-                //IActionResult finalResponse = Ok("pdf");
-                //read the pdf response stream
-                var pdfStream = response as FileStreamResult;
+                if (response.IsSuccessStatusCode)
+                {
+                    HttpResponseMessage finalResponse = new HttpResponseMessage(HttpStatusCode.OK);
+                    //read the pdf response stream
+                    var pdfStream = response.Content.ReadAsByteArrayAsync().Result;
+                    finalResponse.Content = new StringContent(Convert.ToBase64String(pdfStream));
 
-                //var pdfStream = response.Content.ReadAsByteArrayAsync().Result;
-                //var finalResponse = new StringContent(Convert.ToBase64String(pdfStream.Value));
+                    finalResponse.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
 
-                //finalResponse.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
-
-                return new FileStreamResult(pdfStream.FileStream, "application/pdf");
+                    return finalResponse;
+                }
+                else
+                {
+                    //Something has gone wrong, handle it here
+                    return response;
+                }
             }
             else
             {
@@ -579,36 +418,36 @@ namespace CoreSystem2024.Controllers.Planx
 
         }
 
+        //[HttpPost]
+        //[Route("/api/planxapi/SaveScratchPad")]
+        //public async Task<IActionResult> SaveScratchPad(PlanxShelfInfoList scratchpad)
+        //{
+        //    //we need to re-auth using the reauth process
+        //    //var accessToken = //AuthHelper.ReAuth(Authorization, client);
+
+
+        //    _logger.LogDebug("Save scratchpad start ");
+
+        //    var response = await proxyApi.SaveScratchPadCall(scratchpad);
+
+        //    _logger.LogDebug("Save scratchpad end ");
+
+        //    //Get the json data from the result
+        //    //var productShades = new ProductShadesViewModel();
+        //    //var response =
+        //    if (response is OkResult)
+        //    {
+        //        return response;
+        //    }
+        //    else
+        //    {
+        //        //Something has gone wrong, handle it here
+        //        return response;
+        //    }
+        //}
+
         [HttpPost]
-        [Route("/api/planxapi/SaveScratchPad")]
-        public async Task<IActionResult> SaveScratchPad(PlanxShelfInfoList scratchpad)
-        {
-            //we need to re-auth using the reauth process
-            //var accessToken = //AuthHelper.ReAuth(Authorization, client);
-
-
-            _logger.LogDebug("Save scratchpad start ");
-
-            var response = await proxyApi.SaveScratchPadCall(scratchpad);
-
-            _logger.LogDebug("Save scratchpad end ");
-
-            //Get the json data from the result
-            //var productShades = new ProductShadesViewModel();
-            //var response =
-            if (response is OkResult)
-            {
-                return response;
-            }
-            else
-            {
-                //Something has gone wrong, handle it here
-                return response;
-            }
-        }
-
-        [HttpPost]
-        [Route("/api/planxapi/GetPlanoLock")]
+        [Route("/api/planxapi/getPlanoLock")]
         public async Task<IActionResult> GetPlanoLock(GetMenuParams data)
         {
             //we need to re-auth using the reauth process
@@ -617,14 +456,14 @@ namespace CoreSystem2024.Controllers.Planx
 
             var response = await proxyApi.GetPlanoLockCall(data.planogramId);
             //var response =
-            if (response is OkResult)
+            if (response == "locked")
             {
                 //Something has gone wrong, handle it here
-                return Ok();
+                return Ok(response);
             }
             else
             {
-                return response;
+                return BadRequest(response);
             }
         }
 
@@ -638,12 +477,7 @@ namespace CoreSystem2024.Controllers.Planx
 
             var response = await proxyApi.GetPlanoComCountCall(data.planogramId);
             //var response =
-            if (response is OkResult)
-            {
-                var result = response as OkObjectResult;
-                return Ok(result.Value);
-            }
-            return response;
+                return Ok(response);
         }
         [HttpGet]
         [Route("/api/planxapi/Unlock")]
@@ -670,15 +504,6 @@ namespace CoreSystem2024.Controllers.Planx
             {
                 return BadRequest(Ex);
             }
-
-            //var response = await proxyApi.UnlockCall(planogramId);
-
-            //if (!response is OkResult)
-            //{
-            //    //Something has gone wrong, handle it here
-            //    return response;
-            //}
-            //return Request.CreateResponse(HttpStatusCode.OK);
         }
 
 

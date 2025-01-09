@@ -48,7 +48,7 @@ public class OpenIdConnectMemberExternalLoginProviderOptions : IConfigureNamedOp
             defaultMemberTypeAlias: "DiamMember",
 
             // Optionally specify the member groups names to add the auto-linking user to.
-            defaultMemberGroups: new List<string> { "example-group" }
+            defaultMemberGroups: new List<string> { "Diagramm Users" }
         )
         {
             // Optional callback
@@ -63,6 +63,8 @@ public class OpenIdConnectMemberExternalLoginProviderOptions : IConfigureNamedOp
                 // You can customize the user before it's saved whenever they have
                 // logged in with the external provider.
                 // i.e. Sync the user's name based on the Claims returned
+
+                //ADD NAMEIDENTIFIER for Azureb2c ID
 
                 IMember? member = _memberService.GetByKey(user.Key);
                 var extClaim = loginInfo
@@ -80,13 +82,15 @@ public class OpenIdConnectMemberExternalLoginProviderOptions : IConfigureNamedOp
                 extClaim = loginInfo
                     .Principal
                     .FindFirst(ClaimTypes.NameIdentifier);
+
+                //var nameIdentifier = member.Properties.FirstOrDefault(p => p.Alias == "nameidentifier");
                 user.Claims.Add(new IdentityUserClaim<string>
                 {
                     ClaimType = extClaim.Type,
                     ClaimValue = extClaim.Value,
                     UserId = user.Id
                 });
-                member.Properties.FirstOrDefault(p => p.Alias == "nameidentifier").SetValue(extClaim.Value);
+                //member.Properties.FirstOrDefault(p => p.Alias == "nameidentifier").SetValue(extClaim.Value);
 
                 extClaim = loginInfo
                     .Principal

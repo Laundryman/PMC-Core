@@ -1,9 +1,9 @@
 ﻿using dplo.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Serilog.Extensions.Logging;
-using System.Configuration;
 using System.Text;
+using Microsoft.Extensions.Configuration;
+using ConfigurationManager = System.Configuration.ConfigurationManager;
 
 namespace CoreSystem2024.Helpers
 {
@@ -11,11 +11,13 @@ namespace CoreSystem2024.Helpers
     {
 
         #region Services, managers
-        private ILogger _msLogger;
+        private ILogger<EmailHelper> _logger;
+        private IConfiguration _configuration;
 
-        public EmailHelper(ILogger serlogLogger)
+        public EmailHelper(ILogger<EmailHelper> logger, IConfiguration configuration)
         {
-            _msLogger = new SerilogLoggerProvider(Serilog.Log.Logger).CreateLogger("System");
+            _configuration = configuration;
+            _logger = logger;
         }
 
         #endregion
@@ -32,8 +34,8 @@ namespace CoreSystem2024.Helpers
         /// <returns>Email object with success noted</returns>
         public async Task<Email> PlanogramSubmittedEmail(Email emailToSend)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
+            string domain = _configuration["AppSettings:ApiUrl"];
+            string brand = _configuration["AppSettings:ClientBrandId"];
 
             var uri = "api/email/send";
             var url = string.Format("{0}{1}", domain, uri);
@@ -77,8 +79,9 @@ namespace CoreSystem2024.Helpers
 
         public async Task<Email> SendEmail(Email emailToSend)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
+            string domain = _configuration["AppSettings:ApiUrl"];
+            string brand = _configuration["AppSettings:ClientBrandId"];
+
 
             var uri = "api/email/send";
             var url = string.Format("{0}{1}", domain, uri);
@@ -102,7 +105,7 @@ namespace CoreSystem2024.Helpers
                         else
                         {
                             //SystemLog.ErrorFormat("EmailHelper SendEmail Fail - " + response.Content);
-                            _msLogger.LogError("EmailHelper SendEmail Fail - " + response.Content);
+                            _logger.LogError("EmailHelper SendEmail Fail - " + response.Content);
                             return new Email() { EmailSendSuccess = false };
                         }
 

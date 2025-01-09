@@ -1,4 +1,5 @@
-﻿using dplo.Data;
+﻿using CoreSystem2024.ProxyServices;
+using dplo.Data;
 using dplo.Data.Infrastructure;
 using dplo.Service;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,6 +37,7 @@ namespace CoreSystemII.DI
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IRegionService, RegionService>();
             services.AddScoped<IStandService, StandService>();
+            services.AddScoped<IYourPlanogramProxyApiService, YourPlanogramProxyApiService>();
 
             services.AddScoped<IBrandRepository, BrandRepository>();
             services.AddScoped<ICountryRepository, CountryRepository>();

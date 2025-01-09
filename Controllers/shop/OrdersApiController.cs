@@ -10,6 +10,7 @@ using dplo_shop.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Security;
 
@@ -17,33 +18,44 @@ namespace CoreSystem2024.Controllers.shop
 {
     public class OrdersApiController : BaseApiController
     {
-        private ILogger<YourPlanogramApiController> _logger;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IMemberManager _memberManager;
+        private readonly OrderService _orderService;
+        private readonly PlanogramService _planogramService;
+        private readonly IConfiguration _config;
+        private readonly ILogger<OrdersApiController> _logger;
+        private readonly ICountryService _countryService;
+        private readonly ICatalogueService _catalogueService;
+        private readonly EmailHelper _emailHelper;
 
 
         #region orders
         //[Route("api/orders")]
-        public OrdersApiController(ICategoryService categoryService,
-            ICatalogueService catalogueService,
+        public OrdersApiController(
             ICountryService countryService,
-            IPlanogramService planogramService,
             IOrderService orderService,
-            IStandService standService,
-            ILogger<YourPlanogramApiController> logger,
+            ILogger<OrdersApiController> logger,
             IMemberManager memberManager,
-            IWebHostEnvironment webHostEnvironment) : base(categoryService, catalogueService, countryService, planogramService, orderService, standService)
+            IWebHostEnvironment webHostEnvironment, 
+            IConfiguration config, 
+            OrderService orderService1, 
+            PlanogramService planogramService1, ICatalogueService catalogueService) : base(config)
         {
             _logger = logger;
+            _countryService = countryService;
             _memberManager = memberManager;
             _webHostEnvironment = webHostEnvironment;
+            _config = config;
+            _orderService = orderService1;
+            _planogramService = planogramService1;
+            _catalogueService = catalogueService;
         }
         [Route("/api/ordersapi/getorders")]
 
         public IActionResult GetOrders()
         {
 
-            //var accessToken = AuthHelper.ReAuth(Authorization, WebServerClient);
+            var userCountry = _countryService.GetCountry(CountryId);
 
             List<OrderInfo> orders;
 
@@ -54,7 +66,7 @@ namespace CoreSystem2024.Controllers.shop
             }
             else if (RolesHelper.IsClientValidator(Helpers.UserInfo.Roles)) // regional manager
             {
-                var region = UserCountry.Regions.FirstOrDefault(x => x.BrandId == BrandId);
+                var region = userCountry.Regions.FirstOrDefault(x => x.BrandId == BrandId);
 
                 if (region == null)
                     throw new Exception("Failed to look up region for this user's country/brandId: " +
@@ -66,7 +78,7 @@ namespace CoreSystem2024.Controllers.shop
             else // normal user
             {
                 orders = _orderService.GetFilteredOrders(BrandId, null, null, "OrderUpdated", "desc", null, null,
-                    UserCountry.CountryId, null).ToList();
+                    userCountry.CountryId, null).ToList();
             }
 
             var orderModels = orders.Select(x => new OrderModel
@@ -201,9 +213,7 @@ namespace CoreSystem2024.Controllers.shop
         [Route("/api/ordersapi/CreateOrder")]
         public IActionResult CreateOrder(CreateOrderModel model)
         {
-
-
-
+            var userCountry = _countryService.GetCountry(CountryId);
             if (!RolesHelper.IsAdminShopper(Helpers.UserInfo.Roles))
             {
                 throw new UnauthorizedAccessException("Only admin shoppers can create orders.");
@@ -223,10 +233,10 @@ namespace CoreSystem2024.Controllers.shop
                     OrderCreated = DateTime.Now,
                     OrderUpdated = DateTime.Now,
                     OrderStatus = 1,
-                    CountryId = UserCountry.CountryId,
+                    CountryId = userCountry.CountryId,
                     OrderCreatedByName = Helpers.UserInfo.FullName,
                     OrderUpdatedByName = Helpers.UserInfo.FullName,
-                    RegionId = UserCountry.Regions.First(x => x.BrandId == BrandId).RegionId
+                    RegionId = userCountry.Regions.First(x => x.BrandId == BrandId).RegionId
                 };
 
                 _orderService.CreateOrder(order);
@@ -419,8 +429,8 @@ namespace CoreSystem2024.Controllers.shop
             };
 
 
-            var emailHelper = new EmailHelper(_logger);
-            var adminResponse = await emailHelper.SendEmail(adminEmail);
+            //var emailHelper = new EmailHelper(_logger);
+            var adminResponse = await _emailHelper.SendEmail(adminEmail);
             _logger.LogDebug("End Admin Email");
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
@@ -439,7 +449,7 @@ namespace CoreSystem2024.Controllers.shop
                 EmailSubject = "Order Submitted"
             };
 
-            var userResponse = await emailHelper.SendEmail(userEmail);
+            var userResponse = await _emailHelper.SendEmail(userEmail);
             _logger.LogDebug("End User Email");
 
             List<string> errors = new List<string>();

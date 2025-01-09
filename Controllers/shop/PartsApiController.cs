@@ -7,7 +7,8 @@ using dplo.Domain.Entities;
 using dplo.Service;
 using dplo_shop.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Configuration;
+using Microsoft.Extensions.Configuration;
+using ConfigurationManager = System.Configuration.ConfigurationManager;
 using HttpGetAttribute = System.Web.Http.HttpGetAttribute;
 
 
@@ -17,14 +18,21 @@ namespace CoreSystem2024.Controllers.shop
     {
         private const int PageSize = 24;
         private const int DefaultPartTypeId = 1;
-        private IStandService _standService;
-        private ICategoryService _categoryService;
+        private readonly IStandService _standService;
+        private readonly ICategoryService _categoryService;
+        private readonly IConfiguration _config;
+        private readonly ICountryService _countryService;
+        private readonly ICatalogueService _catalogueService;
 
 
-        public PartsApiController(ICategoryService categoryService, ICatalogueService catalogueService, ICountryService countryService, IPlanogramService planogramService, IOrderService orderService, IStandService standService) : base(categoryService, catalogueService, countryService, planogramService, orderService, standService)
+        public PartsApiController(ICategoryService categoryService, ICountryService countryService,
+            IStandService standService, IConfiguration config, ICatalogueService catalogueService) : base(config)
         {
             _categoryService = categoryService;
+            _countryService = countryService;
             _standService = standService;
+            _config = config;
+            _catalogueService = catalogueService;
         }
 
         [Route("/api/partsapi/GetStandTypes")]
@@ -32,7 +40,7 @@ namespace CoreSystem2024.Controllers.shop
         {
             //var accessToken = AuthHelper.ReAuth(Authorization, WebServerClient);
             IEnumerable<StandType> standTypes;
-
+            var userCountry = _countryService.GetCountry(CountryId);
             if (RolesHelper.IsAdminUser(Helpers.UserInfo.Roles)) // admin - get all
             {
                 standTypes = _standService.GetFilteredStandTypes(
@@ -40,19 +48,19 @@ namespace CoreSystem2024.Controllers.shop
             }
             else if (RolesHelper.IsClientValidator(Helpers.UserInfo.Roles)) // regional manager
             {
-                var region = UserCountry.Regions.FirstOrDefault(x => x.BrandId == BrandId);
+                var region = userCountry.Regions.FirstOrDefault(x => x.BrandId == BrandId);
 
                 if (region == null)
                     throw new Exception("Failed to look up region for this user's country/brandId: " +
                                         UserInfo.DiamCountryId + " / " + BrandId);
 
                 standTypes = _standService.GetFilteredStandTypes(
-                    BrandId, region.RegionId, UserCountry.CountryId, null, parentCategoryId, partId, true);
+                    BrandId, region.RegionId, userCountry.CountryId, null, parentCategoryId, partId, true);
             }
             else // normal user
             {
                 standTypes = _standService.GetFilteredStandTypes(
-                    BrandId, null, UserCountry.CountryId, null, parentCategoryId, partId, true);
+                    BrandId, null, userCountry.CountryId, null, parentCategoryId, partId, true);
             }
 
             var model = new StandTypesModel
@@ -75,7 +83,7 @@ namespace CoreSystem2024.Controllers.shop
         {
 
 
-            //var accessToken = AuthHelper.ReAuth(Authorization, WebServerClient);
+            var userCountry = _countryService.GetCountry(CountryId);
 
             if (parentCategoryId == 0) parentCategoryId = null;
 
@@ -99,7 +107,7 @@ namespace CoreSystem2024.Controllers.shop
             parts = _catalogueService.GetFilteredShopParts(
                 BrandId, page, pageSize, "Name", null, null,
                 null, parentCategoryId, null,
-                UserCountry.CountryId, null, standTypeId);
+                userCountry.CountryId, null, standTypeId);
 
 
 
@@ -130,9 +138,8 @@ namespace CoreSystem2024.Controllers.shop
         [Route("/api/partsapi/Search")]
         public IActionResult Search(string q = null, int? standTypeId = null)
         {
+            var userCountry = _countryService.GetCountry(CountryId);
 
-
-            //var accessToken = AuthHelper.ReAuth(Authorization, WebServerClient);
 
             if (q == null)
             {
@@ -173,7 +180,7 @@ namespace CoreSystem2024.Controllers.shop
             parts = _catalogueService.GetFilteredShopParts(
                 BrandId, 1, 200, "Name", null, q,
                  null, null, null,
-                UserCountry.CountryId, null, standTypeId);
+                userCountry.CountryId, null, standTypeId);
 
 
             var partModels = BuildPartModels(parts);
@@ -195,7 +202,7 @@ namespace CoreSystem2024.Controllers.shop
 
         private List<PartModel> BuildPartModels(IEnumerable<PartInfo> parts)
         {
-            var imageDomain = ConfigurationManager.AppSettings["cassette-photo-url"];
+            var imageDomain = _config["AppSettings:Cassette-photo-url"] ?? string.Empty;
 
             var partModels =
                 parts.Select(x => new PartModel()

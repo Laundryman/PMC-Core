@@ -66,6 +66,14 @@ namespace CoreSystem2024.CMSModelBuilderModels
 		public virtual string PageTitle => global::CoreSystem2024.CMSModelBuilderModels.ContentBase.GetPageTitle(this, _publishedValueFallback);
 
 		///<summary>
+		/// Section Image
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("sectionImage")]
+		public virtual global::Umbraco.Cms.Core.Models.MediaWithCrops SectionImage => global::CoreSystem2024.CMSModelBuilderModels.ContentBase.GetSectionImage(this, _publishedValueFallback);
+
+		///<summary>
 		/// Keywords: Keywords that describe the content of the page. This is considered optional since most modern search engines don't use this anymore
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
@@ -74,12 +82,27 @@ namespace CoreSystem2024.CMSModelBuilderModels
 		public virtual global::System.Collections.Generic.IEnumerable<string> Keywords => global::CoreSystem2024.CMSModelBuilderModels.NavigationBase.GetKeywords(this, _publishedValueFallback);
 
 		///<summary>
+		/// Navigation Text
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("navigationText")]
+		public virtual global::Umbraco.Cms.Core.Strings.IHtmlEncodedString NavigationText => global::CoreSystem2024.CMSModelBuilderModels.NavigationBase.GetNavigationText(this, _publishedValueFallback);
+
+		///<summary>
 		/// Description: A brief description of the content on your page. This text is shown below the title in a google search result and also used for Social Sharing Cards. The ideal length is between 130 and 155 characters
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("seoMetaDescription")]
 		public virtual string SeoMetaDescription => global::CoreSystem2024.CMSModelBuilderModels.NavigationBase.GetSeoMetaDescription(this, _publishedValueFallback);
+
+		///<summary>
+		/// Show On Home
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
+		[ImplementPropertyType("showOnHome")]
+		public virtual bool ShowOnHome => global::CoreSystem2024.CMSModelBuilderModels.NavigationBase.GetShowOnHome(this, _publishedValueFallback);
 
 		///<summary>
 		/// Hide in Navigation: If you don't want this page to appear in the navigation, check this box

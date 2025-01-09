@@ -21,9 +21,10 @@
         public string JobNumber { get; set; }
     }
 
-    public class GetArchivedPlanoParams
+    public class GetPlanoParams
     {
-        public string JobCode { get; set; }
+        public int Status { get; set; }
+        public int JobCode { get; set; }
         public int RegionId { get; set; }
         public int CountryId { get; set; }
         public int StandTypeId { get; set; }
@@ -36,5 +37,11 @@
         public int CountryId { get; set; }
         public int planogramId { get; set; }
         public string category { get; set; }
+    }
+
+    public class PlanogramUpdate
+    {
+        public string PlanogramName { get; set; }
+        public int PlanogramId { get; set; }
     }
 }

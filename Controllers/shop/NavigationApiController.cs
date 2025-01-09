@@ -4,8 +4,9 @@ using dplo.Domain.Entities;
 using dplo.Service;
 using dplo_shop.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Configuration;
+using Microsoft.Extensions.Configuration;
 using Umbraco.Cms.Core.Security;
+using ConfigurationManager = System.Configuration.ConfigurationManager;
 
 //using Dplo.ViewModels;
 
@@ -13,12 +14,18 @@ namespace CoreSystem2024.Controllers.shop
 {
     public class NavigationApiController : BaseApiController
     {
-        private ICategoryService _categoryService;
-        private IMemberManager _memberManager;
-        public NavigationApiController(ICategoryService categoryService, ICatalogueService catalogueService, ICountryService countryService, IPlanogramService planogramService, IOrderService orderService, IStandService standService, IMemberManager memberManager) : base(categoryService, catalogueService, countryService, planogramService, orderService, standService)
+        private readonly ICategoryService _categoryService;
+        private readonly ICountryService _countryService;
+        private readonly IMemberManager _memberManager;
+        private readonly IOrderService _orderService;
+        private readonly IConfiguration _config;
+        public NavigationApiController(ICategoryService categoryService, ICountryService countryService, IOrderService orderService, IMemberManager memberManager, IConfiguration config) : base(config)
         {
             _categoryService = categoryService;
+            _countryService = countryService;
+            _orderService = orderService;
             _memberManager = memberManager;
+            _config = config;
         }
 
         [System.Web.Http.HttpGet]
@@ -26,12 +33,14 @@ namespace CoreSystem2024.Controllers.shop
         public async Task<IActionResult> Get()
         {
 
-
+            int brandId = int.Parse(_config["AppSettings:ClientBrandId"] ?? "0");
+            int countryId = int.Parse(_config["AppSettings:ClientCountryId"] ?? "0");
+            var userCountry = _countryService.GetCountry(countryId);
             //AuthHelper.ReAuth(Authorization, WebServerClient);
 
             //var countries = new List<Country> {UserCountry};
 
-            var categories = _categoryService.GetShopCategories(BrandId, UserCountry.CountryId);
+            var categories = _categoryService.GetShopCategories(brandId, userCountry.CountryId);
 
             var notthese = new List<int>(new int[] { /*8,*/ 28, /*30,*/ /*37,*/ 66 }); //Non product bearing categories
             var pCatsToDisplay = new List<CategoryModel>();

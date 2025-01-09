@@ -8,7 +8,7 @@ using Umbraco.Extensions;
 
 namespace CoreSystem2024.Extensions;
 
-public static class UmbracoBuilderExtensions
+public static class OpenIdBuilderExtensions
 {
     public static IUmbracoBuilder AddOpenIdConnectAuthentication(this IUmbracoBuilder builder)
     {
@@ -46,6 +46,7 @@ public static class UmbracoBuilderExtensions
                             options.SaveTokens = true;
                             options.TokenValidationParameters.SaveSigninToken = true;
                             options.CallbackPath = "/login";
+                            options.UseTokenLifetime = true;
                             //options.Events.OnAuthorizationCodeReceived = async context =>
                             //{
                             //    await Task.FromResult(0);
@@ -54,6 +55,20 @@ public static class UmbracoBuilderExtensions
                             options.Events.OnTokenValidated = async context =>
                             {
                                 var claims = context?.Principal?.Claims.ToList();
+                                var userBrands = claims?.SingleOrDefault(x => x.Type == "extension_brands");
+                                var siteBrand = config["AppSettings:ClientBrandId"];
+
+                                if (userBrands != null && siteBrand != null)
+                                {
+                                    if (!userBrands.Value.Contains(siteBrand))
+                                    {
+                                        context.Fail("User is not authorised to access this site. Incorrect brand.");
+                                    }
+                                }
+                                else
+                                {
+                                    context.Fail("User is not authorised to access this site. Incorrect brand.");
+                                }
                                 var email = claims?.SingleOrDefault(x => x.Type == "extension_userEmailAddress");
                                 if (email != null)
                                 {

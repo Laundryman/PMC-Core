@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using dplo.Domain.Entities;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System.Configuration;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
@@ -16,10 +18,12 @@ namespace CoreSystem2024.HttpClientWrapper
         private bool disposed = false;
         protected readonly string _baseAddress;
         private readonly string _addressSuffix;
-        public SecureHttpClient(string baseAddress, string addressSuffix)
+        private readonly IConfiguration Configuration;
+        public SecureHttpClient(string baseAddress, string addressSuffix, IConfiguration configuration)
         {
             _baseAddress = baseAddress;
             _addressSuffix = addressSuffix;
+            Configuration = configuration;
             httpClient = CreateHttpClient(_baseAddress);
         }
         protected virtual HttpClient CreateHttpClient(string serviceBaseAddress)
@@ -36,8 +40,8 @@ namespace CoreSystem2024.HttpClientWrapper
         /// <returns>A Task with result object of type T</returns>
         public async Task<T> Get(string accessToken)
         {
-            string domain = ConfigurationManager.AppSettings["apiUrl"];
-            string brand = ConfigurationManager.AppSettings["brand"];
+            string domain = Configuration["AppSettings:ApiUrl"];
+            string brandId = Configuration["AppSettings:ClientBrandId"];
 
             T result = default(T);
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
@@ -56,43 +60,43 @@ namespace CoreSystem2024.HttpClientWrapper
         }
 
 
-        /// <summary>
-        /// For getting the resources from a web api
-        /// </summary>
-        /// <param name="url">API Url</param>
-        /// <param name="httpContent"></param>
-        /// <returns>A Task with result object of type T</returns>
-        public static async Task<T> Get(string url, string accessToken, IEnumerable<KeyValuePair<string, string>> httpContent)
-        {
+        ///// <summary>
+        ///// For getting the resources from a web api
+        ///// </summary>
+        ///// <param name="url">API Url</param>
+        ///// <param name="httpContent"></param>
+        ///// <returns>A Task with result object of type T</returns>
+        //public async Task<T> Get(string url, string accessToken, IEnumerable<KeyValuePair<string, string>> httpContent)
+        //{
 
-            T result = default(T);
-            using (var httpClient = new HttpClient())
-            {
+        //    T result = default(T);
+        //    using (var httpClient = new HttpClient())
+        //    {
 
-                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                if (httpContent != null)
-                {
-                    HttpContent content = new FormUrlEncodedContent(httpContent);
-                    request.Content = content;
-                }
+        //        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url);
+        //        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        //        if (httpContent != null)
+        //        {
+        //            HttpContent content = new FormUrlEncodedContent(httpContent);
+        //            request.Content = content;
+        //        }
 
-                HttpResponseMessage response = await httpClient.SendAsync(request);
+        //        HttpResponseMessage response = await httpClient.SendAsync(request);
 
 
-                //var response = httpClient.GetAsync(new Uri(url)).Result;
+        //        //var response = httpClient.GetAsync(new Uri(url)).Result;
 
-                response.EnsureSuccessStatusCode();
-                await response.Content.ReadAsStringAsync().ContinueWith((Task<string> x) =>
-                {
-                    if (x.IsFaulted)
-                        throw x.Exception;
-                    result = JsonConvert.DeserializeObject<T>(x.Result);
-                });
-            }
+        //        response.EnsureSuccessStatusCode();
+        //        await response.Content.ReadAsStringAsync().ContinueWith((Task<string> x) =>
+        //        {
+        //            if (x.IsFaulted)
+        //                throw x.Exception;
+        //            result = JsonConvert.DeserializeObject<T>(x.Result);
+        //        });
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
         /// <summary>
         /// For creating a new item over a web api using POST
@@ -101,7 +105,7 @@ namespace CoreSystem2024.HttpClientWrapper
         /// <param name="accessToken"></param>
         /// <param name="postObject">The object to be created</param>
         /// <returns>A Task with created item</returns>
-        public static async Task<T> PostRequest(string apiUrl, string accessToken, T postObject)
+        public async Task<T> PostRequest(string apiUrl, string accessToken, T postObject)
         {
             T result = default(T);
 
@@ -128,7 +132,7 @@ namespace CoreSystem2024.HttpClientWrapper
         /// </summary>
         /// <param name="apiUrl">API Url</param>
         /// <param name="putObject">The object to be edited</param>
-        public static async Task PutRequest(string apiUrl, T putObject)
+        public async Task PutRequest(string apiUrl, string accessToken, T putObject)
         {
             using (var client = new HttpClient())
             {
@@ -137,6 +141,8 @@ namespace CoreSystem2024.HttpClientWrapper
                 response.EnsureSuccessStatusCode();
             }
         }
+
+
 
         public void Dispose()
         {

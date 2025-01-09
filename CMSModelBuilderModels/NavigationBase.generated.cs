@@ -27,10 +27,19 @@ namespace CoreSystem2024.CMSModelBuilderModels
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		global::System.Collections.Generic.IEnumerable<string> Keywords { get; }
 
+		/// <summary>Navigation Text</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		global::Umbraco.Cms.Core.Strings.IHtmlEncodedString NavigationText { get; }
+
 		/// <summary>Description</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		string SeoMetaDescription { get; }
+
+		/// <summary>Show On Home</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
+		bool ShowOnHome { get; }
 
 		/// <summary>Hide in Navigation</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
@@ -82,6 +91,19 @@ namespace CoreSystem2024.CMSModelBuilderModels
 		public static global::System.Collections.Generic.IEnumerable<string> GetKeywords(INavigationBase that, IPublishedValueFallback publishedValueFallback) => that.Value<global::System.Collections.Generic.IEnumerable<string>>(publishedValueFallback, "keywords");
 
 		///<summary>
+		/// Navigation Text
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("navigationText")]
+		public virtual global::Umbraco.Cms.Core.Strings.IHtmlEncodedString NavigationText => GetNavigationText(this, _publishedValueFallback);
+
+		/// <summary>Static getter for Navigation Text</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
+		[return: global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		public static global::Umbraco.Cms.Core.Strings.IHtmlEncodedString GetNavigationText(INavigationBase that, IPublishedValueFallback publishedValueFallback) => that.Value<global::Umbraco.Cms.Core.Strings.IHtmlEncodedString>(publishedValueFallback, "navigationText");
+
+		///<summary>
 		/// Description: A brief description of the content on your page. This text is shown below the title in a google search result and also used for Social Sharing Cards. The ideal length is between 130 and 155 characters
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
@@ -93,6 +115,17 @@ namespace CoreSystem2024.CMSModelBuilderModels
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
 		[return: global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		public static string GetSeoMetaDescription(INavigationBase that, IPublishedValueFallback publishedValueFallback) => that.Value<string>(publishedValueFallback, "seoMetaDescription");
+
+		///<summary>
+		/// Show On Home
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
+		[ImplementPropertyType("showOnHome")]
+		public virtual bool ShowOnHome => GetShowOnHome(this, _publishedValueFallback);
+
+		/// <summary>Static getter for Show On Home</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.0.0+76ed170")]
+		public static bool GetShowOnHome(INavigationBase that, IPublishedValueFallback publishedValueFallback) => that.Value<bool>(publishedValueFallback, "showOnHome");
 
 		///<summary>
 		/// Hide in Navigation: If you don't want this page to appear in the navigation, check this box

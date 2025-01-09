@@ -32,7 +32,7 @@ namespace CoreSystem2024.Controllers.shop
         {
             try
             {
-                var proxySupport = new ProxyApiSupport(Configuration);
+                var proxySupport = new ProxyApiSupport();
                 //// Retrieve the token with the specified scopes
                 var result = await proxySupport.AcquireTokenForScopes(new string[]
                 {

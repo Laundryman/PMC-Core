@@ -44,7 +44,7 @@ namespace diam_planogram.Controllers
 
             try
             {
-                var proxySupport = new ProxyApiSupport(Configuration);
+                var proxySupport = new ProxyApiSupport();
                 //// Retrieve the token with the specified scopes
                 var result = await proxySupport.AcquireTokenForScopes(new string[]
                     { _azureSettings["ReadScope"], _azureSettings["WriteScope"]});

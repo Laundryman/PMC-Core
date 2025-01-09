@@ -5,9 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Umbraco.Cms.Core.DependencyInjection;
 using DatabaseFactory = NPoco.DatabaseFactory;
 
-namespace DiamUmbracoClient.UmbracoBuilderExtensions;
+namespace CoreSystem2024.Extensions;
 
-public static class MyCustomBuilderExtensions
+public static class ServiceExtensions
 {
     // The first dependency is registered
     //public static IUmbracoBuilder RegisterCustomNotificationHandlers(this IUmbracoBuilder builder)

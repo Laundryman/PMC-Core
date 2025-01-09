@@ -2,7 +2,7 @@
 using CoreSystem2024.Controllers.shop;
 using CoreSystem2024.Helpers;
 using CoreSystem2024.Models;
-using CoreSystemII.Controllers.Proxy;
+using CoreSystem2024.ProxyServices;
 using dplo.Domain;
 using dplo.Domain.Entities;
 using dplo.Service;
@@ -12,8 +12,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System.Configuration;
+using Microsoft.Extensions.Configuration;
 using Umbraco.Cms.Core.Security;
+using ConfigurationManager = System.Configuration.ConfigurationManager;
 
 namespace CoreSystemII.Controllers
 {
@@ -25,60 +26,42 @@ namespace CoreSystemII.Controllers
         #region Services, managers
 
         private ILogger<YourPlanogramApiController> _logger;
-        public IPlanogramService _planogramService;
-        public IBrandService _brandService;
-        public ICountryService _countryService;
-        private CreatePlanogramProxyController proxyApi;
-        private IMemberManager _memberManager;
+        private readonly IPlanogramService _planogramService;
+        private readonly IBrandService _brandService;
+        private readonly ICountryService _countryService;
+        private readonly ICreatePlanogramProxyService _proxyApi;
+        private readonly IMemberManager _memberManager;
+        private readonly IConfiguration _config;
 
         #endregion
 
 
         #region LocalApiCalls
 
-        public CreatePlanogramApiController(ICategoryService categoryService, ICatalogueService catalogueService, ICountryService countryService, IPlanogramService planogramService, IOrderService orderService, IStandService standService, IBrandService brandService, ILogger<YourPlanogramApiController> logger, IMemberManager memberManager) : base(categoryService, catalogueService, countryService, planogramService, orderService, standService)
+        public CreatePlanogramApiController(ICountryService countryService, IPlanogramService planogramService, IBrandService brandService, ILogger<YourPlanogramApiController> logger, IMemberManager memberManager, ICreatePlanogramProxyService proxyApi, IConfiguration config) : base(config)
         {
             _planogramService = planogramService;
             _brandService = brandService;
             _logger = logger;
             _memberManager = memberManager;
+            _proxyApi = proxyApi;
+            _config = config;
             _countryService = countryService;
         }
 
         [HttpGet]
         [Route("/Api/CreatePlanogramApi/GetStands")]
-        public async Task<IActionResult> GetStands(int standTypeId)
+        public async Task<IEnumerable<SelectListItem>> GetStands(int standTypeId)
         {
             //we need to re-auth using the reauth process
             //client.RefreshAuthorization(Authorization);
             //RefreshUserSession(HttpContext.Current.Request, Authorization);
             //AuthHelper.ReAuth(Authorization, client);
 
-            var response = await proxyApi.GetStandsWithClusters(standTypeId);
-
-            //Get the json data from the result
-            //IEnumerable<SelectListItem> stands = new IEnumerable<SelectListItem>();
-            var stands = new List<SelectListItem>();
+            var response = await _proxyApi.GetStandsWithClusters(standTypeId);
 
 
-
-            if (response is OkResult)
-            {
-                var result = response as OkObjectResult;
-                stands = (List<SelectListItem>)result.Value;
-
-            }
-            else if (response is UnauthorizedResult)
-            {
-                //we need to re-auth using the reauth process
-
-            }
-            else
-            {
-                //Something has gone wrong, handle it here
-            }
-
-            return Ok(stands);
+            return response;
         }
 
         /// <summary>
@@ -88,29 +71,16 @@ namespace CoreSystemII.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("/Api/CreatePlanogramApi/GetClusters")]
-        public async Task<IActionResult> GetClusters(int standId)
+        public async Task<IEnumerable<PlanogramClusterModel>> GetClusters(int standId)
         {
             //we need to re-auth using the reauth process
             //client.RefreshAuthorization(Authorization);
             //RefreshUserSession(HttpContext.Current.Request, Authorization);
             //AuthHelper.ReAuth(Authorization, client);
 
-            var response = await proxyApi.GetClustersCall(standId);
+            var response = await _proxyApi.GetClustersCall(standId);
 
-            //Get the json data from the result
-            var templates = new List<PlanogramClusterModel>();
-            //var response =
-            if (response is OkResult)
-            {
-                var result = response as OkObjectResult;
-                var templatesJson = result.Value;
-                templates = JsonConvert.DeserializeObject<List<PlanogramClusterModel>>(templatesJson.ToString());
-            }
-            else
-            {
-                //Something has gone wrong, handle it here
-            }
-            return Ok(templates);
+            return response;
 
         }
         /// <summary>
@@ -120,53 +90,35 @@ namespace CoreSystemII.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("/Api/CreatePlanogramApi/GetTemplates")]
-        public async Task<IActionResult> GetTemplates(int standId)
+        public async Task<IEnumerable<PlanogramClusterModel>> GetTemplates(int standId)
         {
             //we need to re-auth using the reauth process
             //client.RefreshAuthorization(Authorization);
             //RefreshUserSession(HttpContext.Current.Request, Authorization);
             //AuthHelper.ReAuth(Authorization, client);
 
-            var response = await proxyApi.GetTemplatesCall(standId);
+            var response = await _proxyApi.GetTemplatesCall(standId);
 
             //Get the json data from the result
             var templates = new List<PlanogramClusterModel>();
             //var response =
-            if (response is OkResult)
-            {
-                var result = response as OkObjectResult;
-                var templatesJson = result.Value;
-                templates = JsonConvert.DeserializeObject<List<PlanogramClusterModel>>(templatesJson.ToString());
-            }
-            else
-            {
-                //Something has gone wrong, handle it here
-            }
-            return Ok(templates);
+            return response;
         }
 
         [HttpGet]
         [Route("/Api/CreatePlanogramApi/CreatePlanogram")]
-        public async Task<IActionResult> CreatePlanogram(int baseItemId, string planogramName)
+        public async Task<int> CreatePlanogram(int baseItemId, string planogramName)
         {
             try
             {
 
                 //We've removed the make template option, so now we just always create a new planogram.
-                var planogramId = 0;
-                var response = await proxyApi.CreatePlanogramCall(baseItemId, planogramName);
-                if (response is OkResult)
-                {
-                    var result = response as OkObjectResult;
-                    planogramId = int.Parse(result.Value.ToString());
-                }
-
-
-                return Ok(planogramId);
+                var response = await _proxyApi.CreatePlanogramCall(baseItemId, planogramName);
+                return response;
             }
             catch (Exception ex)
             {
-                return BadRequest();
+                throw;
             }
         }
 
