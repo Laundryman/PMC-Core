@@ -4,9 +4,9 @@ using Dplo.ViewModels;
 
 namespace CoreSystem2024.Models
 {
-    public class CatalogueModel
+    public class Catalogue
     {
-        public CatalogueModel()
+        public Catalogue()
         {
             this.Products = new HashSet<Product>();
             this.ChildCategories = new HashSet<CategoryModel>();

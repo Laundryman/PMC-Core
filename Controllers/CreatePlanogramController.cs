@@ -1,4 +1,5 @@
 ﻿using CoreSystem2024.CMSModelBuilderModels;
+using CoreSystem2024.Controllers.shop;
 using CoreSystem2024.Helpers;
 using CoreSystem2024.Models;
 using dplo.Service;
@@ -17,7 +18,7 @@ using ConfigurationManager = System.Configuration.ConfigurationManager;
 namespace diam_planogram.Controllers
 {
     //[Authorize]
-    public class CreatePlanogramController : RenderController
+    public class CreatePlanogramController : BaseMvcController
     {
 
         #region Services, managers

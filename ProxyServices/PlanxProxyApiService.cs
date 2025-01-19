@@ -735,19 +735,36 @@ namespace CoreSystem2024.ProxyServices
             _logger.LogDebug("Save planogram make call ");
 
 
-            using (SecureHttpClient<PlanxPlanogramInfo> httpClient = new SecureHttpClient<PlanxPlanogramInfo>(domain, uri, _configuration))
+            //using (SecureHttpClient<PlanxPlanogramInfo> httpClient = new SecureHttpClient<PlanxPlanogramInfo>(domain, uri, _configuration))
+            //{
+
+            //    try
+            //    {
+            //        await httpClient.PutRequest(url, accessToken, planogramData);
+            //        //_logger.LogDebug("response from save = " + response + " :: " + StatusText);
+
+            //        return new HttpResponseMessage(HttpStatusCode.OK);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        throw (ex);
+            //    }
+            //}
+
+            using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url))
             {
-
-                try
+                request.Content = content;
+                using (HttpClient httpClient = new HttpClient())
                 {
-                    await httpClient.PutRequest(url, accessToken, planogramData);
-                    //_logger.LogDebug("response from save = " + response + " :: " + StatusText);
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                    var response = await httpClient.SendAsync(request);
 
-                    return new HttpResponseMessage(HttpStatusCode.OK);
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
+                    var StatusText = response.StatusCode + " " + response.ReasonPhrase + Environment.NewLine;
+                    var responseBodyAsText = await response.Content.ReadAsStringAsync();
+                    responseBodyAsText = responseBodyAsText.Replace("<br>", Environment.NewLine); // Insert new lines
+                    _logger.LogDebug("response from save = " + response + " :: " + StatusText);
+
+                    return response;
                 }
             }
 
@@ -821,19 +838,24 @@ namespace CoreSystem2024.ProxyServices
 
             _logger.LogDebug("Save planogram svg make call ");
 
-            using (SecureHttpClient<PlanogramImageViewModel> httpClient = new SecureHttpClient<PlanogramImageViewModel>(domain, uri, _configuration))
+            using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url))
             {
+                //string imageFile = Convert.ToBase64String(buffer);
+                var json = JsonConvert.SerializeObject(planoJpeg);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                try
+                request.Content = content;
+                using (HttpClient httpClient = new HttpClient())
                 {
-                    await httpClient.PutRequest(url, accessToken, planoJpeg);
-                    //_logger.LogDebug("response from save = " + response + " :: " + StatusText);
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                    var response = await httpClient.SendAsync(request);
 
-                    return new HttpResponseMessage(HttpStatusCode.OK);
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
+                    var StatusText = response.StatusCode + " " + response.ReasonPhrase + Environment.NewLine;
+                    var responseBodyAsText = await response.Content.ReadAsStringAsync();
+                    responseBodyAsText = responseBodyAsText.Replace("<br>", Environment.NewLine); // Insert new lines
+                    _logger.LogDebug("response from save jpg = " + responseBodyAsText + " :: " + StatusText);
+
+                    return response;
                 }
             }
 

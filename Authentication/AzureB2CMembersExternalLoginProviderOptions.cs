@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Options;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Web.Common.Security;
 
@@ -35,6 +37,7 @@ namespace CoreSystemII.Authentication
 
                 // Optionally specify the member type alias. Default is "Member"
                 defaultMemberTypeAlias: Constants.Security.DefaultMemberTypeAlias
+                
 
             // Optionally specify the member groups names to add the auto-linking user to.
             //defaultMemberGroups: new List<string> { "Group1" } --> Issue on github: https://github.com/umbraco/Umbraco-CMS/issues/12853
@@ -46,6 +49,13 @@ namespace CoreSystemII.Authentication
                     // You can customize the user before it's linked.
                     // i.e. Modify the user's groups based on the Claims returned
                     // in the externalLogin info
+                    var extClaim = loginInfo.Principal.FindFirst(ClaimTypes.Name);
+                    autoLinkUser.Claims.Add(new IdentityUserClaim<string>
+                    {
+                        ClaimType = extClaim.Type,
+                        ClaimValue = extClaim.Value,
+                        UserId = autoLinkUser.Id
+                    });
                 },
                 OnExternalLogin = (user, loginInfo) =>
                 {
@@ -53,7 +63,7 @@ namespace CoreSystemII.Authentication
                     // logged in with the external provider.
                     // i.e. Sync the user's name based on the Claims returned
                     // in the externalLogin info
-
+                    //user.UserName = 
                     return true; //returns a boolean indicating if sign in should continue or not.
                 }
             };

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Globalization;
 using CoreSystem2024.CMSModelBuilderModels;
+using CoreSystem2024.Controllers.shop;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Web;
@@ -19,7 +20,7 @@ namespace diam_planogram.Controllers
 {
     ////[MvcAuthorize]
     //[Authorize]
-    public class HomeController : RenderController
+    public class HomeController : BaseMvcController
     {
         #region helpers
 

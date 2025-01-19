@@ -127,6 +127,7 @@ namespace diam_planogram.Controllers
                 newPNote.NoteInReplyTo = noteId;
                 newPNote.InReplyTo = inReplyTo;
                 newPNote.UserId = userInfo.Id; ;
+                newPNote.UserName = userInfo.UserName;
                 newPNote.NoteTitle = userInfo.UserName +
                                      String.Format("{0:d/M/yyyy HH:mm:ss}", newPNote.NoteDate);
                 _planogramService.CreatePlanogramNote(newPNote);

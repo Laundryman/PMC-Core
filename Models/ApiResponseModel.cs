@@ -2,6 +2,11 @@
 namespace dplo_shop.Models
 {
 
+    public class PdfResponseModel
+    {
+        public object pdfBase64String { get; set; }
+        public ErrorResponse error { get; set; }
+    }
 
     public class ApiResponseModel
     {

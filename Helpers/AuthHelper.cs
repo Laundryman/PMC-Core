@@ -7,25 +7,28 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Client;
 using System.Diagnostics;
+using System.Drawing;
 using System.Globalization;
 using System.Security.Claims;
 using System.Text;
+using RazorEngine.Compilation.ImpromptuInterface.Dynamic;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Security;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
 
 namespace CoreSystem2024.Helpers
 {
-    public static class AuthHelper
+    public class AuthHelper
     {
         private static readonly CultureInfo UnitedKingdom = CultureInfo.GetCultureInfo("en-GB");
         private static readonly CultureInfo UnitedStates = CultureInfo.GetCultureInfo("en-US");
-
-        public static IConfiguration config = new ConfigurationBuilder().SetBasePath(AppDomain.CurrentDomain.BaseDirectory).AddJsonFile("appsettings.json").Build();
-
+        private static string env = System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        private static string settingsFile = "appsettings." + env + ".json";
+        private static string? sessionGuid { get; set; }
+        private static IConfiguration _config = new ConfigurationBuilder().SetBasePath(AppDomain.CurrentDomain.BaseDirectory).AddJsonFile(settingsFile).Build();
         public static void Initialize(IConfiguration Configuration)
         {
-            config = Configuration;
+
         }
 
         /// <summary>
@@ -81,7 +84,7 @@ namespace CoreSystem2024.Helpers
 
         public static void ClearSessionCookie(HttpRequest request, HttpResponse response)
         {
-            IConfigurationSection appSettings = config.GetSection("AppSettings");
+            IConfigurationSection appSettings = _config.GetSection("AppSettings");
             var sessionName = appSettings["SessionName"];
             var diamSessionCookie = request.Cookies[sessionName];
 
@@ -104,10 +107,10 @@ namespace CoreSystem2024.Helpers
 
         public static UserViewModel GetUserInfo(MemberIdentityUser user)
         {
-            IConfigurationSection appSettings = config.GetSection("AppSettings");
+            IConfigurationSection appSettings = _config.GetSection("AppSettings");
             var sessionName = appSettings["SessionName"];
-            string readScope = config["AzureB2C:ReadScope"];
-            string writeScope = config["AzureB2CWriteScope"];
+            string readScope = _config["AzureB2C:ReadScope"];
+            string writeScope = _config["AzureB2CWriteScope"];
             //if (!user.Identity.IsAuthenticated)
             //{
             //    var proxySupport = new ProxyApiSupport(config);
@@ -154,13 +157,13 @@ namespace CoreSystem2024.Helpers
             //}
             return null;
         }
-        public static void SetUserSession(UserViewModel userInfo, HttpContext httpContext)
+        public static Guid SetUserSession(ClaimsPrincipal userInfo, HttpContext httpContext)
         {
             //Check User is valid for this client (scope should contain the client Id)
-            IConfigurationSection appSettings = config.GetSection("AppSettings");
-            string readScope = config["AzureB2C:ReadScope"];
-            string writeScope = config["AzureB2CWriteScope"];
-            var connString = config["ConnectionStrings:umbracoDbDSN"]; //ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+            IConfigurationSection appSettings = _config.GetSection("AppSettings");
+            string readScope = _config["AzureB2C:ReadScope"];
+            string writeScope = _config["AzureB2CWriteScope"];
+            var connString = _config["ConnectionStrings:dploContext"]; //ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
             var userContext = new UsersContext(connString);
 
             try
@@ -168,12 +171,12 @@ namespace CoreSystem2024.Helpers
                 var userSession = new UserSession();
                 var sessionId = Guid.NewGuid();
                 userSession.SessionGuid = sessionId;
-                userSession.UserId = userInfo.Id;
-                userSession.UserName = userInfo.UserName;
+                userSession.UserId = userInfo.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value;
+                userSession.UserName = userInfo.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").Value; ;
                 userSession.DateCreated = DateTime.Now;
                 userContext.UserSession.Add(userSession);
                 userContext.SaveChanges();
-                string sessionName = DiamConfiguration.GetConfig().SessionName;
+                string sessionName = _config["AppSettings:SessionName"];
                 var diamSessionCookie = httpContext.Request.Cookies[sessionName];
 
                 if (diamSessionCookie != null)
@@ -185,6 +188,7 @@ namespace CoreSystem2024.Helpers
                     cookieOptions.Secure = true;
 
                     httpContext.Response.Cookies.Append(sessionName, userSession.SessionGuid.ToString(), cookieOptions);
+
                     //_logger.DebugFormat("Auth session cookie set " + diamSessionCookie.ToString());
                 }
 
@@ -197,8 +201,11 @@ namespace CoreSystem2024.Helpers
                     cookieOptions.Secure = true;
 
                     httpContext.Response.Cookies.Append(sessionName, userSession.SessionGuid.ToString(), cookieOptions);
+                    
                     //_logger.DebugFormat("Auth session cookie set " + newSessionCookie.ToString());
                 }
+
+                return userSession.SessionGuid;
             }
             catch (Exception ex)
             {
@@ -210,12 +217,12 @@ namespace CoreSystem2024.Helpers
 
         public static int SetActiveOrderId(HttpRequest request, int ActiveOrderId)
         {
-            IConfigurationSection appSettings = config.GetSection("AppSettings");
+            IConfigurationSection appSettings = _config.GetSection("AppSettings");
             var sessionName = appSettings["SessionName"];
             var diamSessionCookie = request.Cookies[sessionName];
 
             var sessionGuid = new Guid(diamSessionCookie);
-            var connString = config["ConnectionStrings:umbracoDbDSN"]; //ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+            var connString = _config["ConnectionStrings:dploContext"]; //ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
             var userContext = new UsersContext(connString);
 
             UserSession userSession = null;
@@ -231,16 +238,23 @@ namespace CoreSystem2024.Helpers
             return userSession.ActiveOrderId;
         }
 
-        public static int GetActiveOrderId(HttpContext httpContext, MemberIdentityUser user)
+        public static int GetActiveOrderId(HttpContext httpContext, ClaimsPrincipal user)
         {
-            var userInfo = GetUserInfo(user);
-            SetUserSession(userInfo, httpContext);
-            IConfigurationSection appSettings = config.GetSection("AppSettings");
+
+            //SetUserSession(user, httpContext);
+            IConfigurationSection appSettings = _config.GetSection("AppSettings");
             var sessionName = appSettings["SessionName"];
             var diamSessionCookie = httpContext.Request.Cookies[sessionName];
-            var sessionGuid = new Guid(diamSessionCookie);
+            Guid sessionGuid;
+            if (diamSessionCookie == null)
+            {
+                sessionGuid = SetUserSession(user, httpContext);
+                diamSessionCookie = httpContext.Request.Cookies[sessionName];
 
-            var connString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+            }
+            else sessionGuid = new Guid(diamSessionCookie);
+
+            var connString = _config["ConnectionStrings:dploContext"];
             var userContext = new UsersContext(connString);
             UserSession userSession = null;
 
@@ -267,8 +281,8 @@ namespace CoreSystem2024.Helpers
             //we need to re-auth using the reauth process
             string accessToken = null;
             var proxySupport = new ProxyApiSupport();
-            string readScope = config["AzureB2C:ReadScope"];
-            string writeScope = config["AzureB2CWriteScope"];
+            string readScope = _config["AzureB2C:ReadScope"];
+            string writeScope = _config["AzureB2CWriteScope"];
             try
             {
                 var result = await proxySupport.AcquireTokenForScopes(new string[]
@@ -307,7 +321,7 @@ namespace CoreSystem2024.Helpers
         }
         public static async Task<AuthenticationResult> AcquireTokenForScopes(string[] scopes)
         {
-            string signInPolicy = config["AzureB2C:SignInPolicyId"];
+            string signInPolicy = _config["AzureB2C:SignInPolicyId"];
             IConfidentialClientApplication cca = MsalAppBuilder.BuildConfidentialClientApplication();
             string accountId = ClaimsPrincipal.Current.GetB2CMsalAccountIdentifier(signInPolicy);
             var account = await cca.GetAccountAsync(accountId);

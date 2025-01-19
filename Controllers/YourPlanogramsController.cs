@@ -1,4 +1,5 @@
 ﻿using CoreSystem2024.CMSModelBuilderModels;
+using CoreSystem2024.Controllers.shop;
 using CoreSystem2024.Helpers;
 using CoreSystem2024.Models;
 using dplo.Domain;
@@ -19,7 +20,7 @@ using RedirectResult = Microsoft.AspNetCore.Mvc.RedirectResult;
 namespace diam_planogram.Controllers
 {
     [Microsoft.AspNetCore.Authorization.Authorize]
-    public class YourPlanogramsController : RenderController
+    public class YourPlanogramsController : BaseMvcController
     {
 
 

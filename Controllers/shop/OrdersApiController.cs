@@ -20,8 +20,8 @@ namespace CoreSystem2024.Controllers.shop
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IMemberManager _memberManager;
-        private readonly OrderService _orderService;
-        private readonly PlanogramService _planogramService;
+        private readonly IOrderService _orderService;
+        private readonly IPlanogramService _planogramService;
         private readonly IConfiguration _config;
         private readonly ILogger<OrdersApiController> _logger;
         private readonly ICountryService _countryService;
@@ -38,39 +38,41 @@ namespace CoreSystem2024.Controllers.shop
             IMemberManager memberManager,
             IWebHostEnvironment webHostEnvironment, 
             IConfiguration config, 
-            OrderService orderService1, 
-            PlanogramService planogramService1, ICatalogueService catalogueService) : base(config)
+            IPlanogramService planogramService, ICatalogueService catalogueService, EmailHelper emailHelper) : base(config)
         {
             _logger = logger;
             _countryService = countryService;
             _memberManager = memberManager;
             _webHostEnvironment = webHostEnvironment;
             _config = config;
-            _orderService = orderService1;
-            _planogramService = planogramService1;
+            _orderService = orderService;
+            _planogramService = planogramService;
             _catalogueService = catalogueService;
+            _emailHelper = emailHelper;
         }
-        [Route("/api/ordersapi/getorders")]
+        [Route("/umbraco/api/ordersapi/getorders")]
 
-        public IActionResult GetOrders()
+        public async Task<IActionResult> GetOrders()
         {
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             var userCountry = _countryService.GetCountry(CountryId);
 
             List<OrderInfo> orders;
 
-            if (RolesHelper.IsAdminUser(Helpers.UserInfo.Roles)) // admin - get all
+            if (RolesHelper.IsAdminUser(userInfo.Roles)) // admin - get all
             {
                 orders = _orderService.GetFilteredOrders(BrandId, null, null, "OrderUpdated", "desc", null, null, null,
                     null).ToList();
             }
-            else if (RolesHelper.IsClientValidator(Helpers.UserInfo.Roles)) // regional manager
+            else if (RolesHelper.IsClientValidator(userInfo.Roles)) // regional manager
             {
                 var region = userCountry.Regions.FirstOrDefault(x => x.BrandId == BrandId);
 
                 if (region == null)
                     throw new Exception("Failed to look up region for this user's country/brandId: " +
-                                        UserInfo.DiamCountryId + " / " + BrandId);
+                                        userInfo.DiamCountryId + " / " + BrandId);
 
                 orders = _orderService.GetFilteredOrders(BrandId, null, null, "OrderUpdated", "desc", null, null,
                     null, region.RegionId).ToList();
@@ -115,7 +117,7 @@ namespace CoreSystem2024.Controllers.shop
 
 
         //[Route("api/orders/getactive")]
-        [Route("/api/ordersapi/GetActiveOrder")]
+        [Route("/umbraco/api/ordersapi/GetActiveOrder")]
 
         public async Task<IActionResult> GetActiveOrder()
         {
@@ -123,7 +125,7 @@ namespace CoreSystem2024.Controllers.shop
 
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var aOrderId = AuthHelper.GetActiveOrderId(HttpContext, memberIdentity);
+            var aOrderId = AuthHelper.GetActiveOrderId(HttpContext, User);
 
             var order = _orderService.GetOrder(aOrderId);
 
@@ -149,7 +151,7 @@ namespace CoreSystem2024.Controllers.shop
 
 
         //[Route("api/orders/setactive/{id:int}")]
-        [Route("/api/ordersapi/SetActiveOrder")]
+        [Route("/umbraco/api/ordersapi/SetActiveOrder/{id}")]
         public IActionResult SetActiveOrder(int id)
         {
 
@@ -168,12 +170,13 @@ namespace CoreSystem2024.Controllers.shop
         }
 
         [HttpPost]
-        [Route("/api/ordersapi/RenameOrder")]
-        public IActionResult RenameOrder(RenameOrderModel model)
+        [Route("/umbraco/api/ordersapi/RenameOrder")]
+        public async Task<IActionResult> RenameOrder(RenameOrderModel model)
         {
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
-
-            if (RolesHelper.IsAdminShopper(Helpers.UserInfo.Roles))
+            if (RolesHelper.IsAdminShopper(userInfo.Roles))
             {
                 var order = _orderService.GetOrder(model.OrderId);
 
@@ -210,11 +213,14 @@ namespace CoreSystem2024.Controllers.shop
 
         [HttpPost]
         //[Route("api/order/create/{orderTitle}")]
-        [Route("/api/ordersapi/CreateOrder")]
-        public IActionResult CreateOrder(CreateOrderModel model)
+        [Route("/umbraco/api/ordersapi/CreateOrder")]
+        public async Task<IActionResult> CreateOrder(CreateOrderModel model)
         {
-            var userCountry = _countryService.GetCountry(CountryId);
-            if (!RolesHelper.IsAdminShopper(Helpers.UserInfo.Roles))
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+
+            var userCountry = _countryService.GetCountry(userInfo.DiamCountryId);
+            if (!RolesHelper.IsAdminShopper(userInfo.Roles))
             {
                 throw new UnauthorizedAccessException("Only admin shoppers can create orders.");
             }
@@ -227,15 +233,15 @@ namespace CoreSystem2024.Controllers.shop
                 var order = new Order
                 {
                     OrderTitle = model.OrderTitle,
-                    BrandId = BrandId,
-                    OrderCreatedBy = Helpers.UserInfo.Id,
-                    OrderUpdatedBy = Helpers.UserInfo.Id,
+                    BrandId = BrandId, 
+                    OrderCreatedBy = userInfo.Id,
+                    OrderUpdatedBy = userInfo.Id,
                     OrderCreated = DateTime.Now,
                     OrderUpdated = DateTime.Now,
                     OrderStatus = 1,
                     CountryId = userCountry.CountryId,
-                    OrderCreatedByName = Helpers.UserInfo.FullName,
-                    OrderUpdatedByName = Helpers.UserInfo.FullName,
+                    OrderCreatedByName = userInfo.GivenName + " " + userInfo.Surname,
+                    OrderUpdatedByName = userInfo.GivenName + " " + userInfo.Surname,
                     RegionId = userCountry.Regions.First(x => x.BrandId == BrandId).RegionId
                 };
 
@@ -256,7 +262,7 @@ namespace CoreSystem2024.Controllers.shop
 
 
         //[Route("api/order/{id:int}/{planoView:bool}")]
-        [Route("/api/ordersapi/GetOrder")]
+        [Route("/umbraco/api/ordersapi/GetOrder")]
         public IActionResult GetOrder(int id, bool planoView)
         {
 
@@ -295,11 +301,12 @@ namespace CoreSystem2024.Controllers.shop
 
         //[Route("api/orders/submit/{id:int}")]
         [HttpPost]
-        [Route("/api/ordersapi/SubmitOrder")]
+        [Route("/umbraco/api/ordersapi/SubmitOrder")]
         //[MvcAuthorize]
         public async Task<IActionResult> SubmitOrder(int id)
         {
-
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             // TODO: check the current user has rights to submit this order
 
@@ -325,8 +332,8 @@ namespace CoreSystem2024.Controllers.shop
 
             order.OrderStatus = (int)OrderStatusEnum.Submitted;
             order.OrderUpdated = DateTime.Now;
-            order.OrderUpdatedBy = Helpers.UserInfo.Id; ;
-            order.OrderUpdatedByName = Helpers.UserInfo.FullName;
+            order.OrderUpdatedBy = userInfo.Id; ;
+            order.OrderUpdatedByName = userInfo.GivenName + " " + userInfo.Surname;
             order.OrderSubmitted = DateTime.Now;
 
             _orderService.SaveOrder();
@@ -357,11 +364,12 @@ namespace CoreSystem2024.Controllers.shop
         //[Route("api/orders/unsubmit/{id:int}")]
         [HttpPost]
         //[MvcAuthorize]
-        [Route("/api/ordersapi/UnsubmitOrder")]
-        public IActionResult UnsubmitOrder(int id)
+        [Route("/umbraco/api/ordersapi/UnsubmitOrder")]
+        public async Task<IActionResult> UnsubmitOrder(int id)
         {
 
-            // TODO: check the current user has rights to submit this order
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             var order = _orderService.GetOrder(id);
 
@@ -370,8 +378,8 @@ namespace CoreSystem2024.Controllers.shop
 
             order.OrderStatus = (int)OrderStatusEnum.Open;
             order.OrderUpdated = DateTime.Now;
-            order.OrderUpdatedBy = Helpers.UserInfo.Id; ;
-            order.OrderUpdatedByName = Helpers.UserInfo.FullName;
+            order.OrderUpdatedBy = userInfo.Id; ;
+            order.OrderUpdatedByName = userInfo.GivenName + " " + userInfo.Surname;
 
             _orderService.SaveOrder();
 
@@ -383,11 +391,12 @@ namespace CoreSystem2024.Controllers.shop
 
 
 
-        [Route("/api/ordersapi/SendSubmittedEmails")]
+        [Route("/umbraco/api/ordersapi/SendSubmittedEmails")]
         private async Task<Email> SendSubmittedEmails(int orderId)
         {
             _logger.LogDebug("SendSubmittedEmails begin");
-
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             string sessionName = DiamConfiguration.GetConfig().SessionName;
             var diamSession = HttpContext.Request.Cookies[sessionName];
@@ -405,7 +414,7 @@ namespace CoreSystem2024.Controllers.shop
 
             // need to include the xls in this email - or a link to it
             _logger.LogDebug("Get userId");
-            var userId = UserInfo.Id;
+            var userId = userInfo.Id;
             _logger.LogDebug("Got userId");
 
             var uri = new System.Uri(Request.GetDisplayUrl());
@@ -433,8 +442,7 @@ namespace CoreSystem2024.Controllers.shop
             var adminResponse = await _emailHelper.SendEmail(adminEmail);
             _logger.LogDebug("End Admin Email");
 
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+
             var userEmail = new Email()
             {
                 //BccList = DiamEmailConfiguration.GetConfig().BCCList,
@@ -472,13 +480,14 @@ namespace CoreSystem2024.Controllers.shop
 
         //[Route("api/orders/remove/{id:int}")]
         [HttpPost]
-        [Route("/api/ordersapi/RemoveOrder")]
-        public IActionResult RemoveOrder(int id)
+        [Route("/umbraco/api/ordersapi/RemoveOrder")]
+        public async Task<IActionResult> RemoveOrder(int id)
         {
-
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             // TODO: check the current user has rights to remove this order
-            var userId = UserInfo.Id;
+            var userId = userInfo.Id;
 
             var order = _orderService.GetOrder(id);
 
@@ -500,15 +509,15 @@ namespace CoreSystem2024.Controllers.shop
         #endregion
         #region orderItems
         [HttpPost]
-        [Route("/api/ordersapi/AddOrderItem")]
+        [Route("/umbraco/api/ordersapi/AddOrderItem")]
         public async Task<IActionResult> AddOrderItem(AddOrderItemModel model)
         {
 
-
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
             if (model.OrderId == null)
             {
-                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-                var activeOrderId = AuthHelper.GetActiveOrderId(HttpContext, memberIdentity);
+                var activeOrderId = AuthHelper.GetActiveOrderId(HttpContext, User);
 
                 if (activeOrderId == 0)
                     throw new ArgumentException("There is no active order.");
@@ -545,8 +554,8 @@ namespace CoreSystem2024.Controllers.shop
 
                 _orderService.CreateOrderItem(orderItem);
                 order.OrderUpdated = DateTime.Now;
-                order.OrderUpdatedBy = Helpers.UserInfo.Id; ;
-                order.OrderUpdatedByName = Helpers.UserInfo.FullName;
+                order.OrderUpdatedBy = userInfo.Id; ;
+                order.OrderUpdatedByName = userInfo.GivenName + " " + userInfo.Surname;
 
                 _orderService.SaveOrder();
                 //Log Action
@@ -566,10 +575,11 @@ namespace CoreSystem2024.Controllers.shop
 
         [HttpPost]
         //[Route("api/orders/deleteOrderItem/{orderId:int}/{orderItemId:int}")]
-        [Route("/api/ordersapi/DeleteOrderItem")]
-        public IActionResult DeleteOrderItem(DeleteOrderItemModel model)
+        [Route("/umbraco/api/ordersapi/DeleteOrderItem")]
+        public async Task<IActionResult> DeleteOrderItem(DeleteOrderItemModel model)
         {
-
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             var order = _orderService.GetOrder(model.OrderId);
 
@@ -580,7 +590,7 @@ namespace CoreSystem2024.Controllers.shop
             //     throw new ArgumentException("This function is only available to admin shoppers.");
 
 
-            if (RolesHelper.IsAdminShopper(Helpers.UserInfo.Roles) || orderItem?.PlanogramId == null)
+            if (RolesHelper.IsAdminShopper(userInfo.Roles) || orderItem?.PlanogramId == null)
             {
                 var response = new ApiResponseModel();
 
@@ -595,8 +605,8 @@ namespace CoreSystem2024.Controllers.shop
                 //    url.GetLeftPart(UriPartial.Authority), 0, order.OrderId);
 
                 order.OrderUpdated = DateTime.Now;
-                order.OrderUpdatedBy = Helpers.UserInfo.Id; ;
-                order.OrderUpdatedByName = Helpers.UserInfo.FullName;
+                order.OrderUpdatedBy = userInfo.Id; ;
+                order.OrderUpdatedByName = userInfo.GivenName + " " + userInfo.Surname;
 
                 var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService);
 
@@ -612,10 +622,11 @@ namespace CoreSystem2024.Controllers.shop
 
         [HttpPost]
         //[Route("api/orders/deletePlanogram/{orderId:int}/{planogramId:int}")]
-        [Route("/api/ordersapi/DeletePlanogram")]
-        public IActionResult DeletePlanogram(DeletePlanogramModel model)
+        [Route("/umbraco/api/ordersapi/DeletePlanogram")]
+        public async Task<IActionResult> DeletePlanogram(DeletePlanogramModel model)
         {
-
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             if (!RolesHelper.IsAdminShopper(Helpers.UserInfo.Roles))
                 throw new ArgumentException("This function is only available to admin shoppers.");
@@ -638,8 +649,9 @@ namespace CoreSystem2024.Controllers.shop
 
 
             order.OrderUpdated = DateTime.Now;
-            order.OrderUpdatedBy = Helpers.UserInfo.Id; ;
-            order.OrderUpdatedByName = Helpers.UserInfo.FullName;
+            order.OrderUpdatedBy = userInfo.Id; ;
+            order.OrderUpdatedByName = userInfo.GivenName + " " + userInfo.Surname;
+
 
             _orderService.SaveOrder();
 
@@ -655,10 +667,11 @@ namespace CoreSystem2024.Controllers.shop
 
 
         [HttpPost]
-        [Route("/api/ordersapi/DeleteFullPlanogram")]
-        public IActionResult DeleteFullPlanogram(DeleteFullPlanogramModel model)
+        [Route("/umbraco/api/ordersapi/DeleteFullPlanogram")]
+        public async Task<IActionResult> DeleteFullPlanogram(DeleteFullPlanogramModel model)
         {
-
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             if (!RolesHelper.IsAdminShopper(Helpers.UserInfo.Roles))
                 throw new ArgumentException("This function is only available to admin shoppers.");
@@ -673,8 +686,8 @@ namespace CoreSystem2024.Controllers.shop
             _orderService.DeleteFullPlanogram(model.OrderId, model.OrderPlanogramId);
 
             order.OrderUpdated = DateTime.Now;
-            order.OrderUpdatedBy = Helpers.UserInfo.Id; ;
-            order.OrderUpdatedByName = Helpers.UserInfo.FullName;
+            order.OrderUpdatedBy = userInfo.Id; ;
+            order.OrderUpdatedByName = userInfo.GivenName + " " + userInfo.Surname;
 
             _orderService.SaveOrder();
 
@@ -689,10 +702,11 @@ namespace CoreSystem2024.Controllers.shop
 
         [HttpPost]
         //[Route("api/orders/updateOrderItemQuantity/{orderItemId:int}/{quantity:int}")]
-        [Route("/api/ordersapi/UpdateOrderItemQuantity")]
-        public IActionResult UpdateOrderItemQuantity(UpdateOrderItemQuantityModel model)
+        [Route("/umbraco/api/ordersapi/UpdateOrderItemQuantity")]
+        public async Task<IActionResult> UpdateOrderItemQuantity(UpdateOrderItemQuantityModel model)
         {
-
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             var response = new ApiResponseModel();
 
@@ -711,7 +725,7 @@ namespace CoreSystem2024.Controllers.shop
 
             if (model.Quantity < orderItem.InitialQuantity)
             {
-                if (!RolesHelper.IsAdminShopper(UserInfo.Roles))
+                if (!RolesHelper.IsAdminShopper(userInfo.Roles))
                     throw new ArgumentException("Minimum quantity for items in this planogram is " + orderItem.InitialQuantity);
 
                 orderItem.InitialQuantity = model.Quantity;
@@ -723,8 +737,8 @@ namespace CoreSystem2024.Controllers.shop
             _orderService.SaveOrderItem();
 
             order.OrderUpdated = DateTime.Now;
-            order.OrderUpdatedBy = Helpers.UserInfo.Id; ;
-            order.OrderUpdatedByName = Helpers.UserInfo.FullName;
+            order.OrderUpdatedBy = userInfo.Id; ;
+            order.OrderUpdatedByName = userInfo.GivenName + " " + userInfo.Surname;
 
             _orderService.SaveOrder();
 
@@ -742,10 +756,11 @@ namespace CoreSystem2024.Controllers.shop
 
         [HttpPost]
         //[Route("api/orders/updateOrderItemQuantity/{orderItemId:int}/{quantity:int}")]
-        [Route("/api/ordersapi/UpdateOrderPlanogramQuantity")]
-        public IActionResult UpdateOrderPlanogramQuantity(UpdateOrderPlanogramQuantityModel model)
+        [Route("/umbraco/api/ordersapi/UpdateOrderPlanogramQuantity")]
+        public async Task<IActionResult> UpdateOrderPlanogramQuantity(UpdateOrderPlanogramQuantityModel model)
         {
-
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             var response = new ApiResponseModel();
 
@@ -767,7 +782,7 @@ namespace CoreSystem2024.Controllers.shop
 
             if (model.Quantity < initialQuantity)
             {
-                if (!RolesHelper.IsAdminShopper(UserInfo.Roles))
+                if (!RolesHelper.IsAdminShopper(userInfo.Roles))
                     throw new ArgumentException("Minimum quantity for items in this planogram is " + initialQuantity);
             }
 
@@ -783,8 +798,8 @@ namespace CoreSystem2024.Controllers.shop
             //OrderService.SaveOrderItem();
 
             order.OrderUpdated = DateTime.Now;
-            order.OrderUpdatedBy = Helpers.UserInfo.Id; ;
-            order.OrderUpdatedByName = Helpers.UserInfo.FullName;
+            order.OrderUpdatedBy = userInfo.Id; ;
+            order.OrderUpdatedByName = userInfo.GivenName + " " + userInfo.Surname;
 
             _orderService.SaveOrder();
 

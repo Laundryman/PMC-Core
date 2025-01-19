@@ -69,13 +69,6 @@ public static class OpenIdBuilderExtensions
                                 {
                                     context.Fail("User is not authorised to access this site. Incorrect brand.");
                                 }
-                                var email = claims?.SingleOrDefault(x => x.Type == "extension_userEmailAddress");
-                                if (email != null)
-                                {
-                                    // The email claim is required for auto linking.
-                                    // So get it from another claim and put it in the email claim.
-                                    claims?.Add(new Claim(ClaimTypes.Email, email.Value));
-                                }
 
                                 var name = claims?.SingleOrDefault(x => x.Type == "name");
                                 if (name != null)
@@ -83,6 +76,16 @@ public static class OpenIdBuilderExtensions
                                     // The name claim is required for auto linking.
                                     // So get it from another claim and put it in the name claim.
                                     claims?.Add(new Claim(ClaimTypes.Name, name.Value));
+                                }
+
+                                var email = claims?.SingleOrDefault(x => x.Type == "extension_userEmailAddress");
+                                if (email != null)
+                                {
+                                    // The email claim is required for auto linking.
+                                    // So get it from another claim and put it in the email claim.
+                                    var newEmail = name.Value + email.Value;
+                                    //email.Value = newEmail;
+                                    claims?.Add(new Claim(ClaimTypes.Email, newEmail));
                                 }
 
                                 if (context != null)

@@ -1,0 +1,362 @@
+{
+  "Version": 1,
+  "Hash": "GI12/JqSOhwaSFnoJKMBj4Tkzaulp7HxQfjNrl/eF18=",
+  "Source": "CoreSystemII",
+  "BasePath": "App_Plugins/CoreSystemII",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "CoreSystemII\\wwwroot",
+      "Source": "CoreSystemII",
+      "ContentRoot": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\",
+      "BasePath": "App_Plugins/CoreSystemII",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\sz6j1ircmy-cvg1cjziwd.gz",
+      "SourceId": "CoreSystemII",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\",
+      "BasePath": "App_Plugins/CoreSystemII",
+      "RelativePath": "umbraco-package#[.{fingerprint=cvg1cjziwd}]?.json.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\umbraco-package.json",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "ipf2r0g14y",
+      "Integrity": "+gh/naJmrC6NiIODyRc6TM3p8spaF+LwkqITBkkViiU=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\umbraco-package.json"
+    },
+    {
+      "Identity": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\umbraco-package.json",
+      "SourceId": "CoreSystemII",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\",
+      "BasePath": "App_Plugins/CoreSystemII",
+      "RelativePath": "umbraco-package#[.{fingerprint}]?.json",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "cvg1cjziwd",
+      "Integrity": "qHPy4k/PXhMRMaZEICteeosy2Tu8004el7DBNod9ytU=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\umbraco-package.json"
+    }
+  ],
+  "Endpoints": [
+    {
+      "Route": "umbraco-package.cvg1cjziwd.json",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\sz6j1ircmy-cvg1cjziwd.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.009708737864"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "102"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"+gh/naJmrC6NiIODyRc6TM3p8spaF+LwkqITBkkViiU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 29 Nov 2024 11:55:17 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/json"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"qHPy4k/PXhMRMaZEICteeosy2Tu8004el7DBNod9ytU=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "cvg1cjziwd"
+        },
+        {
+          "Name": "label",
+          "Value": "umbraco-package.json"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-qHPy4k/PXhMRMaZEICteeosy2Tu8004el7DBNod9ytU="
+        }
+      ]
+    },
+    {
+      "Route": "umbraco-package.cvg1cjziwd.json",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\umbraco-package.json",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "112"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/json"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"qHPy4k/PXhMRMaZEICteeosy2Tu8004el7DBNod9ytU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 29 Nov 2024 11:55:17 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "cvg1cjziwd"
+        },
+        {
+          "Name": "label",
+          "Value": "umbraco-package.json"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-qHPy4k/PXhMRMaZEICteeosy2Tu8004el7DBNod9ytU="
+        }
+      ]
+    },
+    {
+      "Route": "umbraco-package.cvg1cjziwd.json.gz",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\sz6j1ircmy-cvg1cjziwd.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "102"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/json"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"+gh/naJmrC6NiIODyRc6TM3p8spaF+LwkqITBkkViiU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 29 Nov 2024 11:55:17 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "cvg1cjziwd"
+        },
+        {
+          "Name": "label",
+          "Value": "umbraco-package.json.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-+gh/naJmrC6NiIODyRc6TM3p8spaF+LwkqITBkkViiU="
+        }
+      ]
+    },
+    {
+      "Route": "umbraco-package.json",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\sz6j1ircmy-cvg1cjziwd.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.009708737864"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "102"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"+gh/naJmrC6NiIODyRc6TM3p8spaF+LwkqITBkkViiU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 29 Nov 2024 11:55:17 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/json"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"qHPy4k/PXhMRMaZEICteeosy2Tu8004el7DBNod9ytU=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-qHPy4k/PXhMRMaZEICteeosy2Tu8004el7DBNod9ytU="
+        }
+      ]
+    },
+    {
+      "Route": "umbraco-package.json",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\umbraco-package.json",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "112"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/json"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"qHPy4k/PXhMRMaZEICteeosy2Tu8004el7DBNod9ytU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 29 Nov 2024 11:55:17 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-qHPy4k/PXhMRMaZEICteeosy2Tu8004el7DBNod9ytU="
+        }
+      ]
+    },
+    {
+      "Route": "umbraco-package.json.gz",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\sz6j1ircmy-cvg1cjziwd.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "102"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/json"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"+gh/naJmrC6NiIODyRc6TM3p8spaF+LwkqITBkkViiU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 29 Nov 2024 11:55:17 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-+gh/naJmrC6NiIODyRc6TM3p8spaF+LwkqITBkkViiU="
+        }
+      ]
+    }
+  ]
+}

@@ -15,8 +15,11 @@ using Newtonsoft.Json;
 using System.Net;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Configuration;
+using Umbraco.Cms.Api.Management.ViewModels.Culture;
 using Umbraco.Cms.Core.Security;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
+using System.Net.Http;
+using dplo_shop.Models;
 
 namespace CoreSystem2024.Controllers.Planx
 {
@@ -71,21 +74,7 @@ namespace CoreSystem2024.Controllers.Planx
 
                 var response = await proxyApi.GetMenuCall(data.planogramId);
                 //Get the json data from the result
-                var menu = new List<PlanxMenuPart>();
-                //var response =
-                if (response is OkResult)
-                {
-                    var menuJson = response as OkObjectResult;
-                    menu = JsonConvert.DeserializeObject<List<PlanxMenuPart>>(menuJson.Value.ToString());
-                }
-                else
-                {
-                    //Something has gone wrong, handle it here
-                    _logger.LogError("Error getting menu " + " --- ");
-                    return BadRequest();
-                }
-
-                return Ok(menu);
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -327,7 +316,14 @@ namespace CoreSystem2024.Controllers.Planx
             try
             {
                 var response = await proxyApi.SavePlanogramJpegCall(planoJpeg);
-                return Ok();
+                if (response.IsSuccessStatusCode)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    throw new Exception(response.Content.ToString());
+                }
             }
             catch (Exception Ex)
             {
@@ -342,6 +338,7 @@ namespace CoreSystem2024.Controllers.Planx
                     message = Ex.Message + Ex.StackTrace;
                 }
                 //log an error
+                _logger.LogError("error saving jpg ---- " + message);
 
                 return BadRequest(message);
             }
@@ -377,43 +374,63 @@ namespace CoreSystem2024.Controllers.Planx
 
         [HttpPost]
         [Route("/api/planxapi/GetPlanoPDF")]
-        public async Task<HttpResponseMessage> GetPlanoPDF(PlanogramImageViewModel planoSvg)
+        public async Task<IActionResult> GetPlanoPDF(PlanogramImageViewModel planoSvg)
         {
             //we need to re-auth using the reauth process
             //var accessToken = //AuthHelper.ReAuth(Authorization, client);
 
             _logger.LogDebug("Save Planogram Image ");
-
+            var planogram = _planogramService.GetPlanogram(planoSvg.PlanogramId);
             var response = await proxyApi.GetPlanoPDFCall(planoSvg);
 
             _logger.LogDebug("Save scratchpad end ");
 
             //Get the json data from the result
-            //var productShades = new ProductShadesViewModel();
-            //var response =
-            if (response is OkResult)
+            if (response.IsSuccessStatusCode)
             {
-                if (response.IsSuccessStatusCode)
-                {
-                    HttpResponseMessage finalResponse = new HttpResponseMessage(HttpStatusCode.OK);
-                    //read the pdf response stream
-                    var pdfStream = response.Content.ReadAsByteArrayAsync().Result;
-                    finalResponse.Content = new StringContent(Convert.ToBase64String(pdfStream));
+                HttpResponseMessage finalResponse = new HttpResponseMessage(HttpStatusCode.OK);
+                //read the pdf response stream
+                //var pdfByteStream = await response.Content.ReadAsStringAsync();
+                //adding bytes to memory stream
+                //var dataStream = new MemoryStream(pdfByteStream);
+                //finalResponse.Content = new StreamContent(dataStream);
+                //finalResponse.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment");
+                //finalResponse.Content.Headers.ContentDisposition.FileName = planogram.Name + ".pdf";
+                //finalResponse.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
 
-                    finalResponse.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
-
-                    return finalResponse;
-                }
-                else
+                //var pdfString = new pdfByteStream.;
+                //finalResponse.Content = response.Content;
+                //finalResponse.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+                //read the pdf response stream
+                System.Net.Mime.ContentDisposition cd = new System.Net.Mime.ContentDisposition
                 {
-                    //Something has gone wrong, handle it here
-                    return response;
-                }
+                    FileName = planogram.Name + ".pdf",
+                    Inline = false  // false = prompt the user for downloading;  true = browser to try to show the file inline
+                };
+                Response.Headers.Add("Content-Disposition", cd.ToString());
+                
+                Response.Headers.ContentType = "application/pdf";
+
+                var pdfByteStream = response.Content.ReadAsByteArrayAsync().Result;
+                var dataStream = new MemoryStream(pdfByteStream);
+                var pdfString = new StringContent(Convert.ToBase64String(pdfByteStream));
+
+                var fileResponse = new PdfResponseModel()
+                {
+                    pdfBase64String = pdfString,
+                    error = null
+                };
+
+                return File(dataStream, "application/pdf");
+                //return Ok(fileResponse);
+                //finalResponse.Content = pdfString;
+                //return finalResponse;
+
             }
             else
             {
                 //Something has gone wrong, handle it here
-                return response;
+                return BadRequest(response.Content.ToString());
             }
 
         }

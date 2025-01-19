@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Newtonsoft.Json;
 using System.Globalization;
+using CoreSystem2024.Controllers.shop;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
@@ -20,7 +21,7 @@ using UserInfo = CoreSystem2024.Helpers.UserInfo;
 namespace diam_planogram.Controllers
 {
     [Authorize]
-    public class PlanXController : RenderController
+    public class PlanXController : BaseMvcController
     {
 
 

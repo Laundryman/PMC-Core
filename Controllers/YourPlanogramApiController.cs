@@ -253,17 +253,17 @@ namespace CoreSystem2024.Controllers
             IEnumerable<PlanogramInfo> response;
             try
             {
-                PlanaogramStatusEnum status = (PlanaogramStatusEnum)data.Status;
+                int status = data.Status;
                 if (RolesHelper.IsAdministrator(userInfo.Roles) || (RolesHelper.IsValidator(userInfo.Roles))
                     || (RolesHelper.IsApprover(userInfo.Roles)))
                 {
                     if (RolesHelper.IsSuperUser(userInfo.Roles))
                     {
-                        response = await _proxyApi.GetPlanogramsCall(status, _countryService.GetCountry(userInfo.DiamCountryId).CountryId, data.RegionId, data.StandTypeId);
+                        response = await _proxyApi.GetPlanogramsCall(status, data.CountryId, data.RegionId, data.StandTypeId);
                     }
                     else
                     {
-                        response = await _proxyApi.GetPlanogramsCall(status, data.CountryId, data.RegionId, data.StandTypeId);
+                        response = await _proxyApi.GetPlanogramsCall(status, _countryService.GetCountry(userInfo.DiamCountryId).CountryId, data.RegionId, data.StandTypeId);
                     }
                 }
                 else

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Web;
 using CoreSystem2024.ProxyServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Configuration;
 using Umbraco.Cms.Core.Security;
@@ -14,6 +15,7 @@ using Umbraco.Cms.Core.Security;
 namespace CoreSystem2024.Controllers
 {
     [ApiController]
+    [Authorize]
     public class AuthApiController : Controller
     {
 
@@ -24,6 +26,7 @@ namespace CoreSystem2024.Controllers
         private IPlanogramService _planogramService;
         private ICountryService _countryService;
         private readonly IMemberManager _memberManager;
+        private readonly ILogger<AuthApiController> _logger;
 
 
         public AuthApiController(IStandService standService, IPlanogramService planogramService, ICountryService countryService, IMemberManager memberManager)
@@ -75,7 +78,7 @@ namespace CoreSystem2024.Controllers
             catch (Exception ex)
             {
                 //SystemLog.ErrorFormat("GetUserRole " + ex.ToString());
-
+                _logger.LogError("Error getting Role " + " --- " + ex.ToString());
                 var myRole = new { Role = "clientEditor" };
                 return BadRequest(myRole);
 

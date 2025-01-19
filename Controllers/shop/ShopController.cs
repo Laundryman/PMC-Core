@@ -9,43 +9,28 @@ using Umbraco.Cms.Web.Common.Controllers;
 
 namespace CoreSystem2024.Controllers.shop
 {
-    public class ShopController : RenderController
+    public class ShopController : BaseMvcController
     {
 
-        private readonly IConfiguration Configuration;
-        private string domain;
-        private string brandId;
-        private string readScope;
-        private string writeScope;
+        private readonly IConfiguration _configuration;
+        private string? _domain;
+        private string? _brandId;
+        private string? _readScope;
+        private string? _writeScope;
 
         // GET: Shop
         public ShopController(ILogger<RenderController> logger, ICompositeViewEngine compositeViewEngine, IUmbracoContextAccessor umbracoContextAccessor, IConfiguration configuration) : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
-            Configuration = configuration;
-            domain = Configuration["AppSettings:ApiUrl"];
-            brandId = Configuration["AppSettings:ClientBrandId"];
-            readScope = Configuration["AzureB2C:ReadScope"];
-            writeScope = Configuration["AzureB2CWriteScope"];
+            _configuration = configuration;
+            _domain = _configuration["AppSettings:ApiUrl"];
+            _brandId = _configuration["AppSettings:ClientBrandId"];
+            _readScope = _configuration["AzureB2C:ReadScope"];
+            _writeScope = _configuration["AzureB2CWriteScope"];
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Shop()
         {
-            try
-            {
-                var proxySupport = new ProxyApiSupport();
-                //// Retrieve the token with the specified scopes
-                var result = await proxySupport.AcquireTokenForScopes(new string[]
-                {
-                    readScope, writeScope
-                });
-            }
-            catch (MsalUiRequiredException)
-            {
-                //var proxySupport = new ProxyApiSupport();
-                //var result = await proxySupport.AcquireTokenInteractive(new string[]
-                //    { Globals.ReadTasksScope, Globals.WriteTasksScope });
-                return new RedirectResult("/Welcome");
-            }
+
             return CurrentTemplate(CurrentPage);
         }
     }

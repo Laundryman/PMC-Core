@@ -4,6 +4,8 @@ using dplo.Service;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Logging;
 using System.Configuration;
+using Dplo.ViewModels;
+using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
 
@@ -13,56 +15,18 @@ namespace CoreSystem2024.Controllers.shop
     {
         //private readonly JsonMediaTypeFormatter _jsonMediaTypeFormatter;
 
-        //protected static WebServerClient WebServerClient = AuthHelper.CreateClient();
-        //protected UserViewModel UserInfo => AuthHelper.GetUserInfo(HttpContext.User);
 
-        //protected static IAuthorizationState Authorization => (AuthorizationState)AuthHelper.GetAuth(HttpContext.Current.Request);
-
-        protected int BrandId => int.Parse(ConfigurationManager.AppSettings["brand"]);
-
-        protected Country UserCountry
-        {
-            get
-            {
-                try
-                {
-                    var country = _countryService.GetCountry(UserInfo.DiamCountryId);
-
-                    if (country == null) throw new Exception();
-
-                    return country;
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("This user's country was not recognised: " + UserInfo.DiamCountryId);
-                }
-            }
-        }
 
         #region Services, managers
-
-        //private ICategoryService _categoryService;
-
-        //private ICatalogueService _catalogueService;
-
-        private ICountryService _countryService;
-
-        //private IPlanogramService _planogramService;
-
-        //private IOrderService _orderService;
-
-        //private IStandService _standService;
-
 
         #endregion
         public BaseMvcController(
             ILogger<RenderController> logger,
             ICompositeViewEngine compositeViewEngine,
-            IUmbracoContextAccessor umbracoContextAccessor,
-            ICountryService countryService)
+            IUmbracoContextAccessor umbracoContextAccessor)
             : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
-            _countryService = countryService;
+            //AuthHelper.SetUserSession(User, HttpContext);
         }
 
 

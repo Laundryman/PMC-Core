@@ -8,23 +8,33 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Logging;
 using System.Configuration;
+using CoreSystem2024.Controllers.shop;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
+using Microsoft.Extensions.Configuration;
+using Umbraco.Cms.Core.Security;
+using CoreSystem2024.CMSModelBuilderModels;
+using Catalogue = CoreSystem2024.CMSModelBuilderModels.Catalogue;
 
 namespace diam_planogram.Controllers
 {
     ////[MvcAuthorize]
-    public class CatalogueController : RenderController
+    public class CatalogueController : BaseMvcController
     {
 
         #region constructor
-        private IStandService _standService;
-        private IPlanogramService _planogramService;
-        private ICatalogueService _catalogueService;
-        private ICountryService _countryService;
-        private ICategoryService _categoryService;
-        private IProductService _productService;
-        private IMapper _mapper;
+        private readonly IStandService _standService;
+        private readonly IPlanogramService _planogramService;
+        private readonly ICatalogueService _catalogueService;
+        private readonly ICountryService _countryService;
+        private readonly ICategoryService _categoryService;
+        private readonly IProductService _productService;
+        private readonly IMapper _mapper;
+        private readonly IConfiguration _config;
+        private readonly IMemberManager _memberManager;
+
+        private string? _domain;
+        private int _brandId;
 
         public CatalogueController(
             ILogger<RenderController> logger,
@@ -35,7 +45,7 @@ namespace diam_planogram.Controllers
             ICatalogueService catalogueService,
             ICountryService countryService,
             ICategoryService categoryService,
-            IProductService productService, IMapper mapper) : base(logger, compositeViewEngine, umbracoContextAccessor)
+            IProductService productService, IMapper mapper, IConfiguration config, IMemberManager memberManager) : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
             _standService = standService;
             _planogramService = planogramService;
@@ -44,47 +54,31 @@ namespace diam_planogram.Controllers
             _categoryService = categoryService;
             _productService = productService;
             _mapper = mapper;
+            _config = config;
+            _memberManager = memberManager;
+            _domain = _config["AppSettings:ApiUrl"];
+            _brandId = int.Parse(_config["AppSettings:ClientBrandId"]);
+
         }
 
         #endregion
 
 
-        public IActionResult Catalogue()
+        public async Task<IActionResult> Catalogue(Catalogue catalogueModel)
         {
-
-            //if (Request.UrlReferrer.PathAndQuery.Contains("edit-planogram.aspx") && !Request.Url.PathAndQuery.Contains("edit-planogram.aspx"))
-            //{
-            //    var querystring = Request.UrlReferrer.Query.Split('?')[1];
-            //    var qparams = querystring.Split('&');
-            //    var paramsList = new List<Tuple<string, string>>();
-            //    var planoIdToUnLock = 0;
-            //    foreach (var param in qparams)
-            //    {
-            //        var paramSplt = param.Split('=');
-            //        paramsList.Add(new Tuple<string, string>(paramSplt[0], paramSplt[1]));
-            //        if (paramSplt[0].ToLower() == "pid")
-            //        {
-            //            planoIdToUnLock = int.Parse(paramSplt[1]);
-            //            break;
-            //        }
-            //    }
-            //    try
-            //    {
-            //        PlanogramService.UnLockPlanogram(planoIdToUnLock, UserInfo.userViewModel);
-            //    }
-            //    catch (Exception Ex)
-            //    {
-            //    }
-            //}
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             //we will create a custom model
-            var catalogueModel = new CatalogueModel();
-            catalogueModel.UserFirstName = UserInfo.GivenName;
-            catalogueModel.UserLastName = UserInfo.Surname;
-            var country = _countryService.GetCountry(UserInfo.DiamCountryId);
-            catalogueModel.BrandId = int.Parse(ConfigurationManager.AppSettings["brand"]);
+            //var catalogueModel = new CatalogueModel();
+            catalogueModel.UserFirstName = userInfo.GivenName;
+            catalogueModel.UserLastName = userInfo.Surname;
+            var country = _countryService.GetCountry(userInfo.DiamCountryId);
+            catalogueModel.BrandId = _brandId;
             catalogueModel.StandTypes = _standService.GetStandTypesWithStands(catalogueModel.BrandId, country.CountryId).ToList();
-            catalogueModel.ApiUrl = ConfigurationManager.AppSettings["apiURL"];
+            catalogueModel.ApiUrl = _config["AppSettings:ApiURL"]; 
+            catalogueModel.ServerUrl = _config["AppSettings:ServerURL"]; 
+
 
             catalogueModel.CountryId = country.CountryId;
             //TODO: we need to associate member with brands and with regions
@@ -100,14 +94,14 @@ namespace diam_planogram.Controllers
                 var hasProducts = _catalogueService.GetParts(catalogueModel.BrandId, cat.CategoryId, countries).Any();
                 if (hasProducts && !notthese.Contains(cat.CategoryId))
                 {
-                    var heroImageUrl = catalogueModel.ApiUrl + "/planogram/products/photo_art/placeholder.jpg";
+                    var heroImageUrl = catalogueModel.ServerUrl + "/planogram/products/photo_art/placeholder.jpg";
                     var heroProduct = _productService.GetHeroProduct(cat.CategoryId, catalogueModel.BrandId);
                     if (heroProduct != null)
                     {
                         var catHeroProduct = _productService.GetProduct(heroProduct.ProductId);
                         if (catHeroProduct != null)
                         {
-                            heroImageUrl = catalogueModel.ApiUrl + "/planogram/products/photo_art/" +
+                            heroImageUrl = catalogueModel.ServerUrl + "/planogram/products/photo_art/" +
                                            catHeroProduct.ProductImage;
                         }
                     }
@@ -120,7 +114,6 @@ namespace diam_planogram.Controllers
             }
 
             catalogueModel.ParentCategories = pCatsToDisplay;
-            catalogueModel.ApiUrl = ConfigurationManager.AppSettings["apiURL"];
 
             try
             {
@@ -142,18 +135,22 @@ namespace diam_planogram.Controllers
             return CurrentTemplate(catalogueModel);
         }
 
-        public IActionResult CatalogueStandAlone()
+        public async Task<IActionResult> CatalogueStandAlone(Catalogue catalogueModel)
         {
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             //we will create a custom model
-            var catalogueModel = new CatalogueModel();
-            catalogueModel.UserFirstName = UserInfo.GivenName;
-            catalogueModel.UserLastName = UserInfo.Surname;
-            catalogueModel.BrandId = int.Parse(ConfigurationManager.AppSettings["brand"]);
-            var country = _countryService.GetCountry(UserInfo.DiamCountryId);
+            //var catalogueModel = new CatalogueModel();
+            catalogueModel.UserFirstName = userInfo.GivenName;
+            catalogueModel.UserLastName = userInfo.Surname;
+            catalogueModel.BrandId = _brandId;
+            var country = _countryService.GetCountry(userInfo.DiamCountryId);
             catalogueModel.CountryId = country.CountryId;
             catalogueModel.StandTypes = _standService.GetStandTypesWithStands(catalogueModel.BrandId, country.CountryId).ToList();
-            catalogueModel.ApiUrl = ConfigurationManager.AppSettings["apiURL"];
+            catalogueModel.ApiUrl = _config["AppSettings:ApiURL"];
+            catalogueModel.ServerUrl = _config["AppSettings:ServerURL"];
+
 
 
             List<Country> countries = new List<Country>();
@@ -175,7 +172,7 @@ namespace diam_planogram.Controllers
                         var catHeroProduct = _productService.GetProduct(heroProduct.ProductId);
                         if (catHeroProduct != null)
                         {
-                            heroImageUrl = catalogueModel.ApiUrl + "/planogram/products/photo_art/" +
+                            heroImageUrl = catalogueModel.ServerUrl + "/planogram/products/photo_art/" +
                                            catHeroProduct.ProductImage;
                         }
                     }
@@ -188,12 +185,11 @@ namespace diam_planogram.Controllers
             }
 
             catalogueModel.ParentCategories = pCatsToDisplay;
-            catalogueModel.ApiUrl = ConfigurationManager.AppSettings["apiURL"];
 
             //TODO: assign some values to the custom model...
 
             //TODO: we need to associate member with brands and with regions
-            catalogueModel.BrandId = int.Parse(ConfigurationManager.AppSettings["brand"]);
+            catalogueModel.BrandId = _brandId;
 
 
             IEnumerable<Part> parts = _catalogueService.GetParts(catalogueModel.BrandId, pCatsToDisplay[0].CategoryId, catalogueModel.StandTypes.First().StandTypeId, countries).Where(p => p.PartTypeId != (int)PartTypeEnum.SparePart);

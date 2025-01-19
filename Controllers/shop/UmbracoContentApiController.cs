@@ -2,13 +2,17 @@
 using dplo_shop.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Org.BouncyCastle.Pqc.Crypto.Lms;
+using System.Net.NetworkInformation;
 using Umbraco.Cms.Core;
+using Umbraco.Cms.Core.Models.Blocks;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Extensions;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
 
 namespace CoreSystem2024.Controllers.shop
 {
+
     public class UmbracoContentApiController : BaseApiController
     {
         private readonly IPublishedContentQuery _publishedContentQuery;
@@ -22,22 +26,26 @@ namespace CoreSystem2024.Controllers.shop
         }
 
         [System.Web.Http.HttpGet]
-        [Route("/api/UmbracoContentApi/GetInformation")]
+        [Route("umbraco/api/UmbracoContentApi/GetInformation")]
 
         public async Task<IActionResult> GetInformation()
         {
-            var pageId = int.Parse(ConfigurationManager.AppSettings["informationPageUmbracoNodeId"]);
-            return await GetUmbracoContent(pageId, "pageContent");
+            var pageId = new Guid(_config["AppSettings:informationPageUmbracoNodeId"]);
+            return await GetUmbracoContent(pageId, "content");
         }
 
 
-        private async Task<IActionResult> GetUmbracoContent(int pageId, string propertyAlias)
+        private async Task<IActionResult> GetUmbracoContent(Guid pageId, string propertyAlias)
         {
             //var content = Services.ContentService.GetById(pageId).GetValue<string>(propertyAlias);
-            var content = _publishedContentQuery.Content(pageId).Value<string>(propertyAlias);
+           CMSModelBuilderModels.ContentPage content = (CMSModelBuilderModels.ContentPage)_publishedContentQuery.Content(pageId);
+            var bodyText = content.BodyText; //content.Properties.Where(p => p.Alias == "BodyText");
+            var richText = bodyText[0].Content;
+            //var rawHtml = richText.GetProperty("richText");
+            var rawHtml = ((CoreSystem2024.CMSModelBuilderModels.UmbBlockGridDemoRichTextBlock)bodyText[0].Content).RichText;
             var model = new ApiResponseModel
             {
-                data = (content)
+                data = rawHtml.ToString()
             };
 
             return Ok(model);

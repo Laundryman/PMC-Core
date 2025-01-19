@@ -32,7 +32,7 @@ namespace CoreSystem2024.ProxyServices
         Task<int> GetRegionsCall(int brandId);
         Task<int> GetCountriesByRegionCall(int regionId);
 
-        Task<IEnumerable<PlanogramInfo>> GetPlanogramsCall(PlanaogramStatusEnum status, int countryId = 0,
+        Task<IEnumerable<PlanogramInfo>> GetPlanogramsCall(int status, int countryId = 0,
             int regionId = 0, int standTypeId = 0);
 
         Task<IEnumerable<JobViewModel>> GetJobNumbersCall();
@@ -522,7 +522,7 @@ namespace CoreSystem2024.ProxyServices
 
         }
 
-        public async Task<IEnumerable<PlanogramInfo>> GetPlanogramsCall(PlanaogramStatusEnum status, int countryId = 0, int regionId = 0, int standTypeId = 0)
+        public async Task<IEnumerable<PlanogramInfo>> GetPlanogramsCall(int status, int countryId = 0, int regionId = 0, int standTypeId = 0)
         {
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
