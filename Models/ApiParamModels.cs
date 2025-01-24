@@ -24,7 +24,7 @@
     public class GetPlanoParams
     {
         public int Status { get; set; }
-        public int JobCode { get; set; }
+        public string JobCode { get; set; }
         public int RegionId { get; set; }
         public int CountryId { get; set; }
         public int StandTypeId { get; set; }

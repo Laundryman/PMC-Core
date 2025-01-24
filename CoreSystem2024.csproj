@@ -20,7 +20,6 @@
     <Compile Remove="Controllers\AzureAccountController.cs" />
     <Compile Remove="Controllers\EditSectionPlanogramApiController.cs" />
     <Compile Remove="Controllers\LogoutController.cs" />
-    <Compile Remove="DI\diExtensions.cs" />
     <Compile Remove="Helpers\ControllerExtensions.cs" />
     <Compile Remove="Helpers\DictionaryExensions.cs" />
     <Compile Remove="Helpers\LogHelper.cs" />
@@ -62,7 +61,6 @@
   <ItemGroup>
     <Folder Include="CMSModelBuilderModels\" />
     <Folder Include="Controllers\Proxy\" />
-    <Folder Include="DI\" />
     <Folder Include="UmbracoBuilderExtensions\" />
   </ItemGroup>
 </Project>

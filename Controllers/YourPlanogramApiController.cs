@@ -400,7 +400,7 @@ namespace CoreSystem2024.Controllers
             try
             {
 
-                var response = await _proxyApi.ApprovePlanogramCall(planogramId);
+                var response = await _proxyApi.RejectPlanogramCall(planogramId);
 
                 ///////////////
                 //if we get an ok we need to save an entry in the audit tracking table - used to use the Logger for this - but maybe not anymore
@@ -415,6 +415,36 @@ namespace CoreSystem2024.Controllers
 
         }
 
+
+        /// <summary>
+        /// Validates or unvalidates an approved planogram
+        /// </summary>
+        /// <param name="planogramId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("/Api/YourPlanogramApi/ValidatePlanogram/")]
+        public async Task<IActionResult> ValidatePlanogram(int planogramId)
+        {
+            //we need to re-auth using the reauth process
+            //var accessToken = //AuthHelper.ReAuth(Authorization, client);
+            try
+            {
+
+                var response = await _proxyApi.ValidatePlanogramCall(planogramId);
+
+                ///////////////
+                //if we get an ok we need to save an entry in the audit tracking table - used to use the Logger for this - but maybe not anymore
+                /// We Also need to send an email
+                /// ////////////
+                //var planogram = await _proxyApi.GetPlanogramCall(planogramId);
+                return Ok(planogramId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
 
         /// <summary>
         /// Archives a planogram

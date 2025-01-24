@@ -56,7 +56,7 @@ namespace CoreSystem2024.Helpers
 
         public static bool IsDiamUser(string Roles)
         {
-            string[] str_diamRoles = Config["DiamRoles:AdminRole"].Split(new char[] { ',' });
+            string[] str_diamRoles = Config["DiamRoles:diamRoles"].Split(new char[] { ',' });
             int[] diamRoles = Array.ConvertAll(str_diamRoles, s => int.Parse(s));
             string[] str_roles = Roles.Split(new char[] { ',' });
             int[] roles = Array.ConvertAll(str_roles, s => int.Parse(s));
@@ -73,7 +73,7 @@ namespace CoreSystem2024.Helpers
         }
         public static bool IsClientEditor(string Roles)
         {
-            string[] str_clientEditorRoles = Config["DiamRoles:AdminRole"].Split(new char[] { ',' });
+            string[] str_clientEditorRoles = Config["DiamRoles:clientEditorRoles"].Split(new char[] { ',' });
             int[] clientEditorRoles = Array.ConvertAll(str_clientEditorRoles, s => int.Parse(s));
             string[] str_roles = Roles.Split(new char[] { ',' });
             int[] roles = Array.ConvertAll(str_roles, s => int.Parse(s));
@@ -90,7 +90,7 @@ namespace CoreSystem2024.Helpers
         }
         public static bool IsClientValidator(string Roles)
         {
-            string[] str_clientValidatorRoles = Config["DiamRoles:AdminRole"].Split(new char[] { ',' });
+            string[] str_clientValidatorRoles = Config["DiamRoles:clientValidatorRoles"].Split(new char[] { ',' });
             int[] clientValidatorRoles = Array.ConvertAll(str_clientValidatorRoles, s => int.Parse(s));
             string[] str_roles = Roles.Split(new char[] { ',' });
             int[] roles = Array.ConvertAll(str_roles, s => int.Parse(s));
@@ -106,7 +106,7 @@ namespace CoreSystem2024.Helpers
         }
         public static bool IsEditor(string Roles)
         {
-            string[] str_editorRoles = Config["DiamRoles:AdminRole"].Split(new char[] { ',' });
+            string[] str_editorRoles = Config["DiamRoles:Editor"].Split(new char[] { ',' });
             string[] str_roles = Roles.Split(new char[] { ',' });
             int[] editorRoles = Array.ConvertAll(str_editorRoles, s => int.Parse(s));
             int[] roles = Array.ConvertAll(str_roles, s => int.Parse(s));
@@ -122,7 +122,7 @@ namespace CoreSystem2024.Helpers
         }
         public static bool IsApprover(string Roles)
         {
-            string[] str_approverRoles = Config["DiamRoles:AdminRole"].Split(new char[] { ',' });
+            string[] str_approverRoles = Config["DiamRoles:Approver"].Split(new char[] { ',' });
             int[] approverRoles = Array.ConvertAll(str_approverRoles, s => int.Parse(s));
             string[] str_roles = Roles.Split(new char[] { ',' });
             int[] roles = Array.ConvertAll(str_roles, s => int.Parse(s));
@@ -139,7 +139,7 @@ namespace CoreSystem2024.Helpers
         }
         public static bool IsValidator(string Roles)
         {
-            string[] str_validatorRoles = Config["DiamRoles:AdminRole"].Split(new char[] { ',' });
+            string[] str_validatorRoles = Config["DiamRoles:Validator"].Split(new char[] { ',' });
             int[] validatorRoles = Array.ConvertAll(str_validatorRoles, s => int.Parse(s));
             string[] str_roles = Roles.Split(new char[] { ',' });
             int[] roles = Array.ConvertAll(str_roles, s => int.Parse(s));
@@ -155,7 +155,7 @@ namespace CoreSystem2024.Helpers
         }
         public static bool IsAdministrator(string Roles)
         {
-            string str_adminRole = Config["DiamRoles:AdminRole"];
+            string str_adminRole = Config["DiamRoles:adminRole"];
             //string[] str_adminRoles = adminRole.Split(new char[] { ',' });
             int adminRole = int.Parse(str_adminRole);
             string[] str_roles = Roles.Split(new char[] { ',' });
@@ -170,7 +170,7 @@ namespace CoreSystem2024.Helpers
         }
         public static bool IsSuperUser(string Roles)
         {
-            string superUserRole = Config["DiamRoles:AdminRole"];
+            string superUserRole = Config["DiamRoles:DiamSuperUser"];
             string[] str_userRoles = superUserRole.Split(new char[] { ',' });
             int[] userRoles = Array.ConvertAll(str_userRoles, s => int.Parse(s));
             string[] str_roles = Roles.Split(new char[] { ',' });
@@ -188,7 +188,7 @@ namespace CoreSystem2024.Helpers
         }
         public static bool IsShopper(string Roles)
         {
-            string shopperRole = Config["DiamRoles:AdminRole"];
+            string shopperRole = Config["DiamRoles:Shopper"];
             string[] str_shopperRoles = shopperRole.Split(new char[] { ',' });
             int[] shopperRoles = Array.ConvertAll(str_shopperRoles, s => int.Parse(s));
             string[] str_roles = Roles.Split(new char[] { ',' });
@@ -206,7 +206,7 @@ namespace CoreSystem2024.Helpers
 
         public static bool IsAdminShopper(string Roles)
         {
-            string adminShopperRole = Config["DiamRoles:AdminRole"];
+            string adminShopperRole = Config["DiamRoles:AdminShopper"];
             string[] str_adminShopperRoles = adminShopperRole.Split(new char[] { ',' });
             int[] adminShopperRoles = Array.ConvertAll(str_adminShopperRoles, s => int.Parse(s));
             string[] str_roles = Roles.Split(new char[] { ',' });
