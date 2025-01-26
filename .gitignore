@@ -1,0 +1,25 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/bin/Debug/net9.0/CoreSystem2024.deps.json
+/bin/Debug/net9.0/CoreSystem2024.dll
+/bin/Debug/net9.0/CoreSystem2024.pdb
+/bin/Debug/net9.0/Data.dll
+/bin/Debug/net9.0/Data.dll.config
+/bin/Debug/net9.0/Data.pdb
+/bin/Debug/net9.0/dplo.Domain.dll
+/bin/Debug/net9.0/dplo.Domain.pdb
+/bin/Debug/net9.0/dplo.Helpers.dll
+/bin/Debug/net9.0/dplo.Helpers.dll.config
+/bin/Debug/net9.0/dplo.Helpers.pdb
+/bin/Debug/net9.0/dplo.Service.dll
+/bin/Debug/net9.0/dplo.Service.pdb
+/bin/Debug/net9.0/Dplo.ViewModels.dll
+/obj/Debug/net9.0/CoreSystem2024.AssemblyInfo.cs
+/obj/Debug/net9.0/CoreSystem2024.AssemblyInfoInputs.cache
+/obj/Debug/net9.0/CoreSystem2024.csproj.AssemblyReference.cache
+/obj/Debug/net9.0/CoreSystem2024.dll
+/obj/Debug/net9.0/CoreSystem2024.pdb
+/obj/Debug/net9.0/ref/CoreSystem2024.dll
+/obj/Debug/net9.0/refint/CoreSystem2024.dll
