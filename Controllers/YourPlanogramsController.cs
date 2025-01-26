@@ -77,19 +77,15 @@ namespace diam_planogram.Controllers
             {
 
                 var regions = _regionService.GetRegionsByBrand(model.BrandId).ToList();
-                //regionFilter = IsInteger(this.regionFilterList.SelectedValue) ? int.Parse(this.regionFilterList.SelectedValue) : 0;
                 var regionId = 0;
 
                 
-                if (regionId == 0)
+                var userRegion = userCountry.Regions.FirstOrDefault(r => r.BrandId == model.BrandId);
+                if (userRegion != null)
                 {
-                    var userRegion = userCountry.Regions.FirstOrDefault(r => r.BrandId == model.BrandId);
-                    if (userRegion != null)
-                    {
-                        regionId = userRegion.RegionId;
-                    }
-                        
+                    regionId = userRegion.RegionId;
                 }
+                    
                 var countries = new List<Country>();
 
                 countries = _countryService.GetCountriesByRegion(regionId).ToList();

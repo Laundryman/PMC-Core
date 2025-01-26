@@ -55,6 +55,7 @@ namespace CoreSystem2024.ProxyServices
 
         private readonly ILogger<YourPlanogramProxyApiService> _logger;
         private ICountryService _countryService;
+        private IRegionService _regionService;
         private readonly IConfiguration _configuration;
         private readonly IMemberManager _memberManager;
         private string domain;
@@ -461,6 +462,11 @@ namespace CoreSystem2024.ProxyServices
                     Country country = _countryService.GetCountry(userInfo.DiamCountryId);
 
                 }
+
+                if (jobCode == string.Empty)
+                {
+                    jobCode = "0";
+                }
             }
 
 
@@ -685,23 +691,35 @@ namespace CoreSystem2024.ProxyServices
             else if (RolesHelper.IsValidator(userInfo.Roles))
             {
                 isPowerUser = true;
-                if (countryId == 0)
+                Country country = _countryService.GetCountry(userInfo.DiamCountryId);
+                var countryList = new List<Country>();
+                countryList.Add(country);
+                if (RolesHelper.IsSuperUser(userInfo.Roles))
                 {
-                    Country country = _countryService.GetCountry(userInfo.DiamCountryId);
 
+                    regionId = _regionService.GetRegionsForCountryList(int.Parse(brandId),countryList).FirstOrDefault().RegionId;
+                    countryId = 0;
+                }
+                else
+                {
+                    countryId = userInfo.DiamCountryId;
+                    regionId = 0;
                 }
             }
             else if (RolesHelper.IsApprover(userInfo.Roles))
             {
                 isPowerUser = true;
+                countryId = userInfo.DiamCountryId;
+                regionId = 0;
             }
             else
             {
                 if (countryId == 0)
                 {
                     //need to make this a non local call - either api - or get the ID from the userInfo
-                    Country country = _countryService.GetCountry(userInfo.DiamCountryId);
-
+                    //Country country = _countryService.GetCountry(userInfo.DiamCountryId);
+                    countryId = userInfo.DiamCountryId;
+                    regionId = 0;
                 }
             }
 

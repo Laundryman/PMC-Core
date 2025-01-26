@@ -475,12 +475,13 @@ namespace CoreSystem2024.Controllers.Planx
             //var response =
             if (response == "locked")
             {
-                //Something has gone wrong, handle it here
-                return Ok(response);
+                //return error
+                return BadRequest(response);
             }
             else
             {
-                return BadRequest(response);
+                return Ok(response);
+
             }
         }
 

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Security;
+using RolesHelper = CoreSystem2024.Helpers.RolesHelper;
 
 namespace CoreSystem2024.Controllers.shop
 {

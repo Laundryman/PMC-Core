@@ -2,7 +2,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Security.Claims;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Umbraco.Cms.Core.DependencyInjection;
+using Umbraco.Cms.Core.Models.Membership;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Extensions;
 
@@ -57,42 +59,48 @@ public static class OpenIdBuilderExtensions
                                 var claims = context?.Principal?.Claims.ToList();
                                 var userBrands = claims?.SingleOrDefault(x => x.Type == "extension_brands");
                                 var siteBrand = config["AppSettings:ClientBrandId"];
-
+                                var IsAuthenticated = true;
                                 if (userBrands != null && siteBrand != null)
                                 {
                                     if (!userBrands.Value.Contains(siteBrand))
                                     {
                                         context.Fail("User is not authorised to access this site. Incorrect brand.");
+                                        IsAuthenticated = false;
                                     }
                                 }
                                 else
                                 {
                                     context.Fail("User is not authorised to access this site. Incorrect brand.");
+                                    IsAuthenticated = false;
                                 }
 
-                                var name = claims?.SingleOrDefault(x => x.Type == "name");
-                                if (name != null)
+                                if (IsAuthenticated)
                                 {
-                                    // The name claim is required for auto linking.
-                                    // So get it from another claim and put it in the name claim.
-                                    claims?.Add(new Claim(ClaimTypes.Name, name.Value));
-                                }
+                                    var name = claims?.SingleOrDefault(x => x.Type == "name");
+                                    if (name != null)
+                                    {
+                                        // The name claim is required for auto linking.
+                                        // So get it from another claim and put it in the name claim.
+                                        claims?.Add(new Claim(ClaimTypes.Name, name.Value));
+                                    }
 
-                                var email = claims?.SingleOrDefault(x => x.Type == "extension_userEmailAddress");
-                                if (email != null)
-                                {
-                                    // The email claim is required for auto linking.
-                                    // So get it from another claim and put it in the email claim.
-                                    var newEmail = name.Value + email.Value;
-                                    //email.Value = newEmail;
-                                    claims?.Add(new Claim(ClaimTypes.Email, newEmail));
-                                }
+                                    var email = claims?.SingleOrDefault(x => x.Type == "extension_userEmailAddress");
+                                    if (email != null)
+                                    {
+                                        // The email claim is required for auto linking.
+                                        // So get it from another claim and put it in the email claim.
+                                        var newEmail = name.Value.Replace(" ", string.Empty) + email.Value;
+                                        //email.Value = newEmail;
+                                        claims?.Add(new Claim(ClaimTypes.Email, newEmail));
+                                    }
 
-                                if (context != null)
-                                {
+                                    if (context != null)
+                                    {
 
-                                    var authenticationType = context.Principal?.Identity?.AuthenticationType;
-                                    context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, authenticationType));
+                                        var authenticationType = context.Principal?.Identity?.AuthenticationType;
+                                        context.Principal =
+                                            new ClaimsPrincipal(new ClaimsIdentity(claims, authenticationType));
+                                    }
                                 }
 
                                 await Task.FromResult(0);
@@ -145,7 +153,19 @@ public static class OpenIdBuilderExtensions
                             };
                             options.Events.OnRemoteFailure = async context =>
                             {
-                                await Task.FromResult(0);
+                                var errorMessage = context.Failure.Message;
+                                if (errorMessage == "User is not authorised to access this site. Incorrect brand.")
+                                {
+                                    context.HandleResponse();
+                                    context.Response.Redirect("/Error?err=1", false);
+                                }
+                                else
+                                {
+                                    context.HandleResponse();
+                                    context.Response.Redirect("/Error?err=2", false);
+                                }
+                                await Task.CompletedTask;
+
                             };
                             options.Events.OnTokenResponseReceived = async context =>
                             {

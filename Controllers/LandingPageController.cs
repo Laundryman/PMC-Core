@@ -1,4 +1,6 @@
 ﻿using CoreSystem2024.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Configuration;
@@ -9,6 +11,7 @@ using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
 using Umbraco.Cms.Web.Common.PublishedModels;
+using Umbraco.Cms.Web.Common.Security;
 
 namespace CoreSystem2024.Controllers
 {
@@ -17,7 +20,7 @@ namespace CoreSystem2024.Controllers
         private readonly IConfiguration Configuration;
         private IConfiguration _azureSettings;
         private readonly IMemberManager _memberManager;
-        //private readonly 
+        private readonly IMemberSignInManager _signInManager;
         private readonly IMemberService _memberService;
         // GET: LandingPage
         public LandingPageController(ILogger<RenderController> logger,
@@ -25,13 +28,15 @@ namespace CoreSystem2024.Controllers
             IUmbracoContextAccessor umbracoContextAccessor,
             IConfiguration configuration,
             IMemberManager memberManager,
+
             //IMemberManager diamMemberManager,
-            IMemberService memberService) : base(logger, compositeViewEngine, umbracoContextAccessor)
+            IMemberService memberService, IMemberSignInManager signInManager) : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
             Configuration = configuration;
             _memberManager = memberManager;
-            _memberService = memberService;
-            _azureSettings = configuration.GetSection("AzureB2C");
+        _memberService = memberService;
+        _signInManager = signInManager;
+        _azureSettings = configuration.GetSection("AzureB2C");
         }
 
         [HttpGet]
@@ -55,7 +60,21 @@ namespace CoreSystem2024.Controllers
                 //{
                 //}
             }
+            if (Request.Query.ContainsKey("err"))
+            {
+                var error = Request.Query["err"];
+                var isLoggedIn = HttpContext.User?.Identity?.IsAuthenticated ?? false;
 
+                // Trigger logout on the external login provider.
+                await this.HttpContext.SignOutAsync("UmbracoMembers.OpenIdConnect");
+
+                // Trigger logout on this website.
+                await _signInManager.SignOutAsync();
+                //if (error == "1")
+                //{
+                //    model.Content = new ErrorPage();
+                //}
+            }
             //var LPModel = new Home();
             ////if (UserInfo.userViewModel != null)
             ////{
