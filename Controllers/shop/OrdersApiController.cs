@@ -58,7 +58,8 @@ namespace CoreSystem2024.Controllers.shop
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
-            var userCountry = _countryService.GetCountry(CountryId);
+            var userCountry = _countryService.GetCountry(userInfo.DiamCountryId);
+            RolesHelper.Initialize(_config);
 
             List<OrderInfo> orders;
 

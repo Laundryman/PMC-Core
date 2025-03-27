@@ -51,26 +51,30 @@ namespace CoreSystem2024.Controllers
             {
                 var memberIdentity = await _memberManager.GetCurrentMemberAsync();
                 var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
-                var myRole = new { Role = "clientEditor" };
+                bool IsShopper = RolesHelper.IsShopper(userInfo.Roles);
+                if (!IsShopper)
+                {
+                    IsShopper = RolesHelper.IsAdminShopper(userInfo.Roles);
+                }
+                var myRole = new { Role = "clientEditor", Shopper = IsShopper };
                 if (RolesHelper.IsAdministrator(userInfo.Roles))
                 {
-                    myRole = new { Role = "administrator" };
+                    myRole = new { Role = "administrator", Shopper = IsShopper };
                     return Ok(myRole);
                 }
                 if (RolesHelper.IsValidator(userInfo.Roles))
                 {
-                    myRole = new { Role = "validator" };
+                    myRole = new { Role = "validator", Shopper = IsShopper };
                     return Ok(myRole);
                 }
                 if (RolesHelper.IsApprover(userInfo.Roles))
                 {
-                    myRole = new { Role = "approver" };
+                    myRole = new { Role = "approver", Shopper = IsShopper };
                     return Ok(myRole);
                 }
                 if (RolesHelper.IsClientEditor(userInfo.Roles))
                 {
-                    myRole = new { Role = "clientEditor" };
+                    myRole = new { Role = "clientEditor", Shopper = IsShopper };
                     return Ok(myRole);
                 }
                 return Ok(myRole);

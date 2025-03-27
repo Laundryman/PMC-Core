@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "+zAdnbGTeK8=",
+  "dgSpecHash": "9/7rf1YA5uc=",
   "success": true,
   "projectFilePath": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\CoreSystem2024.csproj",
   "expectedPackageFiles": [
@@ -309,6 +309,16 @@
     "C:\\Users\\nickr\\.nuget\\packages\\umbraco.cms.web.website\\15.0.0\\umbraco.cms.web.website.15.0.0.nupkg.sha512"
   ],
   "logs": [
+    {
+      "code": "NU1902",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'Umbraco.Cms.Web.Common' 15.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-69cg-w8vm-h229",
+      "libraryId": "Umbraco.Cms.Web.Common",
+      "targetGraphs": [
+        "net9.0"
+      ]
+    },
     {
       "code": "NU1701",
       "level": "Warning",

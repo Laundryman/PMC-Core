@@ -463,7 +463,7 @@ namespace CoreSystem2024.Controllers
             var response = await _proxyApi.ArchivePlanogramCall(data.PlanogramId, data.JobNumber);
 
             //Get the result
-            if (response is OkResult)
+            if (response is "success")
             {
                 return Ok(data.PlanogramId);
             }
@@ -474,6 +474,35 @@ namespace CoreSystem2024.Controllers
 
         }
 
+
+        /// <summary>
+        /// Delete a planogram
+        /// </summary>
+        /// <param name="planogramId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("/Api/YourPlanogramApi/DeletePlanogram/")]
+        public async Task<IActionResult> DeletePlanogram(int planogramId)
+        {
+            try
+            {
+
+                var response = await _proxyApi.DeletePlanogramCall(planogramId);
+
+                ///////////////
+                //if we get an ok we need to save an entry in the audit tracking table - used to use the Logger for this - but maybe not anymore
+                /// We Also need to send an email
+                /// ////////////
+                //var planogram = await _proxyApi.GetPlanogramCall(planogramId);
+                SendSubmittedEmail(planogramId, _config);
+                return Ok(planogramId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
 
 
         [Route("/Api/YourPlanogramApi/GetReport")]
@@ -616,7 +645,7 @@ namespace CoreSystem2024.Controllers
         public async Task<IActionResult> AddToOrder(AddToOrder model)
         {
             try {
-                var response = await _proxyApi.AddToOrderCall(model.OrderId, model.PlanogramId, model.Quantity, model.IsFullPlano);
+                var response = await _proxyApi.AddToOrderCall(model.OrderId, model.PlanogramId, model.Quantity, model.IsFullPlano.ToLower() == "true");
                 return Ok();
             }
             catch

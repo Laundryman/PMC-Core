@@ -23,6 +23,7 @@ namespace CoreSystem2024.ProxyServices
         Task<int> SubmitPlanogramCall(int planogramId);
         Task<int> ApprovePlanogramCall(int planogramId);
         Task<int> RejectPlanogramCall(int planogramId);
+        Task<int> DeletePlanogramCall(int planogramId);
         Task<int> ValidatePlanogramCall(int planogramId);
         Task<string> ArchivePlanogramCall(int planogramId, string jobNumber);
 
@@ -62,12 +63,13 @@ namespace CoreSystem2024.ProxyServices
         private string brandId;
         private string readScope;
         private string writeScope;
-        public YourPlanogramProxyApiService(ILogger<YourPlanogramProxyApiService> logger, ICountryService countryService, IConfiguration configuration, IMemberManager memberManager)
+        public YourPlanogramProxyApiService(ILogger<YourPlanogramProxyApiService> logger, ICountryService countryService, IConfiguration configuration, IMemberManager memberManager, IRegionService regionService)
         {
             _logger = logger;
             _countryService = countryService;
             _configuration = configuration;
             _memberManager = memberManager;
+            _regionService = regionService;
             domain = _configuration["AppSettings:ApiUrl"];
             brandId = _configuration["AppSettings:ClientBrandId"];
             readScope = _configuration["AzureB2C:ReadScope"];
@@ -364,6 +366,38 @@ namespace CoreSystem2024.ProxyServices
             }
 
         }
+
+
+        public async Task<int> DeletePlanogramCall(int planogramId)
+        {
+
+
+
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+
+            //            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+
+            var uriSuffix = "api/v2/planogram/delete/" + planogramId;
+
+            //maybe log something here
+
+            using (SecureHttpClient<string> httpClient = new SecureHttpClient<string>(domain, uriSuffix, _configuration))
+            {
+                try
+                {
+                    var result = await httpClient.Get(accessToken);
+                    return planogramId;
+                }
+                catch (Exception ex)
+                {
+                    throw (ex);
+                }
+            }
+
+        }
+
 
         public async Task<int> AddToOrderCall(int planogramId)
         {
@@ -924,7 +958,7 @@ namespace CoreSystem2024.ProxyServices
 
                         var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
-            var uriSuffix = "api/v2/order/addToOrder/" + orderId + "/" + planogramId + "/" + quantity + "/" + userId + "/" + isFullPlano;
+            var uriSuffix = "api/v2/order/addToOrder/" + orderId + "/" + planogramId + "/" + quantity + "/" + userId + "/" + isFullPlano + "/" + brandId;
 
             //maybe log something here
 
