@@ -15747,6 +15747,16 @@
       "code": "NU1902",
       "level": "Warning",
       "warningLevel": 1,
+      "message": "Package 'Microsoft.Identity.Web' 3.2.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-rpq8-q44m-2rpg",
+      "libraryId": "Microsoft.Identity.Web",
+      "targetGraphs": [
+        "net9.0"
+      ]
+    },
+    {
+      "code": "NU1902",
+      "level": "Warning",
+      "warningLevel": 1,
       "message": "Package 'Umbraco.Cms.Web.Common' 15.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-69cg-w8vm-h229",
       "libraryId": "Umbraco.Cms.Web.Common",
       "targetGraphs": [

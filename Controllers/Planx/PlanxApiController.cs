@@ -501,18 +501,15 @@ namespace CoreSystem2024.Controllers.Planx
         [Route("/api/planxapi/Unlock")]
         public async Task<IActionResult> Unlock(int planogramId = 0)
         {
-            //we need to re-auth using the reauth process
-            //var accessToken = //AuthHelper.ReAuth(Authorization, client);
-
             try
             {
                 var memberIdentity = await _memberManager.GetCurrentMemberAsync();
 
                 var userProfile = AuthHelper.GetUserInfo(memberIdentity);
-                var isLocked = _planogramService.IsLocked(planogramId, userProfile);
+
+                var isLocked = _planogramService.IsLocked(planogramId, null);
                 if (isLocked)
                 {
-                    //lock the planogram Now
                     _planogramService.UnLockPlanogram(planogramId);
                 }
 
