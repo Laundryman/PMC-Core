@@ -19,6 +19,8 @@
     {
         public int PlanogramId { get; set; }
         public string JobNumber { get; set; }
+        public int JobId { get; set; }
+
     }
 
     public class GetPlanoParams

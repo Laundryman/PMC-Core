@@ -25,7 +25,7 @@ namespace CoreSystem2024.ProxyServices
         Task<int> RejectPlanogramCall(int planogramId);
         Task<int> DeletePlanogramCall(int planogramId);
         Task<int> ValidatePlanogramCall(int planogramId);
-        Task<string> ArchivePlanogramCall(int planogramId, string jobNumber);
+        Task<string> ArchivePlanogramCall(int planogramId, string jobNumber, int jobId);
 
         Task<IEnumerable<PlanogramInfo>> GetArchivedPlanogramsByJobCodeCall(string jobCode, int countryId = 0,
             int regionId = 0, int standTypeId = 0);
@@ -430,13 +430,13 @@ namespace CoreSystem2024.ProxyServices
         }
 
 
-        public async Task<string> ArchivePlanogramCall(int planogramId, string jobNumber)
+        public async Task<string> ArchivePlanogramCall(int planogramId, string jobNumber, int jobId)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             var userInfo = AuthHelper.GetUserInfo(memberIdentity);
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
-            var uriSuffix = "api/v2/planogram/archive/" + planogramId + "/" + jobNumber;
+            var uriSuffix = "api/v2/planogram/archive/" + planogramId + "/" + jobNumber + "/" + jobId;
 
             //maybe log something here
 

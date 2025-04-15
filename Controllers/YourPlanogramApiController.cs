@@ -460,7 +460,7 @@ namespace CoreSystem2024.Controllers
             //var accessToken = //AuthHelper.ReAuth(Authorization, client);
 
 
-            var response = await _proxyApi.ArchivePlanogramCall(data.PlanogramId, data.JobNumber);
+            var response = await _proxyApi.ArchivePlanogramCall(data.PlanogramId, data.JobNumber, data.JobId);
 
             //Get the result
             if (response is "success")
