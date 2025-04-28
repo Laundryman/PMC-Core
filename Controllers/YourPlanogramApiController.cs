@@ -200,7 +200,7 @@ namespace CoreSystem2024.Controllers
         {
             try
             {
-                var response = await _proxyApi.GetJobFoldersCall(data.CountryId, data.RegionId, data.StandTypeId);
+                var response = await _proxyApi.GetJobFoldersCall(data.CountryId ?? 0, data.RegionId ?? 0, data.StandTypeId ?? 0);
                 //Get the json data from the result
 
                 if (response.Any())
@@ -253,22 +253,22 @@ namespace CoreSystem2024.Controllers
             IEnumerable<PlanogramInfo> response;
             try
             {
-                int status = data.Status;
+                int status = (int)data.Status;
                 if (RolesHelper.IsAdministrator(userInfo.Roles) || (RolesHelper.IsValidator(userInfo.Roles))
                     || (RolesHelper.IsApprover(userInfo.Roles)))
                 {
                     if (!RolesHelper.IsValidator(userInfo.Roles))
                     {
-                        response = await _proxyApi.GetPlanogramsCall(status, data.CountryId, data.RegionId, data.StandTypeId);
+                        response = await _proxyApi.GetPlanogramsCall(status, (int)data.CountryId, (int)data.RegionId, (int)data.StandTypeId);
                     }
                     else
                     {
-                        response = await _proxyApi.GetPlanogramsCall(status, _countryService.GetCountry(userInfo.DiamCountryId).CountryId, 0, data.StandTypeId);
+                        response = await _proxyApi.GetPlanogramsCall(status, _countryService.GetCountry(userInfo.DiamCountryId).CountryId, 0, (int)data.StandTypeId);
                     }
                 }
                 else
                 {
-                    response = await _proxyApi.GetPlanogramsCall( status, _countryService.GetCountry(userInfo.DiamCountryId).CountryId, 0, data.StandTypeId);
+                    response = await _proxyApi.GetPlanogramsCall( status, _countryService.GetCountry(userInfo.DiamCountryId).CountryId, 0, (int)data.StandTypeId);
                 }
 
                     return Ok(response);
@@ -288,8 +288,8 @@ namespace CoreSystem2024.Controllers
         /// <param name="jobNumber"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("/Api/YourPlanogramApi/GetArchivedPlanogramsByJobCode")]
-        public async Task<IActionResult> GetArchivedPlanogramsByJobCode([FromBody] GetPlanoParams data)
+        [Route("/Api/YourPlanogramApi/GetArchivedPlanogramsByJob")]
+        public async Task<IActionResult> GetArchivedPlanogramsByJob([FromBody] GetPlanoParams data)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             var userInfo = AuthHelper.GetUserInfo(memberIdentity);
@@ -303,16 +303,16 @@ namespace CoreSystem2024.Controllers
                 {
                     if (RolesHelper.IsSuperUser(userInfo.Roles))
                     {
-                        response = await _proxyApi.GetArchivedPlanogramsByJobCodeCall(data.JobCode, _countryService.GetCountry(userInfo.DiamCountryId).CountryId, data.RegionId, data.StandTypeId);
+                        response = await _proxyApi.GetArchivedPlanogramsByJobCall((int)data.JobId, data.JobCode, _countryService.GetCountry(userInfo.DiamCountryId).CountryId, (int)data.RegionId, (int)data.StandTypeId);
                     }
                     else
                     {
-                        response = await _proxyApi.GetArchivedPlanogramsByJobCodeCall(data.JobCode, data.CountryId, data.RegionId, data.StandTypeId);
+                        response = await _proxyApi.GetArchivedPlanogramsByJobCall((int)data.JobId, data.JobCode, (int)data.CountryId, (int)data.RegionId, (int)data.StandTypeId);
                     }
                 }
                 else
                 {
-                    response = await _proxyApi.GetArchivedPlanogramsByJobCodeCall(data.JobCode, _countryService.GetCountry(userInfo.DiamCountryId).CountryId, data.RegionId, data.StandTypeId);
+                    response = await _proxyApi.GetArchivedPlanogramsByJobCall((int)data.JobId, data.JobCode, _countryService.GetCountry(userInfo.DiamCountryId).CountryId, (int)data.RegionId, (int)data.StandTypeId);
                 }
 
                     return Ok(response);

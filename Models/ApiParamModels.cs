@@ -25,11 +25,12 @@
 
     public class GetPlanoParams
     {
-        public int Status { get; set; }
-        public string JobCode { get; set; }
-        public int RegionId { get; set; }
-        public int CountryId { get; set; }
-        public int StandTypeId { get; set; }
+        public int? Status { get; set; }
+        public int? JobId { get; set; }
+        public string? JobCode { get; set; }
+        public int? RegionId { get; set; }
+        public int? CountryId { get; set; }
+        public int? StandTypeId { get; set; }
     }
 
     public class GetMenuParams

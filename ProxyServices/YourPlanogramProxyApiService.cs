@@ -27,7 +27,7 @@ namespace CoreSystem2024.ProxyServices
         Task<int> ValidatePlanogramCall(int planogramId);
         Task<string> ArchivePlanogramCall(int planogramId, string jobNumber, int jobId);
 
-        Task<IEnumerable<PlanogramInfo>> GetArchivedPlanogramsByJobCodeCall(string jobCode, int countryId = 0,
+        Task<IEnumerable<PlanogramInfo>> GetArchivedPlanogramsByJobCall(int jobId, string jobCode, int countryId = 0,
             int regionId = 0, int standTypeId = 0);
 
         Task<int> GetStandTypesCall(int brandId);
@@ -455,7 +455,7 @@ namespace CoreSystem2024.ProxyServices
 
         }
 
-        public async Task<IEnumerable<PlanogramInfo>> GetArchivedPlanogramsByJobCodeCall(string jobCode, int countryId = 0, int regionId = 0, int standTypeId = 0)
+        public async Task<IEnumerable<PlanogramInfo>> GetArchivedPlanogramsByJobCall(int jobId, string jobCode, int countryId = 0, int regionId = 0, int standTypeId = 0)
         {
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
@@ -504,9 +504,10 @@ namespace CoreSystem2024.ProxyServices
             }
 
 
-            var uri = "api/v2/planogram/get/archived/jobcode/" + isPowerUser + "/" + jobCode + "/" + brandId + "/" + countryId + "/" + regionId + "/" + standTypeId + "/" + isDiamUser.ToString();
+            var uri = "api/v2/planogram/get/archived/job/" + (isPowerUser ? 1 : 0) + "/" + jobId + "/" + jobCode + "/" + brandId + "/" + countryId + "/" + regionId + "/" + standTypeId + "/" + (isDiamUser ? 1 : 0);
+            //var uri = "api/v2/planogram/get/archived/job/" + jobId + "/" + jobCode + "/" + brandId + "/" + countryId + "/" + regionId + "/" + standTypeId;
 
-                        var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
             var url = string.Format("{0}{1}", domain, uri);
