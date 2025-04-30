@@ -54,9 +54,9 @@ namespace CoreSystem2024.Helpers
             return false;
         }
 
-        public static bool IsDiamUser(string Roles)
+        public static bool IsRegionalUser(string Roles)
         {
-            string[] str_diamRoles = Config["DiamRoles:diamRoles"].Split(new char[] { ',' });
+            string[] str_diamRoles = Config["DiamRoles:regionalRoles"].Split(new char[] { ',' });
             int[] diamRoles = Array.ConvertAll(str_diamRoles, s => int.Parse(s));
             string[] str_roles = Roles.Split(new char[] { ',' });
             int[] roles = Array.ConvertAll(str_roles, s => int.Parse(s));
@@ -155,15 +155,18 @@ namespace CoreSystem2024.Helpers
         }
         public static bool IsAdministrator(string Roles)
         {
-            string str_adminRole = Config["DiamRoles:adminRole"];
-            //string[] str_adminRoles = adminRole.Split(new char[] { ',' });
-            int adminRole = int.Parse(str_adminRole);
+            string str_adminRoles = Config["DiamRoles:adminRole"];
+            string[] arr_adminRoles = str_adminRoles.Split(new char[] { ',' });
+            int[] adminRoles = Array.ConvertAll(arr_adminRoles, s => int.Parse(s));
             string[] str_roles = Roles.Split(new char[] { ',' });
             int[] roles = Array.ConvertAll(str_roles, s => int.Parse(s));
             // Execute the following logic for Items and Alternating Items.
-            if (roles.Contains(adminRole))
+            foreach (int role in roles)
             {
-                return true;
+                if (adminRoles.Contains(role))
+                {
+                    return true;
+                }
             }
             return false;
 
@@ -221,6 +224,43 @@ namespace CoreSystem2024.Helpers
             }
             return false;
         }
+
+        public static bool IsArchiver(string Roles)
+        {
+            string archiveConfig = Config["DiamRoles:ArchiverRoles"];
+            string[] str_archiveRoles = archiveConfig.Split(new char[] { ',' });
+            int[] archiveRoles = Array.ConvertAll(str_archiveRoles, s => int.Parse(s));
+            string[] str_roles = Roles.Split(new char[] { ',' });
+            int[] roles = Array.ConvertAll(str_roles, s => int.Parse(s));
+            // Execute the following logic for Items and Alternating Items.
+            foreach (var arole in archiveRoles)
+            {
+                if (roles.Contains(arole))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool IsCreator(string Roles)
+        {
+            string creatorConfig = Config["DiamRoles:CreatorRoles"];
+            string[] strCreatorRoles = creatorConfig.Split(new char[] { ',' });
+            int[] creatorRoles = Array.ConvertAll(strCreatorRoles, s => int.Parse(s));
+            string[] str_roles = Roles.Split(new char[] { ',' });
+            int[] roles = Array.ConvertAll(str_roles, s => int.Parse(s));
+            // Execute the following logic for Items and Alternating Items.
+            foreach (var arole in creatorRoles)
+            {
+                if (roles.Contains(arole))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
 
         public static bool IsPlanxUser(string Roles)
         {

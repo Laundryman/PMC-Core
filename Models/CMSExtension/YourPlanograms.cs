@@ -11,6 +11,7 @@ namespace CoreSystem2024.CMSModelBuilderModels
     {
         public string ApiUrl { get; set; }
         public int CountryId { get; set; }
+        public int RegionId { get; set; }
         public int BrandId { get; set; }
         public string UserFirstName { get; set; }
         public string UserLastName { get; set; }

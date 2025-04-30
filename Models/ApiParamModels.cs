@@ -25,6 +25,7 @@
 
     public class GetPlanoParams
     {
+        public int BrandId { get; set; }
         public int? Status { get; set; }
         public int? JobId { get; set; }
         public string? JobCode { get; set; }

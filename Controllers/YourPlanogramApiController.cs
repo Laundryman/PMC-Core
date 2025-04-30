@@ -25,13 +25,13 @@ namespace CoreSystem2024.Controllers
         //private YourPlanogramProxyController _proxyApi = new ProxiApi();
 
         #region Services, managers
-
+        private readonly IConfiguration Configuration;
         private ICountryService _countryService;
         private IYourPlanogramProxyApiService _proxyApi;
         private readonly IConfiguration _config;
         private readonly IMemberManager _memberManager;
         private readonly EmailHelper _emailHelper;
-
+        private int brandId;
         #endregion
 
         #region LocalApiCalls
@@ -40,7 +40,7 @@ namespace CoreSystem2024.Controllers
 
         public YourPlanogramApiController(ICategoryService categoryService, ICatalogueService catalogueService, ICountryService countryService, 
             IPlanogramService planogramService, IOrderService orderService, 
-            IStandService standService, IYourPlanogramProxyApiService proxyApi, IMemberManager memberManager, IConfiguration config, EmailHelper emailHelper, ILogger<YourPlanogramApiController> logger) : base(config)
+            IStandService standService, IYourPlanogramProxyApiService proxyApi, IMemberManager memberManager, IConfiguration config, EmailHelper emailHelper, ILogger<YourPlanogramApiController> logger, IConfiguration configuration) : base(config)
         {
             _countryService = countryService;
             _proxyApi = proxyApi;
@@ -48,6 +48,8 @@ namespace CoreSystem2024.Controllers
             _config = config;
             _emailHelper = emailHelper;
             _logger = logger;
+            Configuration = configuration;
+            brandId = int.Parse(Configuration["AppSettings:ClientBrandId"]);
         }
 
         [HttpGet]
@@ -259,6 +261,11 @@ namespace CoreSystem2024.Controllers
                 {
                     if (!RolesHelper.IsValidator(userInfo.Roles))
                     {
+                        if (RolesHelper.IsClientValidator(userInfo.Roles))
+                        {
+                            var userCountry = _countryService.GetCountry(userInfo.DiamCountryId);
+                            data.RegionId = userCountry.Regions.FirstOrDefault(r => r.BrandId == brandId)!.RegionId;
+                        }
                         response = await _proxyApi.GetPlanogramsCall(status, (int)data.CountryId, (int)data.RegionId, (int)data.StandTypeId);
                     }
                     else

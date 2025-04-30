@@ -52,29 +52,32 @@ namespace CoreSystem2024.Controllers
                 var memberIdentity = await _memberManager.GetCurrentMemberAsync();
                 var userInfo = AuthHelper.GetUserInfo(memberIdentity);
                 bool IsShopper = RolesHelper.IsShopper(userInfo.Roles);
+                bool IsArchiver = RolesHelper.IsArchiver(userInfo.Roles);
+                bool IsCreator = RolesHelper.IsCreator(userInfo.Roles);
                 if (!IsShopper)
                 {
                     IsShopper = RolesHelper.IsAdminShopper(userInfo.Roles);
                 }
-                var myRole = new { Role = "clientEditor", Shopper = IsShopper };
+
+                var myRole = new { Role = "clientEditor", Shopper = IsShopper, Creator = IsCreator, Archiver = IsArchiver};
                 if (RolesHelper.IsAdministrator(userInfo.Roles))
                 {
-                    myRole = new { Role = "administrator", Shopper = IsShopper };
+                    myRole = new { Role = "administrator", Shopper = IsShopper, Creator = IsCreator, Archiver = IsArchiver };
                     return Ok(myRole);
                 }
                 if (RolesHelper.IsValidator(userInfo.Roles))
                 {
-                    myRole = new { Role = "validator", Shopper = IsShopper };
+                    myRole = new { Role = "validator", Shopper = IsShopper, Creator = IsCreator, Archiver = IsArchiver };
                     return Ok(myRole);
                 }
                 if (RolesHelper.IsApprover(userInfo.Roles))
                 {
-                    myRole = new { Role = "approver", Shopper = IsShopper };
+                    myRole = new { Role = "approver", Shopper = IsShopper, Creator = IsCreator, Archiver = IsArchiver };
                     return Ok(myRole);
                 }
                 if (RolesHelper.IsClientEditor(userInfo.Roles))
                 {
-                    myRole = new { Role = "clientEditor", Shopper = IsShopper };
+                    myRole = new { Role = "clientEditor", Shopper = IsShopper, Creator = IsCreator, Archiver = IsArchiver };
                     return Ok(myRole);
                 }
                 return Ok(myRole);

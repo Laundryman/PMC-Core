@@ -73,26 +73,28 @@ namespace diam_planogram.Controllers
 
 
             //GET THE FILTER LISTS
-            if (RolesHelper.IsDiamUser(userInfo.Roles) || RolesHelper.IsClientValidator(userInfo.Roles))
+            if (RolesHelper.IsRegionalUser(userInfo.Roles) || RolesHelper.IsClientValidator(userInfo.Roles))
             {
 
                 var regions = _regionService.GetRegionsByBrand(model.BrandId).ToList();
-                var regionId = 0;
+                model.RegionId = 0;
 
                 
                 var userRegion = userCountry.Regions.FirstOrDefault(r => r.BrandId == model.BrandId);
                 if (userRegion != null)
                 {
-                    regionId = userRegion.RegionId;
+                    model.RegionId = userRegion.RegionId;
                 }
                     
                 var countries = new List<Country>();
 
-                countries = _countryService.GetCountriesByRegion(regionId).ToList();
+                countries = _countryService.GetCountriesByRegion(model.RegionId).ToList();
 
                 model.Countries = countries.ToSelectListItems(userCountry.CountryId).ToList();
+
+                //need to change the text if is regional manager
                 model.Countries.Insert(0, new System.Web.Mvc.SelectListItem { Selected = true, Text = "Select a region first", Value = "0" });
-                model.Regions = regions.ToSelectListItems(regionId).ToList();
+                model.Regions = regions.ToSelectListItems(model.RegionId).ToList();
                 model.Regions.Insert(0, new System.Web.Mvc.SelectListItem { Selected = false, Text = "Select a region", Value = "0" });
 
             }
