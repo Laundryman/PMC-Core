@@ -5,7 +5,9 @@ using diam_planogram.Models.Shop;
 using dplo.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Graph.ExternalConnectors;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
 
@@ -18,11 +20,13 @@ namespace CoreSystem2024.Controllers.shop
 
         public IOrderService _orderService;
         public IPlanogramService _planogramService;
+        public IConfiguration _config;
 
-        public PdfController(ILogger<RenderController> logger, ICompositeViewEngine compositeViewEngine, IUmbracoContextAccessor umbracoContextAccessor, IOrderService orderService, IPlanogramService planogramService) : base(logger, compositeViewEngine, umbracoContextAccessor)
+        public PdfController(ILogger<RenderController> logger, ICompositeViewEngine compositeViewEngine, IUmbracoContextAccessor umbracoContextAccessor, IOrderService orderService, IPlanogramService planogramService, IConfiguration config) : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
             _orderService = orderService;
             _planogramService = planogramService;
+            _config = config;
         }
 
         #endregion
@@ -40,7 +44,7 @@ namespace CoreSystem2024.Controllers.shop
             var isAdmin = RolesHelper.IsAdminUser(UserInfo.Roles);
             var isRegionalManager = RolesHelper.IsClientValidator(UserInfo.Roles);
 
-            return OrderHelper.BuildFullOrder(order, _orderService, _planogramService);
+            return OrderHelper.BuildFullOrder(order, _orderService, _planogramService, _config);
 
         }
 

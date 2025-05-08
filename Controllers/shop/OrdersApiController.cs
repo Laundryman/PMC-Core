@@ -1,4 +1,6 @@
 ﻿using CoreSystem2024.Helpers;
+using CoreSystem2024.Models;
+using CoreSystem2024.Models.Shop;
 using CoreSystem2024.Models.Shop.Json;
 using CoreSystemII.Config;
 using diam_planogram.Helpers;
@@ -186,7 +188,7 @@ namespace CoreSystem2024.Controllers.shop
 
                 _orderService.SaveOrder();
 
-                var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService);
+                var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService, _config);
 
                 var response = new ApiResponseModel { data = orderModel };
 
@@ -284,13 +286,13 @@ namespace CoreSystem2024.Controllers.shop
                 // TODO: this is currently the same data returned for both views
                 if (planoView)
                 {
-                    var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService);
+                    var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService, _config);
 
                     response.data = orderModel;
                 }
                 else
                 {
-                    var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService);
+                    var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService, _config);
 
                     response.data = orderModel;
                 }
@@ -565,7 +567,7 @@ namespace CoreSystem2024.Controllers.shop
                 //LogHelper.LogAction((int)LogActionEnum.EditOrder,
                 //    url.GetLeftPart(UriPartial.Authority), 0, order.OrderId);
 
-                var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService);
+                var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService, _config);
 
                 response.data = orderModel;
 
@@ -610,7 +612,7 @@ namespace CoreSystem2024.Controllers.shop
                 order.OrderUpdatedBy = userInfo.Id; ;
                 order.OrderUpdatedByName = userInfo.GivenName + " " + userInfo.Surname;
 
-                var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService);
+                var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService, _config);
 
                 response.data = orderModel;
 
@@ -657,7 +659,7 @@ namespace CoreSystem2024.Controllers.shop
 
             _orderService.SaveOrder();
 
-            var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService);
+            var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService, _config);
 
             response.data = orderModel;
 
@@ -693,7 +695,7 @@ namespace CoreSystem2024.Controllers.shop
 
             _orderService.SaveOrder();
 
-            var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService);
+            var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService, _config);
 
             response.data = orderModel;
 
@@ -744,7 +746,7 @@ namespace CoreSystem2024.Controllers.shop
 
             _orderService.SaveOrder();
 
-            var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService);
+            var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService, _config);
 
             response.data = orderModel;
 
@@ -805,7 +807,7 @@ namespace CoreSystem2024.Controllers.shop
 
             _orderService.SaveOrder();
 
-            var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService);
+            var orderModel = OrderHelper.BuildFullOrder(order, _orderService, _planogramService, _config);
 
             response.data = orderModel;
 

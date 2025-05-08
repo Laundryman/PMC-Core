@@ -1,8 +1,10 @@
 ﻿using CoreSystem2024.Helpers;
+using CoreSystem2024.Models;
+using CoreSystem2024.Models.Shop;
 using diam_planogram.Models.Shop;
+using dplo_shop.Models;
 using dplo.Domain.Entities;
 using dplo.Service;
-using dplo_shop.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
