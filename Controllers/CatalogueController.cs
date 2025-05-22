@@ -82,7 +82,7 @@ namespace diam_planogram.Controllers
 
             catalogueModel.CountryId = country.CountryId;
             //TODO: we need to associate member with brands and with regions
-
+            var systemRole = RolesHelper.GetUserRole(userInfo.Roles, _config);
             List<Country> countries = new List<Country>();
             countries.Add(country);
 
