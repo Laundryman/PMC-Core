@@ -1,9 +1,10 @@
 ﻿using diam_planogram.Models.Shop;
 using DiamShopSolution.Models.Shop;
-using dplo.Domain;
 using dplo.Domain.Entities;
 using dplo.Service;
 using System.Configuration;
+using dplo.Domain;
+using Microsoft.Extensions.Configuration;
 
 namespace diam_planogram.Helpers
 {
@@ -29,9 +30,9 @@ namespace diam_planogram.Helpers
                 || date == DateTime.MinValue;
         }
 
-        public static OrderModel BuildFullOrder(Order order, IOrderService orderService, IPlanogramService planogramService)
+        public static OrderModel BuildFullOrder(Order order, IOrderService orderService, IPlanogramService planogramService, IConfiguration config)
         {
-            var imageDomain = ConfigurationManager.AppSettings["cassette-photo-url"];
+            var imageDomain = config["AppSettings:cassette-photo-url"] ?? string.Empty;
 
             var orderModel = (OrderModel)order;
 

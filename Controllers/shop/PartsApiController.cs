@@ -180,7 +180,7 @@ namespace CoreSystem2024.Controllers.shop
 
         private List<PartModel> BuildPartModels(IEnumerable<PartInfo> parts)
         {
-            var imageDomain = _config["AppSettings:Cassette-photo-url"] ?? string.Empty;
+            var imageDomain = _config["AppSettings:cassette-photo-url"] ?? string.Empty;
 
             var partModels =
                 parts.Select(x => new PartModel()

@@ -406,10 +406,3 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-/obj/Debug/net9.0/staticwebassets/msbuild.CoreSystemII.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
-/obj/Debug/net9.0/CoreSystem2024.assets.cache
-/obj/Debug/net9.0/staticwebassets.build.endpoints.json
-/obj/Debug/net9.0/staticwebassets.build.json
-/obj/Debug/net9.0/staticwebassets.development.json
-/obj/Debug/net9.0/staticwebassets.pack.json
-/obj/Debug/net9.0/staticwebassets.upToDateCheck.txt
