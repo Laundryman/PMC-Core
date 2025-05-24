@@ -53,7 +53,12 @@ public static class OpenIdBuilderExtensions
                             //{
                             //    await Task.FromResult(0);
                             //};
-
+                            options.Events.OnRedirectToIdentityProvider = async context =>
+                            {
+                                // This event is called when the redirect to the external login provider is made.
+                                // This is the place to add custom logic.
+                                await Task.FromResult(0);
+                            };
                             options.Events.OnTokenValidated = async context =>
                             {
                                 var claims = context?.Principal?.Claims.ToList();
