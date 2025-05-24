@@ -4,7 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <StaticWebAssetBasePath>App_Plugins/CoreSystemII</StaticWebAssetBasePath>
-    <Configurations>Debug;Release;Staging2</Configurations>
+    <Configurations>Debug;Release;Staging2;staging</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
