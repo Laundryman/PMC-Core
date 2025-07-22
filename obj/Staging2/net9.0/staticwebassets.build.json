@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "GI12/JqSOhwaSFnoJKMBj4Tkzaulp7HxQfjNrl/eF18=",
+  "Hash": "wjuDDZ0QcXamK6hUWx9aNy5puQcQ+bf4bupAHWd6N00=",
   "Source": "CoreSystemII",
   "BasePath": "App_Plugins/CoreSystemII",
   "Mode": "Default",
@@ -16,6 +16,27 @@
     }
   ],
   "Assets": [
+    {
+      "Identity": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\dobow4o6ne-i5iwfgd822.gz",
+      "SourceId": "CoreSystemII",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\",
+      "BasePath": "App_Plugins/CoreSystemII",
+      "RelativePath": "corescripts/yourRequests#[.{fingerprint=i5iwfgd822}]?.js.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\corescripts\\yourRequests.js",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "uy9icwvneo",
+      "Integrity": "CkECobaYWXv5IwrdfA8pUkEe1O45NvUW/T9OOCv0RnQ=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\corescripts\\yourRequests.js"
+    },
     {
       "Identity": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\sz6j1ircmy-cvg1cjziwd.gz",
       "SourceId": "CoreSystemII",
@@ -36,6 +57,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\umbraco-package.json"
+    },
+    {
+      "Identity": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\corescripts\\yourRequests.js",
+      "SourceId": "CoreSystemII",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\",
+      "BasePath": "App_Plugins/CoreSystemII",
+      "RelativePath": "corescripts/yourRequests#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "i5iwfgd822",
+      "Integrity": "Gl0uGkdeA6rDNmng/xri6Gt1yNCP57AAIMZCW7sBs2w=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\corescripts\\yourRequests.js"
     },
     {
       "Identity": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\umbraco-package.json",
@@ -60,6 +102,304 @@
     }
   ],
   "Endpoints": [
+    {
+      "Route": "corescripts/yourRequests.i5iwfgd822.js",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\dobow4o6ne-i5iwfgd822.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000088378259"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "11314"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"CkECobaYWXv5IwrdfA8pUkEe1O45NvUW/T9OOCv0RnQ=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 22 Jul 2025 09:43:12 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"Gl0uGkdeA6rDNmng/xri6Gt1yNCP57AAIMZCW7sBs2w=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "i5iwfgd822"
+        },
+        {
+          "Name": "label",
+          "Value": "corescripts/yourRequests.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-Gl0uGkdeA6rDNmng/xri6Gt1yNCP57AAIMZCW7sBs2w="
+        }
+      ]
+    },
+    {
+      "Route": "corescripts/yourRequests.i5iwfgd822.js",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\corescripts\\yourRequests.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "69953"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Gl0uGkdeA6rDNmng/xri6Gt1yNCP57AAIMZCW7sBs2w=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 22 Jul 2025 09:43:12 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "i5iwfgd822"
+        },
+        {
+          "Name": "label",
+          "Value": "corescripts/yourRequests.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-Gl0uGkdeA6rDNmng/xri6Gt1yNCP57AAIMZCW7sBs2w="
+        }
+      ]
+    },
+    {
+      "Route": "corescripts/yourRequests.i5iwfgd822.js.gz",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\dobow4o6ne-i5iwfgd822.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "11314"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"CkECobaYWXv5IwrdfA8pUkEe1O45NvUW/T9OOCv0RnQ=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 22 Jul 2025 09:43:12 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "i5iwfgd822"
+        },
+        {
+          "Name": "label",
+          "Value": "corescripts/yourRequests.js.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-CkECobaYWXv5IwrdfA8pUkEe1O45NvUW/T9OOCv0RnQ="
+        }
+      ]
+    },
+    {
+      "Route": "corescripts/yourRequests.js",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\dobow4o6ne-i5iwfgd822.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000088378259"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "11314"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"CkECobaYWXv5IwrdfA8pUkEe1O45NvUW/T9OOCv0RnQ=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 22 Jul 2025 09:43:12 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"Gl0uGkdeA6rDNmng/xri6Gt1yNCP57AAIMZCW7sBs2w=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-Gl0uGkdeA6rDNmng/xri6Gt1yNCP57AAIMZCW7sBs2w="
+        }
+      ]
+    },
+    {
+      "Route": "corescripts/yourRequests.js",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\corescripts\\yourRequests.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "69953"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Gl0uGkdeA6rDNmng/xri6Gt1yNCP57AAIMZCW7sBs2w=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 22 Jul 2025 09:43:12 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-Gl0uGkdeA6rDNmng/xri6Gt1yNCP57AAIMZCW7sBs2w="
+        }
+      ]
+    },
+    {
+      "Route": "corescripts/yourRequests.js.gz",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\dobow4o6ne-i5iwfgd822.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "11314"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"CkECobaYWXv5IwrdfA8pUkEe1O45NvUW/T9OOCv0RnQ=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 22 Jul 2025 09:43:12 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-CkECobaYWXv5IwrdfA8pUkEe1O45NvUW/T9OOCv0RnQ="
+        }
+      ]
+    },
     {
       "Route": "umbraco-package.cvg1cjziwd.json",
       "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\sz6j1ircmy-cvg1cjziwd.gz",

@@ -39,7 +39,7 @@ namespace CoreSystem2024.ProxyServices
 
         Task<IEnumerable<JobViewModel>> GetJobNumbersCall();
 
-        Task<IEnumerable<JobFolderViewModel>> GetJobFoldersCall(int countryId = 0, int regionId = 0,
+        Task<IEnumerable<JobFolderInfo>> GetJobFoldersCall(int countryId = 0, int regionId = 0,
             int standTypeId = 0);
 
         Task<IEnumerable<JobInfo>> GetJobNumbersForFoldersCall(int jobFolderId);
@@ -710,7 +710,7 @@ namespace CoreSystem2024.ProxyServices
 
         }
 
-        public async Task<IEnumerable<JobFolderViewModel>> GetJobFoldersCall(int countryId = 0, int regionId = 0, int standTypeId = 0)
+        public async Task<IEnumerable<JobFolderInfo>> GetJobFoldersCall(int countryId = 0, int regionId = 0, int standTypeId = 0)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             var userInfo = AuthHelper.GetUserInfo(memberIdentity);
@@ -765,7 +765,7 @@ namespace CoreSystem2024.ProxyServices
 
             //maybe log something here
 
-            using (SecureHttpClient<IEnumerable<JobFolderViewModel>> httpClient = new SecureHttpClient<IEnumerable<JobFolderViewModel>>(domain, uriSuffix, _configuration))
+            using (SecureHttpClient<IEnumerable<JobFolderInfo>> httpClient = new SecureHttpClient<IEnumerable<JobFolderInfo>>(domain, uriSuffix, _configuration))
             {
                 try
                 {
