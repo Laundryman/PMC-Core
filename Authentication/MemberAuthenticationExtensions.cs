@@ -114,6 +114,14 @@ namespace CoreSystemII.Authentication
 
                                 await Task.FromResult(0);
                             };
+                            options.Events.OnRemoteFailure = context =>
+                            {
+                                // This is where you can handle the error from the external login provider.
+                                // For example, you can log the error or redirect the user to a custom error page.
+                                context.HandleResponse();
+                                context.Response.Redirect("/error?message=" + context.Failure.Message);
+                                return Task.CompletedTask;
+                            };
                         });
                     });
             });
