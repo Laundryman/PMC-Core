@@ -202,7 +202,13 @@ namespace CoreSystem2024.Controllers
         {
             try
             {
-                var response = await _proxyApi.GetJobFoldersCall(data.CountryId ?? 0, data.RegionId ?? 0, data.StandTypeId ?? 0);
+                var response = await _proxyApi.GetJobFoldersCall(data.CountryId ?? 0, data.RegionId ?? 0,
+                    data.StandTypeId ?? 0);
+                if (data.ExcludeEmptyFolders != null)
+                {
+                    response = response.Where(f => f.JobCount > 0);
+
+                }
                 //Get the json data from the result
 
                 if (response.Any())

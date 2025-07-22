@@ -32,6 +32,7 @@
         public int? RegionId { get; set; }
         public int? CountryId { get; set; }
         public int? StandTypeId { get; set; }
+        public int? ExcludeEmptyFolders { get; set; }
     }
 
     public class GetMenuParams
