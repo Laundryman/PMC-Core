@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "wjuDDZ0QcXamK6hUWx9aNy5puQcQ+bf4bupAHWd6N00=",
+  "Hash": "6PhVMXyQaxHqCHXgt43pp5zAK6cFPqkaSdJuwq7lbKQ=",
   "Source": "CoreSystemII",
   "BasePath": "App_Plugins/CoreSystemII",
   "Mode": "Default",
@@ -10,17 +10,17 @@
     {
       "Name": "CoreSystemII\\wwwroot",
       "Source": "CoreSystemII",
-      "ContentRoot": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\wwwroot\\",
       "BasePath": "App_Plugins/CoreSystemII",
       "Pattern": "**"
     }
   ],
   "Assets": [
     {
-      "Identity": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\dobow4o6ne-i5iwfgd822.gz",
+      "Identity": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\dobow4o6ne-i5iwfgd822.gz",
       "SourceId": "CoreSystemII",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\",
+      "ContentRoot": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\",
       "BasePath": "App_Plugins/CoreSystemII",
       "RelativePath": "corescripts/yourRequests#[.{fingerprint=i5iwfgd822}]?.js.gz",
       "AssetKind": "All",
@@ -28,20 +28,20 @@
       "AssetRole": "Alternative",
       "AssetMergeBehavior": "",
       "AssetMergeSource": "",
-      "RelatedAsset": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\corescripts\\yourRequests.js",
+      "RelatedAsset": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\wwwroot\\corescripts\\yourRequests.js",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
       "Fingerprint": "uy9icwvneo",
       "Integrity": "CkECobaYWXv5IwrdfA8pUkEe1O45NvUW/T9OOCv0RnQ=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\corescripts\\yourRequests.js"
+      "OriginalItemSpec": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\wwwroot\\corescripts\\yourRequests.js"
     },
     {
-      "Identity": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\sz6j1ircmy-cvg1cjziwd.gz",
+      "Identity": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\sz6j1ircmy-cvg1cjziwd.gz",
       "SourceId": "CoreSystemII",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\",
+      "ContentRoot": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\",
       "BasePath": "App_Plugins/CoreSystemII",
       "RelativePath": "umbraco-package#[.{fingerprint=cvg1cjziwd}]?.json.gz",
       "AssetKind": "All",
@@ -49,20 +49,20 @@
       "AssetRole": "Alternative",
       "AssetMergeBehavior": "",
       "AssetMergeSource": "",
-      "RelatedAsset": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\umbraco-package.json",
+      "RelatedAsset": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\wwwroot\\umbraco-package.json",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
       "Fingerprint": "ipf2r0g14y",
       "Integrity": "+gh/naJmrC6NiIODyRc6TM3p8spaF+LwkqITBkkViiU=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\umbraco-package.json"
+      "OriginalItemSpec": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\wwwroot\\umbraco-package.json"
     },
     {
-      "Identity": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\corescripts\\yourRequests.js",
+      "Identity": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\wwwroot\\corescripts\\yourRequests.js",
       "SourceId": "CoreSystemII",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\wwwroot\\",
       "BasePath": "App_Plugins/CoreSystemII",
       "RelativePath": "corescripts/yourRequests#[.{fingerprint}]?.js",
       "AssetKind": "All",
@@ -80,10 +80,10 @@
       "OriginalItemSpec": "wwwroot\\corescripts\\yourRequests.js"
     },
     {
-      "Identity": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\umbraco-package.json",
+      "Identity": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\wwwroot\\umbraco-package.json",
       "SourceId": "CoreSystemII",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\wwwroot\\",
       "BasePath": "App_Plugins/CoreSystemII",
       "RelativePath": "umbraco-package#[.{fingerprint}]?.json",
       "AssetKind": "All",
@@ -104,7 +104,7 @@
   "Endpoints": [
     {
       "Route": "corescripts/yourRequests.i5iwfgd822.js",
-      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\dobow4o6ne-i5iwfgd822.gz",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\dobow4o6ne-i5iwfgd822.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
@@ -127,7 +127,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 22 Jul 2025 09:43:12 GMT"
+          "Value": "Tue, 22 Jul 2025 14:33:34 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -167,7 +167,7 @@
     },
     {
       "Route": "corescripts/yourRequests.i5iwfgd822.js",
-      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\corescripts\\yourRequests.js",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\wwwroot\\corescripts\\yourRequests.js",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -188,7 +188,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 22 Jul 2025 09:43:12 GMT"
+          "Value": "Tue, 22 Jul 2025 14:33:34 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -212,7 +212,7 @@
     },
     {
       "Route": "corescripts/yourRequests.i5iwfgd822.js.gz",
-      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\dobow4o6ne-i5iwfgd822.gz",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\dobow4o6ne-i5iwfgd822.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -233,7 +233,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 22 Jul 2025 09:43:12 GMT"
+          "Value": "Tue, 22 Jul 2025 14:33:34 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -265,7 +265,7 @@
     },
     {
       "Route": "corescripts/yourRequests.js",
-      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\dobow4o6ne-i5iwfgd822.gz",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\dobow4o6ne-i5iwfgd822.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
@@ -288,7 +288,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 22 Jul 2025 09:43:12 GMT"
+          "Value": "Tue, 22 Jul 2025 14:33:34 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -320,7 +320,7 @@
     },
     {
       "Route": "corescripts/yourRequests.js",
-      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\corescripts\\yourRequests.js",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\wwwroot\\corescripts\\yourRequests.js",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -341,7 +341,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 22 Jul 2025 09:43:12 GMT"
+          "Value": "Tue, 22 Jul 2025 14:33:34 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -357,7 +357,7 @@
     },
     {
       "Route": "corescripts/yourRequests.js.gz",
-      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\dobow4o6ne-i5iwfgd822.gz",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\dobow4o6ne-i5iwfgd822.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -378,7 +378,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 22 Jul 2025 09:43:12 GMT"
+          "Value": "Tue, 22 Jul 2025 14:33:34 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -402,7 +402,7 @@
     },
     {
       "Route": "umbraco-package.cvg1cjziwd.json",
-      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\sz6j1ircmy-cvg1cjziwd.gz",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\sz6j1ircmy-cvg1cjziwd.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
@@ -425,7 +425,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 29 Nov 2024 11:55:17 GMT"
+          "Value": "Tue, 06 May 2025 11:14:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -465,7 +465,7 @@
     },
     {
       "Route": "umbraco-package.cvg1cjziwd.json",
-      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\umbraco-package.json",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\wwwroot\\umbraco-package.json",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -486,7 +486,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 29 Nov 2024 11:55:17 GMT"
+          "Value": "Tue, 06 May 2025 11:14:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -510,7 +510,7 @@
     },
     {
       "Route": "umbraco-package.cvg1cjziwd.json.gz",
-      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\sz6j1ircmy-cvg1cjziwd.gz",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\sz6j1ircmy-cvg1cjziwd.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -531,7 +531,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 29 Nov 2024 11:55:17 GMT"
+          "Value": "Tue, 06 May 2025 11:14:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -563,7 +563,7 @@
     },
     {
       "Route": "umbraco-package.json",
-      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\sz6j1ircmy-cvg1cjziwd.gz",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\sz6j1ircmy-cvg1cjziwd.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
@@ -586,7 +586,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 29 Nov 2024 11:55:17 GMT"
+          "Value": "Tue, 06 May 2025 11:14:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -618,7 +618,7 @@
     },
     {
       "Route": "umbraco-package.json",
-      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\wwwroot\\umbraco-package.json",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\wwwroot\\umbraco-package.json",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -639,7 +639,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 29 Nov 2024 11:55:17 GMT"
+          "Value": "Tue, 06 May 2025 11:14:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -655,7 +655,7 @@
     },
     {
       "Route": "umbraco-package.json.gz",
-      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\Maybelline2024\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\sz6j1ircmy-cvg1cjziwd.gz",
+      "AssetFile": "C:\\Users\\nickr\\source\\repos\\PLANX\\RimmelV5\\laundromat_dcs2024\\obj\\Staging2\\net9.0\\compressed\\sz6j1ircmy-cvg1cjziwd.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -676,7 +676,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 29 Nov 2024 11:55:17 GMT"
+          "Value": "Tue, 06 May 2025 11:14:25 GMT"
         },
         {
           "Name": "Cache-Control",
