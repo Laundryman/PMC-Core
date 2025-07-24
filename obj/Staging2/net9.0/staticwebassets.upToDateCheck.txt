@@ -1,4 +1,4 @@
-C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\wwwroot\corescripts\yourRequests.js
-C:\Users\nickr\source\repos\PLANX\Maybelline2024\laundromat_dcs2024\wwwroot\umbraco-package.json
+C:\Users\nickr\source\repos\PLANX\RimmelV5\laundromat_dcs2024\wwwroot\corescripts\yourRequests.js
+C:\Users\nickr\source\repos\PLANX\RimmelV5\laundromat_dcs2024\wwwroot\umbraco-package.json
 wwwroot\corescripts\yourRequests.js
 wwwroot\umbraco-package.json
