@@ -25,16 +25,18 @@ namespace CoreSystem2024.Controllers
         private IStandService _standService;
         private IPlanogramService _planogramService;
         private ICountryService _countryService;
+        private readonly IConfiguration _configuration;
         private readonly IMemberManager _memberManager;
         private readonly ILogger<AuthApiController> _logger;
 
 
-        public AuthApiController(IStandService standService, IPlanogramService planogramService, ICountryService countryService, IMemberManager memberManager)
+        public AuthApiController(IStandService standService, IPlanogramService planogramService, ICountryService countryService, IMemberManager memberManager, IConfiguration configuration)
         {
             _standService = standService;
             _planogramService = planogramService;
             _countryService = countryService;
             _memberManager = memberManager;
+            _configuration = configuration;
         }
 
         #endregion
@@ -58,7 +60,12 @@ namespace CoreSystem2024.Controllers
                 {
                     IsShopper = RolesHelper.IsAdminShopper(userInfo.Roles);
                 }
-
+                //only show shop settings if there is a shop
+                var hasShop = _configuration["AppSettings:HasShop"];
+                if (hasShop != "true")
+                {
+                    IsShopper = false;
+                }
                 var myRole = new { Role = "clientEditor", Shopper = IsShopper, Creator = IsCreator, Archiver = IsArchiver};
                 if (RolesHelper.IsAdministrator(userInfo.Roles))
                 {
