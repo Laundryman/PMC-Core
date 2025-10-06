@@ -1,20 +1,26 @@
-﻿using CoreSystem2024.Controllers;
-using CoreSystem2024.Controllers.shop;
-using CoreSystem2024.Helpers;
-using CoreSystem2024.Models;
-using CoreSystem2024.ProxyServices;
-using dplo.Domain;
-using dplo.Domain.Entities;
-using dplo.Service;
-using Dplo.ViewModels;
+﻿using System.Configuration;
+using System.Net;
+using System.Net.Http.Headers;
+using CoreSystem.Controllers;
+using CoreSystem.Controllers.shop;
+using CoreSystem.Helpers;
+using CoreSystem.HttpClientWrapper;
+using CoreSystem.Models;
+using CoreSystemII.Controllers.Proxy;
+//using dplo.Domain;
+//using dplo.Domain.Entities;
+//using dplo.Service;
+//using dplo.Service.MSGraphUtils;
+//using Dplo.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Microsoft.Extensions.Configuration;
-using Umbraco.Cms.Core.Security;
-using ConfigurationManager = System.Configuration.ConfigurationManager;
+using PMApplication.Dtos.PlanModels;
+using PMApplication.Entities.CountriesAggregate;
+using PMApplication.Entities.PlanogramAggregate;
+using PMApplication.Interfaces.ServiceInterfaces;
 
 namespace CoreSystemII.Controllers
 {
@@ -100,7 +106,7 @@ namespace CoreSystemII.Controllers
             var response = await _proxyApi.GetTemplatesCall(standId);
 
             //Get the json data from the result
-            var templates = new List<PlanogramClusterModel>();
+            var templates = new List<PlanmClusterDto>();
             //var response =
             return response;
         }
@@ -129,7 +135,7 @@ namespace CoreSystemII.Controllers
 
             try
             {
-                Planogram planogram = _planogramService.GetPlanogram(planogramId);
+                Planogram planogram = await _planogramService.GetPlanogram(planogramId);
 
                 var countryId = UserInfo.DiamCountryId; ;
                 Country country = _countryService.GetCountry(countryId);

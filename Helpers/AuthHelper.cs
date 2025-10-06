@@ -7,14 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Client;
 using System.Diagnostics;
-using System.Drawing;
-using System.Globalization;
-using System.Security.Claims;
-using System.Text;
-using RazorEngine.Compilation.ImpromptuInterface.Dynamic;
-using Umbraco.Cms.Core.Models;
-using Umbraco.Cms.Core.Security;
-using ConfigurationManager = System.Configuration.ConfigurationManager;
+using PMApplication.Dtos;
 
 namespace CoreSystem2024.Helpers
 {
@@ -95,53 +88,30 @@ namespace CoreSystem2024.Helpers
             response.Cookies.Append(sessionName, "", cookieOptions);
         }
 
-        public static void CheckIdentityClaims(MemberIdentityUser user, IMember member)
+        public static CurrentUser GetUserInfo(ClaimsPrincipal user)
         {
-            //user.Claims.Add(new IdentityUserClaim<string>
-            //{
-            //    ClaimType = extClaim.Type,
-            //    ClaimValue = extClaim.Value,
-            //    UserId = user.Id
-            //});
-        }
-
-        public static UserViewModel GetUserInfo(MemberIdentityUser user)
-        {
-            IConfigurationSection appSettings = _config.GetSection("AppSettings");
-            var sessionName = appSettings["SessionName"];
-            string readScope = _config["AzureB2C:ReadScope"];
-            string writeScope = _config["AzureB2CWriteScope"];
-            //if (!user.Identity.IsAuthenticated)
-            //{
-            //    var proxySupport = new ProxyApiSupport(config);
-            //    //// Retrieve the token with the specified scopes
-            //    Task<AuthenticationResult> result = proxySupport.AcquireTokenForScopes(new string[] { readScope, writeScope });
-            //}
-            //else
-            //{
-            //    if (user.Claims.FirstOrDefault((c => c.Type == ClaimTypes.GivenName)).Value != null)
-            //    {
-            //        //reauth
-
-            //    }
-            //}
+            string sessionName = DiamConfiguration.GetConfig().SessionName;
 
             try
             {
                 //var user = HttpRequest.GetOwinContext().Authentication.User.Claims;
                 //Check here if userinfo exists in the session (will be faster to use that)
-                var userInfo = new UserViewModel();
-                userInfo.GivenName = user.Claims.FirstOrDefault(c => c.ClaimType == "given_name").ClaimValue;
-                userInfo.Email = user.Claims.FirstOrDefault(c => c.ClaimType == "extension_userEmailAddress").ClaimValue;
-                userInfo.Id = user.Claims.FirstOrDefault(c => c.ClaimType == "sub").ClaimValue;
-                userInfo.Roles = user.Claims.FirstOrDefault(c => c.ClaimType == "extension_diamRoles").ClaimValue;
-                userInfo.DisplayName = user.Claims.FirstOrDefault(c => c.ClaimType == "name").ClaimValue;
-                userInfo.DiamCountryId = int.Parse(user.Claims.FirstOrDefault(c => c.ClaimType == "extension_diamCountryId").ClaimValue);
-                //if (user.FirstOrDefault(c => c.Type == "extension_diamUserId") != null) 
-                //    userInfo.DiamUserId = int.Parse(user.FirstOrDefault(c => c.Type == "extension_diamUserId").Value);
-                userInfo.Brands = user.Claims.FirstOrDefault(c => c.ClaimType == "extension_brands").ClaimValue;
-                userInfo.UserName = user.Claims.FirstOrDefault(c => c.ClaimType == "name").ClaimValue;
-                userInfo.Surname = user.Claims.FirstOrDefault(c => c.ClaimType == "family_name").ClaimValue;
+                var userInfo = new CurrentUser();
+                userInfo.GivenName = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value;
+                userInfo.Surname = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value;
+                userInfo.Email = user.Claims.FirstOrDefault(c => c.Type == "extension_userEmailAddress")?.Value;
+                userInfo.Id = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;;
+                userInfo.Roles = user.Claims.FirstOrDefault(c => c.Type == "extension_diamRoles")?.Value;
+                userInfo.DisplayName = user.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+                var value = user.Claims
+                    .FirstOrDefault(c => c.Type == "extension_diamCountryId")?.Value;
+                if (value != null)
+                {
+                    userInfo.DiamCountryId = int.Parse(value);
+                    //if (user.FirstOrDefault(c => c.Type == "extension_diamUserId") != null) 
+                    //    userInfo.DiamUserId = int.Parse(user.FirstOrDefault(c => c.Type == "extension_diamUserId").Value);
+                    userInfo.Brands = user.Claims.FirstOrDefault(c => c.Type == "extension_brands")?.Value;
+                }
 
 
                 return userInfo;
@@ -157,7 +127,7 @@ namespace CoreSystem2024.Helpers
             //}
             return null;
         }
-        public static Guid SetUserSession(ClaimsPrincipal userInfo, HttpContext httpContext)
+        public static void SetUserSession(CurrentUser userInfo, HttpContext httpContext)
         {
             //Check User is valid for this client (scope should contain the client Id)
             IConfigurationSection appSettings = _config.GetSection("AppSettings");
@@ -276,57 +246,55 @@ namespace CoreSystem2024.Helpers
         }
 
 
-        public static async Task<string> GetAccessToken(string[] scopes)
-        {
-            //we need to re-auth using the reauth process
-            string accessToken = null;
-            var proxySupport = new ProxyApiSupport();
-            string readScope = _config["AzureB2C:ReadScope"];
-            string writeScope = _config["AzureB2CWriteScope"];
-            try
-            {
-                var result = await proxySupport.AcquireTokenForScopes(new string[]
-                    { readScope, writeScope });
-                accessToken = result.AccessToken;
-            }
-            catch (MsalUiRequiredException ex)
-            {
-                // A MsalUiRequiredException happened on AcquireTokenSilent.
-                // This indicates you need to call AcquireTokenInteractive to acquire a token
-                Debug.WriteLine($"MsalUiRequiredException: {ex.Message}");
+        //public static async Task<string> GetAccessToken(string[] scopes)
+        //{
+        //    //we need to re-auth using the reauth process
+        //    string accessToken = null;
+        //    var proxySupport = new ProxyApiSupport();
 
-                try
-                {
-                    var result = await proxySupport.AcquireTokenInteractive(new string[]
-                        { readScope, writeScope });
-                    accessToken = result.IdToken;
-                }
-                catch (MsalException msalex)
-                {
-                    throw new Exception($"Error Acquiring Token:{System.Environment.NewLine}{msalex}");
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error Acquiring Token Silently:{System.Environment.NewLine}{ex}");
-            }
+        //    try
+        //    {
+        //        var result = await proxySupport.AcquireTokenForScopes(new string[]
+        //            { Globals.ReadTasksScope, Globals.WriteTasksScope });
+        //        accessToken = result.AccessToken;
+        //    }
+        //    catch (MsalUiRequiredException ex)
+        //    {
+        //        // A MsalUiRequiredException happened on AcquireTokenSilent.
+        //        // This indicates you need to call AcquireTokenInteractive to acquire a token
+        //        Debug.WriteLine($"MsalUiRequiredException: {ex.Message}");
 
+        //        try
+        //        {
+        //            var result = await proxySupport.AcquireTokenInteractive(new string[]
+        //                { Globals.ReadTasksScope, Globals.WriteTasksScope });
+        //            accessToken = result.IdToken;
+        //        }
+        //        catch (MsalException msalex)
+        //        {
+        //            throw new Exception($"Error Acquiring Token:{System.Environment.NewLine}{msalex}");
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception($"Error Acquiring Token Silently:{System.Environment.NewLine}{ex}");
+        //    }
 
 
-            // Retrieve the token with the specified scopes
-            //AuthenticationResult result = await AcquireTokenForScopes(new string[] { Globals.WriteTasksScope });
 
-            return accessToken;
+        //    // Retrieve the token with the specified scopes
+        //    //AuthenticationResult result = await AcquireTokenForScopes(new string[] { Globals.WriteTasksScope });
 
-        }
-        public static async Task<AuthenticationResult> AcquireTokenForScopes(string[] scopes)
-        {
-            string signInPolicy = _config["AzureB2C:SignInPolicyId"];
-            IConfidentialClientApplication cca = MsalAppBuilder.BuildConfidentialClientApplication();
-            string accountId = ClaimsPrincipal.Current.GetB2CMsalAccountIdentifier(signInPolicy);
-            var account = await cca.GetAccountAsync(accountId);
-            return await cca.AcquireTokenSilent(scopes, account).ExecuteAsync();
-        }
+        //    return accessToken;
+
+        //}
+        //public static async Task<AuthenticationResult> AcquireTokenForScopes(string[] scopes)
+        //{
+        //    IConfidentialClientApplication cca = MsalAppBuilder.BuildConfidentialClientApplication();
+        //    string accountId = ClaimsPrincipal.Current.GetB2CMsalAccountIdentifier(Globals.SignInPolicyId);
+        //    var account = await cca.GetAccountAsync(accountId);
+        //    return await cca.AcquireTokenSilent(scopes, account).ExecuteAsync();
+        //}
 
 
 

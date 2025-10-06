@@ -1,20 +1,22 @@
-﻿using AutoMapper;
-using CoreSystem2024.Helpers;
-using CoreSystem2024.Models;
-using dplo.Domain;
-using dplo.Service;
-using Dplo.ViewModels;
+﻿using System.Configuration;
+//using Dplo.ViewModels;
+//using dplo.Domain;
+//using dplo.Service;
+using CoreSystem.Models;
+using CoreSystem.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Logging;
 using System.Configuration;
 using CoreSystem2024.Controllers.shop;
 using Umbraco.Cms.Core.Web;
-using Umbraco.Cms.Web.Common.Controllers;
-using Microsoft.Extensions.Configuration;
-using Umbraco.Cms.Core.Security;
-using CoreSystem2024.CMSModelBuilderModels;
-using Catalogue = CoreSystem2024.CMSModelBuilderModels.Catalogue;
+using AutoMapper;
+using diam_planogram.Models.Shop;
+using PMApplication.Entities;
+using PMApplication.Entities.CountriesAggregate;
+using PMApplication.Entities.PartAggregate;
+using PMApplication.Enums;
+using PMApplication.Interfaces.ServiceInterfaces;
 
 namespace diam_planogram.Controllers
 {
@@ -23,18 +25,13 @@ namespace diam_planogram.Controllers
     {
 
         #region constructor
-        private readonly IStandService _standService;
-        private readonly IPlanogramService _planogramService;
-        private readonly ICatalogueService _catalogueService;
-        private readonly ICountryService _countryService;
-        private readonly ICategoryService _categoryService;
-        private readonly IProductService _productService;
-        private readonly IMapper _mapper;
-        private readonly IConfiguration _config;
-        private readonly IMemberManager _memberManager;
-
-        private string? _domain;
-        private int _brandId;
+        private IStandService _standService;
+        private IPlanogramService _planogramService;
+        private IPartService _partService;
+        private ICountryService _countryService;
+        private ICategoryService _categoryService;
+        private IProductService _productService;
+        private IMapper _mapper;
 
         public CatalogueController(
             ILogger<RenderController> logger,
@@ -42,14 +39,14 @@ namespace diam_planogram.Controllers
             IUmbracoContextAccessor umbracoContextAccessor,
             IStandService standService,
             IPlanogramService planogramService,
-            ICatalogueService catalogueService,
+            IPartService partService,
             ICountryService countryService,
             ICategoryService categoryService,
             IProductService productService, IMapper mapper, IConfiguration config, IMemberManager memberManager) : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
             _standService = standService;
             _planogramService = planogramService;
-            _catalogueService = catalogueService;
+            _partService = partService;
             _countryService = countryService;
             _categoryService = categoryService;
             _productService = productService;
@@ -86,13 +83,13 @@ namespace diam_planogram.Controllers
             List<Country> countries = new List<Country>();
             countries.Add(country);
 
-            IEnumerable<Category> parentCats = _categoryService.GetParentCategories();
+            IEnumerable<Category> parentCats = await _categoryService.GetParentCategories();
             List<int> notthese = new List<int>(new int[] { 8, 28, 37 }); //Non product bearing categories
             List<CategoryModel> pCatsToDisplay = new List<CategoryModel>();
             foreach (Category cat in parentCats)
             {
-                var hasProducts = _catalogueService.GetParts(catalogueModel.BrandId, cat.CategoryId, countries).Any();
-                if (hasProducts && !notthese.Contains(cat.CategoryId))
+                var hasProducts = await _partService.GetParts(catalogueModel.BrandId, cat.Id, countries);
+                if (hasProducts && !notthese.Contains(cat.Id))
                 {
                     var heroImageUrl = catalogueModel.ServerUrl + "/planogram/products/photo_art/placeholder.jpg";
                     var heroProduct = _productService.GetHeroProduct(cat.CategoryId, catalogueModel.BrandId);
@@ -119,7 +116,7 @@ namespace diam_planogram.Controllers
             {
                 if (catalogueModel.StandTypes.Count > 0)
                 {
-                    List<Part> parts = _catalogueService.GetParts(catalogueModel.BrandId, pCatsToDisplay[0].CategoryId,
+                    List<Part> parts = _partService.GetParts(catalogueModel.BrandId, pCatsToDisplay[0].CategoryId,
                             catalogueModel.StandTypes.First().StandTypeId, countries)
                         .Where(p => p.PartTypeId != (int)PartTypeEnum.SparePart).ToList();
                     if (parts.Any())
@@ -162,7 +159,7 @@ namespace diam_planogram.Controllers
             List<CategoryModel> pCatsToDisplay = new List<CategoryModel>();
             foreach (Category cat in parentCats)
             {
-                var hasProducts = _catalogueService.GetParts(catalogueModel.BrandId, cat.CategoryId, countries).Any();
+                var hasProducts = _partService.GetParts(catalogueModel.BrandId, cat.CategoryId, countries).Any();
                 if (hasProducts && !notthese.Contains(cat.CategoryId))
                 {
                     var heroImageUrl = "placeholder.jpg";
@@ -192,7 +189,7 @@ namespace diam_planogram.Controllers
             catalogueModel.BrandId = _brandId;
 
 
-            IEnumerable<Part> parts = _catalogueService.GetParts(catalogueModel.BrandId, pCatsToDisplay[0].CategoryId, catalogueModel.StandTypes.First().StandTypeId, countries).Where(p => p.PartTypeId != (int)PartTypeEnum.SparePart);
+            IEnumerable<Part> parts = _partService.GetParts(catalogueModel.BrandId, pCatsToDisplay[0].CategoryId, catalogueModel.StandTypes.First().StandTypeId, countries).Where(p => p.PartTypeId != (int)PartTypeEnum.SparePart);
             catalogueModel.Parts = parts.ToList();
             //simply use the protected method CurrentTemplate<T>, this does all of the
             //above for you... must nicer.

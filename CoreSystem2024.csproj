@@ -1,10 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <StaticWebAssetBasePath>App_Plugins/CoreSystemII</StaticWebAssetBasePath>
-    <Configurations>Debug;Release;Staging2;staging</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -28,13 +27,12 @@
 
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="13.0.1" />
-    <PackageReference Include="Bergmania.OpenStreetMap.Core" Version="7.0.0" />
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.3.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.3.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.1" />
-    <PackageReference Include="Microsoft.Graph" Version="4.11.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Graph" Version="5.83.0" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.65.0" />
     <PackageReference Include="Microsoft.Identity.Web" Version="3.2.0" />
     <PackageReference Include="Microsoft.Identity.Web.UI" Version="3.2.0" />
@@ -50,17 +48,7 @@
 
 
   <ItemGroup>
-    <ProjectReference Include="..\laundromat_dcl\dplo.Data\dplo.Data.csproj" />
-    <ProjectReference Include="..\laundromat_dcl\dplo.Domain\dplo.Domain.csproj" />
-    <ProjectReference Include="..\laundromat_dcl\dplo.Helpers\dplo.Helpers.csproj" />
-    <ProjectReference Include="..\laundromat_dcl\dplo.Service\dplo.Service.csproj" />
-    <ProjectReference Include="..\laundromat_dcl\Dplo.ViewModels\dplo.ViewModels.csproj" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Folder Include="CMSModelBuilderModels\" />
-    <Folder Include="Controllers\Proxy\" />
-    <Folder Include="UmbracoBuilderExtensions\" />
+    <ProjectReference Include="..\PM-Application\PMApplication.csproj" />
+    <ProjectReference Include="..\PM-Infrastructure\PMInfrastructure.csproj" />
   </ItemGroup>
 </Project>

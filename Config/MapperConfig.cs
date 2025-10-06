@@ -1,8 +1,13 @@
 ﻿using AutoMapper;
-using CoreSystem2024.Models;
-using dplo.Domain;
-using dplo.Domain.Entities;
-using Dplo.ViewModels;
+using diam_planogram.Models.Shop;
+using PMApplication.Dtos;
+//using dplo.Domain;
+//using dplo.Domain.Entities;
+//using dplo.Service.MSGraphUtils;
+//using Dplo.ViewModels;
+using PMApplication.Entities;
+using PMApplication.Entities.CountriesAggregate;
+using Umbraco.Cms.Core.Models.Membership;
 
 namespace CoreSystemII.Config;
 
@@ -16,8 +21,8 @@ public class MapperConfig
             //Configuring Employee and EmployeeDTO
             //cfg.AddProfile<UserViewModelProfile.MapBrandsToUserViewModelProfile>();
             //cfg.AddProfile<UserViewModelProfile>();
-            cfg.CreateMap<Brand, BrandViewModel>();
-            cfg.CreateMap<Country, CountryViewModel>();
+            cfg.CreateMap<Brand, BrandDto>();
+            cfg.CreateMap<Country, CountryDto>();
             cfg.CreateMap<Category, CategoryModel>();
             cfg.CreateMap<PlanogramNote, PNotesViewModel>();
             //Any Other Mapping Configuration ....
