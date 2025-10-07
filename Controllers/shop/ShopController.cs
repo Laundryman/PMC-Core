@@ -1,5 +1,4 @@
-﻿using dplo.Service.MSGraphUtils;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;

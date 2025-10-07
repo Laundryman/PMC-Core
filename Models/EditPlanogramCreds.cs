@@ -7,8 +7,8 @@ namespace CoreSystem2024.Models
 
         public string Action { get; set; }
         public string UserId { get; set; }
-        public int PlanogramId { get; set; }
-        public int clusterId { get; set; }
+        public long PlanogramId { get; set; }
+        public long clusterId { get; set; }
 
         public string countryId { get; set; }
         public string apiURL { get; set; }
@@ -17,7 +17,7 @@ namespace CoreSystem2024.Models
         public string uname { get; set; }
         public string accessToken { get; set; }
         public string debug { get; set; }
-        public int themeId { get; set; }
+        public int? themeId { get; set; }
 
     }
 }

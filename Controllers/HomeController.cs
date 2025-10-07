@@ -1,19 +1,21 @@
 ﻿using CoreSystem2024.Helpers;
 using CoreSystem2024.Models;
-using dplo.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Globalization;
+using System.Security.Claims;
 using CoreSystem2024.CMSModelBuilderModels;
 using CoreSystem2024.Controllers.shop;
+using PMApplication.Interfaces.ServiceInterfaces;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
 using Umbraco.Cms.Web.Common.PublishedModels;
+using PMApplication.Specifications.Filters;
 
 
 namespace diam_planogram.Controllers
@@ -75,51 +77,69 @@ namespace diam_planogram.Controllers
             //}
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             var logins = _memberManager.GetLoginsAsync(memberIdentity);
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
-            if (User.Identity.IsAuthenticated)
+            if (ClaimsPrincipal.Current != null)
             {
-                var userClaims = User.Claims;
+                var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
-                //we will create a custom model
-
-                if (userInfo.GivenName != null)
+                if (User.Identity.IsAuthenticated)
                 {
-                    model.UserFirstName = userInfo.GivenName;
-                    model.UserLastName = userInfo.Surname;
+                    var userClaims = User.Claims;
+
+                    //we will create a custom model
+
+                    if (userInfo.GivenName != null)
+                    {
+                        model.UserFirstName = userInfo.GivenName;
+                        model.UserLastName = userInfo.Surname;
+                    }
+
+                    var brandId = _config["AppSettings:ClientBrandId"];
+
+                    model.BrandId = int.Parse(brandId);
+                    model.ApiUrl = _config["AppSettings:ApiURL"];
+                    model.ShopUrl = _config["AppSettings:ShopURL"];
+                    model.CountryId = userInfo.DiamCountryId;
+                    var country = await _countryService.GetCountry(userInfo.DiamCountryId);
+                    userInfo.DiamCountryName = country.Name;
+                    model.CountryName = country.Name;
+                    model.CountryFlag = country.FlagFileName;
+                    Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
+
+
+                    var owFilter = new OrderWindowFilter
+                    {
+                        BrandId = model.BrandId,
+                        IncludeExpired = false
+                    };
+                    var orderWindows = await _orderWindowService.GetOrderWindows(owFilter);
+                    if (orderWindows.Count == 0)
+                        owFilter.IncludeExpired = true;
+                    orderWindows = await _orderWindowService.GetOrderWindows(owFilter);
+                    var orderWindow = orderWindows.FirstOrDefault();
+
+                    if (orderWindow != null)
+                    {
+                        model.OrderWindowOpening = orderWindow.StartDate;
+                        model.OrderWindowClosing = orderWindow.EndDate;
+                    }
+                    //get the calender - change the filter
+                    owFilter.GetFutureWindows = true;
+                    owFilter.IncludeExpired = false;
+                    var orderWindowCalendar = await _orderWindowService.GetOrderWindows(owFilter);
+
+                    if (orderWindowCalendar != null && orderWindowCalendar.Any())
+                    {
+                        model.OrderWindowCalendar = JsonConvert.SerializeObject(orderWindowCalendar);
+                    }
+
+                    return CurrentTemplate(model);
                 }
-
-                var brandId = _config["AppSettings:ClientBrandId"];
-
-                model.BrandId = int.Parse(brandId);
-                model.ApiUrl = _config["AppSettings:ApiURL"];
-                model.ShopUrl = _config["AppSettings:ShopURL"];
-                model.CountryId = userInfo.DiamCountryId;
-                var country = _countryService.GetCountry(userInfo.DiamCountryId);
-                userInfo.DiamCountryName = country.Name;
-                model.CountryName = country.Name;
-                model.CountryFlag = country.FlagFileName;
-                Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
-
-
-                var orderWindow = _orderWindowService.GetCurrentOrderWindow(int.Parse(brandId), false)
-                                  ?? _orderWindowService.GetNextOrderWindow(int.Parse(brandId))
-                                  ?? _orderWindowService.GetCurrentOrderWindow(int.Parse(brandId), true);
-
-                if (orderWindow != null)
+                else
                 {
-                    model.OrderWindowOpening = orderWindow.StartDate;
-                    model.OrderWindowClosing = orderWindow.EndDate;
+                    Response.Redirect("/Welcome");
+                    return null;
                 }
-
-                var orderWindowCalendar = _orderWindowService.GetOrderWindowCalendar(int.Parse(brandId));
-
-                if (orderWindowCalendar != null && orderWindowCalendar.Any())
-                {
-                    model.OrderWindowCalendar = JsonConvert.SerializeObject(orderWindowCalendar);
-                }
-
-                return CurrentTemplate(model);
             }
             else
             {
@@ -131,22 +151,15 @@ namespace diam_planogram.Controllers
         public async Task<IActionResult> MihLandingPage(ContentModel model)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            if (ClaimsPrincipal.Current != null)
+            {
+                var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
+            }
 
 
-
-            ////we will create a custom model
-            //var model = new model(model.Content);
-            //if (userInfo != null)
-            //{
-            //    model.UserFirstName = userInfo.GivenName;
-            //    model.UserLastName = userInfo.Surname;
-            //}
-            //model.BrandId = int.Parse(Configuration["AppSettings:ClientBrandId"]);
-            //model.ApiUrl = Configuration["AppSettings:ApiURL"];
 
             //simply use the protected method CurrentTemplate<T>, this does all of the
-            //above for you... must nicer.
+            //above for you... much nicer.
             return CurrentTemplate(model);
         }
 

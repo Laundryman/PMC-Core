@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CoreSystem2024.Models;
 using diam_planogram.Models.Shop;
 using PMApplication.Dtos;
 //using dplo.Domain;
@@ -7,6 +8,7 @@ using PMApplication.Dtos;
 //using Dplo.ViewModels;
 using PMApplication.Entities;
 using PMApplication.Entities.CountriesAggregate;
+using PMApplication.Entities.PlanogramAggregate;
 using Umbraco.Cms.Core.Models.Membership;
 
 namespace CoreSystemII.Config;
@@ -24,6 +26,7 @@ public class MapperConfig
             cfg.CreateMap<Brand, BrandDto>();
             cfg.CreateMap<Country, CountryDto>();
             cfg.CreateMap<Category, CategoryModel>();
+            cfg.CreateMap<Category, CategoryDto>();
             cfg.CreateMap<PlanogramNote, PNotesViewModel>();
             //Any Other Mapping Configuration ....
         });

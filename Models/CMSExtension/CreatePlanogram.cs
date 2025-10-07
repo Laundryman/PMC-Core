@@ -1,4 +1,5 @@
-﻿using Dplo.ViewModels;
+﻿
+using PMApplication.Dtos;
 
 namespace CoreSystem2024.CMSModelBuilderModels
 {
@@ -13,7 +14,7 @@ namespace CoreSystem2024.CMSModelBuilderModels
         public string UserRoles { get; set; }
         public int SystemRole { get; set; }
         public string ImageServerUrl { get; set; }
-        public ICollection<StandTypeViewModel> StandTypes { get; set; }
+        public ICollection<StandTypeDto> StandTypes { get; set; }
 
     }
 }

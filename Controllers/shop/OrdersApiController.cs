@@ -5,15 +5,18 @@ using CoreSystem2024.Models.Shop.Json;
 using CoreSystemII.Config;
 using diam_planogram.Helpers;
 using diam_planogram.Models.Shop;
-using dplo.Domain.Entities;
-using dplo.Helpers;
-using dplo.Service;
 using dplo_shop.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using PMApplication.Entities;
+using PMApplication.Entities.OrderAggregate;
+using PMApplication.Enums;
+using PMApplication.Interfaces.ServiceInterfaces;
+using System.Security.Claims;
+using J2N.Collections.ObjectModel;
 using Umbraco.Cms.Core.Security;
 using RolesHelper = CoreSystem2024.Helpers.RolesHelper;
 
@@ -28,7 +31,7 @@ namespace CoreSystem2024.Controllers.shop
         private readonly IConfiguration _config;
         private readonly ILogger<OrdersApiController> _logger;
         private readonly ICountryService _countryService;
-        private readonly ICatalogueService _catalogueService;
+        private readonly IPartService _partService;
         private readonly EmailHelper _emailHelper;
 
 
@@ -41,7 +44,7 @@ namespace CoreSystem2024.Controllers.shop
             IMemberManager memberManager,
             IWebHostEnvironment webHostEnvironment, 
             IConfiguration config, 
-            IPlanogramService planogramService, ICatalogueService catalogueService, EmailHelper emailHelper) : base(config)
+            IPlanogramService planogramService, IPartService partService, EmailHelper emailHelper) : base(config)
         {
             _logger = logger;
             _countryService = countryService;
@@ -50,41 +53,43 @@ namespace CoreSystem2024.Controllers.shop
             _config = config;
             _orderService = orderService;
             _planogramService = planogramService;
-            _catalogueService = catalogueService;
+            _partService = partService;
             _emailHelper = emailHelper;
         }
         [Route("/umbraco/api/ordersapi/getorders")]
 
         public async Task<IActionResult> GetOrders()
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            //var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
-            var userCountry = _countryService.GetCountry(userInfo.DiamCountryId);
+            var userCountry = await _countryService.GetCountry(userInfo.DiamCountryId);
             RolesHelper.Initialize(_config);
 
-            List<OrderInfo> orders;
+            IReadOnlyList<OrderInfo> orders;
 
             if (RolesHelper.IsAdminUser(userInfo.Roles)) // admin - get all
             {
-                orders = _orderService.GetFilteredOrders(BrandId, null, null, "OrderUpdated", "desc", null, null, null,
-                    null).ToList();
+                orders = await _orderService.GetFilteredOrders(BrandId, null, null, "OrderUpdated", "desc", null, null, null,
+                    null);
             }
             else if (RolesHelper.IsClientValidator(userInfo.Roles)) // regional manager
             {
                 var region = userCountry.Regions.FirstOrDefault(x => x.BrandId == BrandId);
 
+
+
                 if (region == null)
                     throw new Exception("Failed to look up region for this user's country/brandId: " +
                                         userInfo.DiamCountryId + " / " + BrandId);
 
-                orders = _orderService.GetFilteredOrders(BrandId, null, null, "OrderUpdated", "desc", null, null,
-                    null, region.RegionId).ToList();
+                orders = await _orderService.GetFilteredOrders(BrandId, null, null, "OrderUpdated", "desc", null, null,
+                    null, region.Id);
             }
             else // normal user
             {
-                orders = _orderService.GetFilteredOrders(BrandId, null, null, "OrderUpdated", "desc", null, null,
-                    userCountry.CountryId, null).ToList();
+                orders = await _orderService.GetFilteredOrders(BrandId, null, null, "OrderUpdated", "desc", null, null,
+                    userCountry.Id, null);
             }
 
             var orderModels = orders.Select(x => new OrderModel
@@ -131,7 +136,7 @@ namespace CoreSystem2024.Controllers.shop
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             var aOrderId = AuthHelper.GetActiveOrderId(HttpContext, User);
 
-            var order = _orderService.GetOrder(aOrderId);
+            var order = await _orderService.GetOrder(aOrderId);
 
             if (order == null || order.OrderStatus != (int)OrderStatusEnum.Open)
             {
@@ -143,7 +148,7 @@ namespace CoreSystem2024.Controllers.shop
             {
                 var activeOrder = new ActiveOrder
                 {
-                    ActiveOrderId = order.OrderId.ToString(),
+                    ActiveOrderId = order.Id.ToString(),
                     Title = order.OrderTitle
                 };
 
@@ -156,16 +161,16 @@ namespace CoreSystem2024.Controllers.shop
 
         //[Route("api/orders/setactive/{id:int}")]
         [Route("/umbraco/api/ordersapi/SetActiveOrder/{id}")]
-        public IActionResult SetActiveOrder(int id)
+        public async Task<IActionResult> SetActiveOrder(int id)
         {
 
 
             var aOrderId = AuthHelper.SetActiveOrderId(HttpContext.Request, id);
 
-            var order = _orderService.GetOrder(aOrderId);
+            var order = await _orderService.GetOrder(aOrderId);
             var activeOrder = new ActiveOrder
             {
-                ActiveOrderId = order.OrderId.ToString(),
+                ActiveOrderId = order.Id.ToString(),
                 Title = order.OrderTitle
             };
 
@@ -177,12 +182,11 @@ namespace CoreSystem2024.Controllers.shop
         [Route("/umbraco/api/ordersapi/RenameOrder")]
         public async Task<IActionResult> RenameOrder(RenameOrderModel model)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
             if (RolesHelper.IsAdminShopper(userInfo.Roles))
             {
-                var order = _orderService.GetOrder(model.OrderId);
+                var order = await _orderService.GetOrder(model.OrderId);
 
                 order.OrderTitle = model.OrderTitle;
 
@@ -220,10 +224,10 @@ namespace CoreSystem2024.Controllers.shop
         [Route("/umbraco/api/ordersapi/CreateOrder")]
         public async Task<IActionResult> CreateOrder(CreateOrderModel model)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
-            var userCountry = _countryService.GetCountry(userInfo.DiamCountryId);
+
+            var userCountry = await _countryService.GetCountry(userInfo.DiamCountryId);
             if (!RolesHelper.IsAdminShopper(userInfo.Roles))
             {
                 throw new UnauthorizedAccessException("Only admin shoppers can create orders.");
@@ -243,10 +247,10 @@ namespace CoreSystem2024.Controllers.shop
                     OrderCreated = DateTime.Now,
                     OrderUpdated = DateTime.Now,
                     OrderStatus = 1,
-                    CountryId = userCountry.CountryId,
+                    CountryId = userCountry.Id,
                     OrderCreatedByName = userInfo.GivenName + " " + userInfo.Surname,
                     OrderUpdatedByName = userInfo.GivenName + " " + userInfo.Surname,
-                    RegionId = userCountry.Regions.First(x => x.BrandId == BrandId).RegionId
+                    RegionId = userCountry.Regions.First(x => x.BrandId == BrandId).Id
                 };
 
                 _orderService.CreateOrder(order);
@@ -267,7 +271,7 @@ namespace CoreSystem2024.Controllers.shop
 
         //[Route("api/order/{id:int}/{planoView:bool}")]
         [Route("/umbraco/api/ordersapi/GetOrder")]
-        public IActionResult GetOrder(int id, bool planoView)
+        public async Task<IActionResult> GetOrder(int id, bool planoView)
         {
 
 
@@ -275,7 +279,7 @@ namespace CoreSystem2024.Controllers.shop
 
             var response = new ApiResponseModel();
 
-            var order = _orderService.GetOrder(id);
+            var order = await _orderService.GetOrder(id);
 
             if (order == null)
             {
@@ -309,12 +313,12 @@ namespace CoreSystem2024.Controllers.shop
         //[MvcAuthorize]
         public async Task<IActionResult> SubmitOrder(int id)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
+
 
             // TODO: check the current user has rights to submit this order
 
-            var order = _orderService.GetOrder(id);
+            var order = await _orderService.GetOrder(id);
 
             if (order.OrderStatus != (int)OrderStatusEnum.Open)
                 throw new ArgumentException("Only open orders can be submitted.");
@@ -322,13 +326,13 @@ namespace CoreSystem2024.Controllers.shop
             if (order.OrderItems == null || order.OrderItems.Count == 0)
                 throw new ArgumentException("This order has no items.");
 
-            var orderItemInfos = _orderService.GetOrderItemInfos(order.OrderId).ToList();
+            var orderItemInfos = await _orderService.GetOrderItemInfos(order.Id);
 
             foreach (var orderItem in order.OrderItems)
             {
-                var orderItemInfo = orderItemInfos.FirstOrDefault(x => x.OrderItemId == orderItem.OrderItemId);
+                var orderItemInfo = orderItemInfos.FirstOrDefault(x => x.OrderItemId == orderItem.Id);
                 if (orderItemInfo == null)
-                    throw new ArgumentException("There was an error with order item id: " + orderItem.OrderItemId +
+                    throw new ArgumentException("There was an error with order item id: " + orderItem.Id +
                                                 ", part name: " + orderItem.PartName);
 
                 orderItem.Price = orderItemInfo.Price;
@@ -352,8 +356,8 @@ namespace CoreSystem2024.Controllers.shop
             try
             {
                 _logger.LogDebug("attempting to send emails");
-                if (DiamEmailConfiguration.GetConfig().EmailEnabled)
-                { await SendSubmittedEmails(id); }
+                //if (DiamEmailConfiguration.GetConfig().EmailEnabled)
+                //{ await SendSubmittedEmails(id); }
             }
             catch (Exception ex)
             {
@@ -372,10 +376,10 @@ namespace CoreSystem2024.Controllers.shop
         public async Task<IActionResult> UnsubmitOrder(int id)
         {
 
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
-            var order = _orderService.GetOrder(id);
+
+            var order = await _orderService.GetOrder(id);
 
             if (order.OrderStatus != (int)OrderStatusEnum.Submitted)
                 throw new ArgumentException("This order cannot be unsubmitted because it is marked as " + order.OrderStatus);
@@ -395,91 +399,91 @@ namespace CoreSystem2024.Controllers.shop
 
 
 
-        [Route("/umbraco/api/ordersapi/SendSubmittedEmails")]
-        private async Task<Email> SendSubmittedEmails(int orderId)
-        {
-            _logger.LogDebug("SendSubmittedEmails begin");
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
-            string sessionName = DiamConfiguration.GetConfig().SessionName;
-            var diamSession = HttpContext.Request.Cookies[sessionName];
-
-            if (diamSession == null)
-            {
-                _logger.LogDebug("diamSession = null");
-                throw new Exception("diamSession cookie not found");
-            }
-
-            _logger.LogDebug("Get accessToken");
-            //var accessToken = AuthHelper.ReAuth(Authorization, WebServerClient);
-
-            _logger.LogDebug("got AccessToken");
-
-            // need to include the xls in this email - or a link to it
-            _logger.LogDebug("Get userId");
-            var userId = userInfo.Id;
-            _logger.LogDebug("Got userId");
-
-            var uri = new System.Uri(Request.GetDisplayUrl());
-            string domainURI = uri.Scheme + "://" + uri.Authority;
-            //_logger.LogDebug("Get exportedOrderUrl with " + userId);
-            var exportedOrderUrl = CreateOrderExportLink(orderId, userId, domainURI);
-            _logger.LogDebug("begin admin email");
-            var adminEmail = new Email()
-            {
-                BccList = DiamEmailConfiguration.GetConfig().BCCList,
-                DateSent = DateTime.Now,
-                EmailTrigger = (int)EmailTrigger.AdminOrderSubmitted,
-                FromAddress = DiamEmailConfiguration.GetConfig().FromAddress,
-                OrderId = orderId,
-                ToAddress = DiamEmailConfiguration.GetConfig().ToAddress,
-                RecipientName = DiamEmailConfiguration.GetConfig().RecipientName,
-                //UserId = userId,
-                EmailEnabled = DiamEmailConfiguration.GetConfig().EmailEnabled,
-                EmailSubject = "Order Submitted",
-                SuppliedEmailBodyContent = System.Uri.EscapeDataString(exportedOrderUrl)
-            };
+        //[Route("/umbraco/api/ordersapi/SendSubmittedEmails")]
+        //private async Task<Email> SendSubmittedEmails(int orderId)
+        //{
+        //    _logger.LogDebug("SendSubmittedEmails begin");
+        //    var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
 
-            //var emailHelper = new EmailHelper(_logger);
-            var adminResponse = await _emailHelper.SendEmail(adminEmail);
-            _logger.LogDebug("End Admin Email");
+        //    string sessionName = DiamConfiguration.GetConfig().SessionName;
+        //    var diamSession = HttpContext.Request.Cookies[sessionName];
+
+        //    if (diamSession == null)
+        //    {
+        //        _logger.LogDebug("diamSession = null");
+        //        throw new Exception("diamSession cookie not found");
+        //    }
+
+        //    _logger.LogDebug("Get accessToken");
+        //    //var accessToken = AuthHelper.ReAuth(Authorization, WebServerClient);
+
+        //    _logger.LogDebug("got AccessToken");
+
+        //    // need to include the xls in this email - or a link to it
+        //    _logger.LogDebug("Get userId");
+        //    var userId = userInfo.Id;
+        //    _logger.LogDebug("Got userId");
+
+        //    var uri = new System.Uri(Request.GetDisplayUrl());
+        //    string domainURI = uri.Scheme + "://" + uri.Authority;
+        //    //_logger.LogDebug("Get exportedOrderUrl with " + userId);
+        //    var exportedOrderUrl = await CreateOrderExportLink(orderId, userId, domainURI);
+        //    _logger.LogDebug("begin admin email");
+        //    var adminEmail = new Email()
+        //    {
+        //        BccList = DiamEmailConfiguration.GetConfig().BCCList,
+        //        DateSent = DateTime.Now,
+        //        EmailTrigger = (int)EmailTrigger.AdminOrderSubmitted,
+        //        FromAddress = DiamEmailConfiguration.GetConfig().FromAddress,
+        //        OrderId = orderId,
+        //        ToAddress = DiamEmailConfiguration.GetConfig().ToAddress,
+        //        RecipientName = DiamEmailConfiguration.GetConfig().RecipientName,
+        //        //UserId = userId,
+        //        EmailEnabled = DiamEmailConfiguration.GetConfig().EmailEnabled,
+        //        EmailSubject = "Order Submitted",
+        //        SuppliedEmailBodyContent = System.Uri.EscapeDataString(exportedOrderUrl)
+        //    };
 
 
-            var userEmail = new Email()
-            {
-                //BccList = DiamEmailConfiguration.GetConfig().BCCList,
-                DateSent = DateTime.Now,
-                EmailTrigger = (int)EmailTrigger.UserOrderSubmitted,
-                FromAddress = DiamEmailConfiguration.GetConfig().FromAddress,
-                OrderId = orderId,
-                ToAddress = userInfo.Email,
-                RecipientName = userInfo.GivenName + " " + userInfo.Surname,
-                UserId = userInfo.Id,
-                EmailEnabled = DiamEmailConfiguration.GetConfig().EmailEnabled,
-                EmailSubject = "Order Submitted"
-            };
+        //    //var emailHelper = new EmailHelper(_logger);
+        //    var adminResponse = await _emailHelper.SendEmail(adminEmail);
+        //    _logger.LogDebug("End Admin Email");
 
-            var userResponse = await _emailHelper.SendEmail(userEmail);
-            _logger.LogDebug("End User Email");
 
-            List<string> errors = new List<string>();
+        //    var userEmail = new Email()
+        //    {
+        //        //BccList = DiamEmailConfiguration.GetConfig().BCCList,
+        //        DateSent = DateTime.Now,
+        //        EmailTrigger = (int)EmailTrigger.UserOrderSubmitted,
+        //        FromAddress = DiamEmailConfiguration.GetConfig().FromAddress,
+        //        OrderId = orderId,
+        //        ToAddress = userInfo.Email,
+        //        RecipientName = userInfo.GivenName + " " + userInfo.Surname,
+        //        UserId = userInfo.Id,
+        //        EmailEnabled = DiamEmailConfiguration.GetConfig().EmailEnabled,
+        //        EmailSubject = "Order Submitted"
+        //    };
 
-            if (!adminResponse.EmailSendSuccess.HasValue || !adminResponse.EmailSendSuccess.Value)
-            {
-                errors.Add("admin");
-            }
-            if (!userResponse.EmailSendSuccess.HasValue || !userResponse.EmailSendSuccess.Value)
-            {
-                errors.Add("user");
-            }
+        //    var userResponse = await _emailHelper.SendEmail(userEmail);
+        //    _logger.LogDebug("End User Email");
 
-            if (errors.Count > 0)
-            { throw new Exception(string.Join(",", errors)); }
+        //    List<string> errors = new List<string>();
 
-            return userResponse;
-        }
+        //    if (!adminResponse.EmailSendSuccess.HasValue || !adminResponse.EmailSendSuccess.Value)
+        //    {
+        //        errors.Add("admin");
+        //    }
+        //    if (!userResponse.EmailSendSuccess.HasValue || !userResponse.EmailSendSuccess.Value)
+        //    {
+        //        errors.Add("user");
+        //    }
+
+        //    if (errors.Count > 0)
+        //    { throw new Exception(string.Join(",", errors)); }
+
+        //    return userResponse;
+        //}
 
 
         //[Route("api/orders/remove/{id:int}")]
@@ -487,13 +491,13 @@ namespace CoreSystem2024.Controllers.shop
         [Route("/umbraco/api/ordersapi/RemoveOrder")]
         public async Task<IActionResult> RemoveOrder(int id)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
+
 
             // TODO: check the current user has rights to remove this order
             var userId = userInfo.Id;
 
-            var order = _orderService.GetOrder(id);
+            var order = await _orderService.GetOrder(id);
 
             if (order.OrderStatus != (int)OrderStatusEnum.Open)
             {
@@ -517,8 +521,7 @@ namespace CoreSystem2024.Controllers.shop
         public async Task<IActionResult> AddOrderItem(AddOrderItemModel model)
         {
 
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
             if (model.OrderId == null)
             {
                 var activeOrderId = AuthHelper.GetActiveOrderId(HttpContext, User);
@@ -531,8 +534,8 @@ namespace CoreSystem2024.Controllers.shop
 
             var response = new ApiResponseModel();
 
-            var part = _catalogueService.GetPart(model.PartId);
-            var order = _orderService.GetOrder(model.OrderId.Value);
+            var part = _partService.GetPart(model.PartId);
+            var order = await _orderService.GetOrder(model.OrderId.Value);
 
             if (order.OrderStatus != (int)OrderStatusEnum.Open)
                 throw new ArgumentException("This order is not currently open.");
@@ -546,7 +549,7 @@ namespace CoreSystem2024.Controllers.shop
             {
                 var orderItem = new OrderItem
                 {
-                    OrderId = order.OrderId,
+                    OrderId = order.Id,
                     DateAdded = DateTime.Now,
                     PartId = model.PartId,
                     PartName = part.Name,
@@ -582,10 +585,9 @@ namespace CoreSystem2024.Controllers.shop
         [Route("/umbraco/api/ordersapi/DeleteOrderItem")]
         public async Task<IActionResult> DeleteOrderItem(DeleteOrderItemModel model)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
-            var order = _orderService.GetOrder(model.OrderId);
+            var order = await _orderService.GetOrder(model.OrderId);
 
             var orderItem = order.OrderItems.FirstOrDefault(x => x.OrderId == model.OrderItemId);
 
@@ -629,14 +631,13 @@ namespace CoreSystem2024.Controllers.shop
         [Route("/umbraco/api/ordersapi/DeletePlanogram")]
         public async Task<IActionResult> DeletePlanogram(DeletePlanogramModel model)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
             if (!RolesHelper.IsAdminShopper(Helpers.UserInfo.Roles))
                 throw new ArgumentException("This function is only available to admin shoppers.");
 
             var response = new ApiResponseModel();
-            var order = _orderService.GetOrder(model.OrderId);
+            var order = await _orderService.GetOrder(model.OrderId);
 
             if (order.OrderStatus != (int)OrderStatusEnum.Open)
                 throw new ArgumentException("This order is not currently open.");
@@ -647,7 +648,7 @@ namespace CoreSystem2024.Controllers.shop
 
             // this bit is because of the changing requirements meaning we have two fashions of storing orderitems against planograms (legacy protection)
             if (orderPlanogram != null)
-                _orderService.DeleteFullPlanogram(model.OrderId, orderPlanogram.OrderPlanogramId);
+               await _orderService.DeleteFullPlanogram(model.OrderId, orderPlanogram.Id);
             else
                 _orderService.DeletePlanogram(model.OrderId, model.PlanogramId);
 
@@ -674,14 +675,13 @@ namespace CoreSystem2024.Controllers.shop
         [Route("/umbraco/api/ordersapi/DeleteFullPlanogram")]
         public async Task<IActionResult> DeleteFullPlanogram(DeleteFullPlanogramModel model)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
             if (!RolesHelper.IsAdminShopper(Helpers.UserInfo.Roles))
                 throw new ArgumentException("This function is only available to admin shoppers.");
 
             var response = new ApiResponseModel();
-            var order = _orderService.GetOrder(model.OrderId);
+            var order = await _orderService.GetOrder(model.OrderId);
 
             if (order.OrderStatus != (int)OrderStatusEnum.Open)
                 throw new ArgumentException("This order is not currently open.");
@@ -709,19 +709,18 @@ namespace CoreSystem2024.Controllers.shop
         [Route("/umbraco/api/ordersapi/UpdateOrderItemQuantity")]
         public async Task<IActionResult> UpdateOrderItemQuantity(UpdateOrderItemQuantityModel model)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
             var response = new ApiResponseModel();
 
-            var orderItem = _orderService.GetOrderItem(model.OrderItemId);
+            var orderItem = await _orderService.GetOrderItem(model.OrderItemId);
 
             if (orderItem == null)
             {
                 throw new ArgumentException("Order item could not be found");
             }
 
-            var order = _orderService.GetOrder(orderItem.OrderId);
+            var order = await _orderService.GetOrder(orderItem.Id);
 
             if (order.OrderStatus != (int)OrderStatusEnum.Open)
                 throw new ArgumentException("This order is not currently open.");
@@ -763,14 +762,13 @@ namespace CoreSystem2024.Controllers.shop
         [Route("/umbraco/api/ordersapi/UpdateOrderPlanogramQuantity")]
         public async Task<IActionResult> UpdateOrderPlanogramQuantity(UpdateOrderPlanogramQuantityModel model)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
             var response = new ApiResponseModel();
 
             //var orderItem = OrderService.GetOrderItem(model.OrderItemId);
 
-            var order = _orderService.GetOrder(model.OrderId);
+            var order = await _orderService.GetOrder(model.OrderId);
             var orderItems = order.OrderItems.Where(oi => oi.OrderPlanogramId == model.OrderPlanogramId).ToList();
 
             if (!orderItems.Any())
@@ -823,55 +821,55 @@ namespace CoreSystem2024.Controllers.shop
 
 
 
-        private string CreateOrderExportLink(int orderId, string userId, string domainURI)
-        {
-            _logger.LogDebug("CreateOrderExportLink start");
-            Order order = _orderService.GetOrder(orderId);
-            // we can retrieve the userId from the request
-            //var userProfile = OauthService.GetUserProfile(userId);
+        //private async Task<string> CreateOrderExportLink(int orderId, string userId, string domainURI)
+        //{
+        //    _logger.LogDebug("CreateOrderExportLink start");
+        //    Order order = await _orderService.GetOrder(orderId);
+        //    // we can retrieve the userId from the request
+        //    //var userProfile = OauthService.GetUserProfile(userId);
 
-            try
-            {
-                string fileName = string.Format("order_{0}_{1}.xls", userId.ToString(), order.OrderTitle);
-                string webRootPath = _webHostEnvironment.WebRootPath;
-                string contentRootPath = _webHostEnvironment.ContentRootPath;
-                var downloadsPath = Path.Combine(contentRootPath + "~/user_downloads/" + userId.ToString() + "/");
-                var footerPath = Path.Combine(contentRootPath + ("~/user_downloads/" + userId.ToString() + "/"));
+        //    try
+        //    {
+        //        string fileName = string.Format("order_{0}_{1}.xls", userId.ToString(), order.OrderTitle);
+        //        string webRootPath = _webHostEnvironment.WebRootPath;
+        //        string contentRootPath = _webHostEnvironment.ContentRootPath;
+        //        var downloadsPath = Path.Combine(contentRootPath + "~/user_downloads/" + userId.ToString() + "/");
+        //        var footerPath = Path.Combine(contentRootPath + ("~/user_downloads/" + userId.ToString() + "/"));
 
-                if (!Directory.Exists(downloadsPath))
-                {
-                    Directory.CreateDirectory(downloadsPath);
-                }
-                string path = downloadsPath;
-                string wPath = domainURI + "/user_downloads/" + userId.ToString() + "/";
-                string webPath = $"{wPath}{fileName}";
-                string filePath = $"{path}\\{fileName}";
+        //        if (!Directory.Exists(downloadsPath))
+        //        {
+        //            Directory.CreateDirectory(downloadsPath);
+        //        }
+        //        string path = downloadsPath;
+        //        string wPath = domainURI + "/user_downloads/" + userId.ToString() + "/";
+        //        string webPath = $"{wPath}{fileName}";
+        //        string filePath = $"{path}\\{fileName}";
 
-                if (System.IO.File.Exists(filePath))
-                    System.IO.File.Delete(filePath);
-                var exportManager = new ExportManager(_planogramService, _orderService);
-                exportManager.ExportOrderToXls(filePath, order);
+        //        if (System.IO.File.Exists(filePath))
+        //            System.IO.File.Delete(filePath);
+        //        var exportManager = new ExportManager(_planogramService, _orderService);
+        //        exportManager.ExportOrderToXls(filePath, order);
 
-                _logger.LogDebug("CreateOrderExportLink End " + webPath);
+        //        _logger.LogDebug("CreateOrderExportLink End " + webPath);
 
-                return webPath;
-            }
-            catch (Exception Ex)
-            {
-                _logger.LogDebug("CreateOrderExportLink fail " + Ex.Message);
-                //IActionResult message = new IActionResult(HttpStatusCode.BadRequest);
+        //        return webPath;
+        //    }
+        //    catch (Exception Ex)
+        //    {
+        //        _logger.LogDebug("CreateOrderExportLink fail " + Ex.Message);
+        //        //IActionResult message = new IActionResult(HttpStatusCode.BadRequest);
 
-                // Get stack trace for the exception with source file information
-                //var st = new StackTrace(ex, true);
-                // Get the top stack frame
-                //var frame = st.GetFrame(0);
-                // Get the line number from the stack frame
-                //var line = frame.GetFileLineNumber();
+        //        // Get stack trace for the exception with source file information
+        //        //var st = new StackTrace(ex, true);
+        //        // Get the top stack frame
+        //        //var frame = st.GetFrame(0);
+        //        // Get the line number from the stack frame
+        //        //var line = frame.GetFileLineNumber();
 
-                throw;
-            }
+        //        throw;
+        //    }
 
-        }
+        //}
 
 
     }

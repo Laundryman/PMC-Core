@@ -1,28 +1,22 @@
-﻿using System.Configuration;
-using System.Net;
-using System.Net.Http.Headers;
-using CoreSystem.Controllers;
-using CoreSystem.Controllers.shop;
-using CoreSystem.Helpers;
-using CoreSystem.HttpClientWrapper;
-using CoreSystem.Models;
-using CoreSystemII.Controllers.Proxy;
-//using dplo.Domain;
-//using dplo.Domain.Entities;
-//using dplo.Service;
-//using dplo.Service.MSGraphUtils;
-//using Dplo.ViewModels;
+﻿using System.Security.Claims;
+using CoreSystem2024.Controllers.shop;
+using CoreSystem2024.Helpers;
+using CoreSystem2024.Models;
+using CoreSystem2024.ProxyServices;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using PMApplication.Dtos.PlanModels;
 using PMApplication.Entities.CountriesAggregate;
 using PMApplication.Entities.PlanogramAggregate;
 using PMApplication.Interfaces.ServiceInterfaces;
+using Umbraco.Cms.Core.Security;
+using ConfigurationManager = System.Configuration.ConfigurationManager;
 
-namespace CoreSystemII.Controllers
+namespace CoreSystem2024.Controllers
 {
     [Authorize]
     public class CreatePlanogramApiController : BaseApiController
@@ -37,6 +31,7 @@ namespace CoreSystemII.Controllers
         private readonly ICountryService _countryService;
         private readonly ICreatePlanogramProxyService _proxyApi;
         private readonly IMemberManager _memberManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IConfiguration _config;
 
         #endregion
@@ -44,7 +39,7 @@ namespace CoreSystemII.Controllers
 
         #region LocalApiCalls
 
-        public CreatePlanogramApiController(ICountryService countryService, IPlanogramService planogramService, IBrandService brandService, ILogger<YourPlanogramApiController> logger, IMemberManager memberManager, ICreatePlanogramProxyService proxyApi, IConfiguration config) : base(config)
+        public CreatePlanogramApiController(ICountryService countryService, IPlanogramService planogramService, IBrandService brandService, ILogger<YourPlanogramApiController> logger, IMemberManager memberManager, ICreatePlanogramProxyService proxyApi, IConfiguration config, SignInManager<IdentityUser> signInManager) : base(config)
         {
             _planogramService = planogramService;
             _brandService = brandService;
@@ -52,6 +47,7 @@ namespace CoreSystemII.Controllers
             _memberManager = memberManager;
             _proxyApi = proxyApi;
             _config = config;
+            _signInManager = signInManager;
             _countryService = countryService;
         }
 
@@ -77,7 +73,7 @@ namespace CoreSystemII.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("/Api/CreatePlanogramApi/GetClusters")]
-        public async Task<IEnumerable<PlanogramClusterModel>> GetClusters(int standId)
+        public async Task<IEnumerable<PlanmClusterDto>> GetClusters(int standId)
         {
             //we need to re-auth using the reauth process
             //client.RefreshAuthorization(Authorization);
@@ -96,7 +92,7 @@ namespace CoreSystemII.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("/Api/CreatePlanogramApi/GetTemplates")]
-        public async Task<IEnumerable<PlanogramClusterModel>> GetTemplates(int standId)
+        public async Task<IEnumerable<PlanmClusterDto>> GetTemplates(int standId)
         {
             //we need to re-auth using the reauth process
             //client.RefreshAuthorization(Authorization);
@@ -138,18 +134,18 @@ namespace CoreSystemII.Controllers
                 Planogram planogram = await _planogramService.GetPlanogram(planogramId);
 
                 var countryId = UserInfo.DiamCountryId; ;
-                Country country = _countryService.GetCountry(countryId);
-                var brand = _brandService.GetBrand(int.Parse(ConfigurationManager.AppSettings["brand"]));
+                Country country = await _countryService.GetCountry(countryId);
+                var brand = await _brandService.GetBrand(int.Parse(ConfigurationManager.AppSettings["brand"]));
                 var editPCreds = new EditPlanogramCreds
                 {
                     Action = "edit",
                     UserId = UserInfo.Id,
-                    PlanogramId = planogram.PlanogramId,
+                    PlanogramId = planogram.Id,
                     clusterId = planogram.ClusterId,
-                    countryId = country.CountryId.ToString(),
+                    countryId = country.Id.ToString(),
                     apiURL = ConfigurationManager.AppSettings["apiURL"],
                     cookieDomain = ConfigurationManager.AppSettings["cookieDomain"],
-                    brandId = brand.BrandId.ToString(),
+                    brandId = brand.Id.ToString(),
                     uname = UserInfo.UserName,
                     //accessToken = Authorization.AccessToken,
                     debug = ConfigurationManager.AppSettings["debug"],
@@ -174,7 +170,10 @@ namespace CoreSystemII.Controllers
             try
             {
                 var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-                var userProfile = AuthHelper.GetUserInfo(memberIdentity);
+                var claimsPrincipal = ClaimsPrincipal.Current;
+
+                var userProfile = AuthHelper.GetUserInfo(claimsPrincipal);
+                
                 _planogramService.UnLockPlanogram(planogramId, userProfile);
                 return Ok();
             }

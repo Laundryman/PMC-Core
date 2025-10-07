@@ -1,5 +1,5 @@
-﻿using dplo.Domain.Entities;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using PMApplication.Entities.PlanogramAggregate;
 
 namespace CoreSystem2024.Models
 {
@@ -10,12 +10,12 @@ namespace CoreSystem2024.Models
         public string Note { get; set; }
         public string UserId { get; set; }
         public string UserName { get; set; }
-        public int LegacyUserId { get; set; }
+        public int? LegacyUserId { get; set; }
         public String NoteDate { get; set; }
         public Int64? NoteInReplyTo { get; set; }
         public string NoteTitle { get; set; }
 
-        public int PlanogramId { get; set; }
+        public long PlanogramId { get; set; }
 
         //public virtual ICollection<PNotesViewModel> RelatedNotes { get; set; }
         public PNotesViewModel InReplyTo;
@@ -39,10 +39,10 @@ namespace CoreSystem2024.Models
             //    CountryId = note.User.CountryId
             //};
 
-            pv.NoteId = note.NoteId;
+            pv.NoteId = note.Id;
             pv.Note = note.Note;
             pv.UserId = note.UserId;
-            pv.UserName = note.UserName;
+            pv.UserName = note.Username;
             pv.LegacyUserId = note.LegacyUserId;
             pv.NoteDate = String.Format("{0:G}", note.NoteDate);
             pv.NoteInReplyTo = note.NoteInReplyTo;

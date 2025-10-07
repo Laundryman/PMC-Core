@@ -2,7 +2,7 @@
 {
     public class PartModel
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Name { get; set; }
         public int PartTypeId { get; set; }
         public int Facings { get; set; }

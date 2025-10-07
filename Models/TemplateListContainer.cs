@@ -1,9 +1,10 @@
-﻿using Dplo.ViewModels;
+﻿
+using PMApplication.Dtos.PlanModels;
 
 namespace CoreSystem2024.Models
 {
     public class TemplateListContainer
     {
-        public List<PlanogramClusterModel> templates { get; set; }
+        public List<PlanmClusterDto> templates { get; set; }
     }
 }

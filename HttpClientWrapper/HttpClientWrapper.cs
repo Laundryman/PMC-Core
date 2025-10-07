@@ -1,5 +1,4 @@
-﻿using dplo.Domain.Entities;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Configuration;
 using System.Net.Http.Formatting;

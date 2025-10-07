@@ -1,12 +1,14 @@
 ﻿using CoreSystem2024.Controllers;
 using CoreSystem2024.Helpers;
 using CoreSystem2024.HttpClientWrapper;
-using Dplo.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
+using System.Security.Claims;
+using Microsoft.Graph.Models;
+using PMApplication.Dtos.PlanModels;
 using Umbraco.Cms.Core.Security;
 
 namespace CoreSystem2024.ProxyServices
@@ -16,9 +18,9 @@ namespace CoreSystem2024.ProxyServices
         Task<IEnumerable<SelectListItem>> GetStandsWithClusters(int standTypeId);
 
 
-        Task<IEnumerable<PlanogramClusterModel>> GetClustersCall(int standId);
+        Task<IEnumerable<PlanmClusterDto>> GetClustersCall(int standId);
 
-        Task<IEnumerable<PlanogramClusterModel>> GetTemplatesCall(int standId);
+        Task<IEnumerable<PlanmClusterDto>> GetTemplatesCall(int standId);
 
         Task<int> ClonePlanogramCall(int planogramId, string planoName);
         Task<int> CreatePlanogramCall(int clusterId, string planoName);
@@ -51,7 +53,7 @@ namespace CoreSystem2024.ProxyServices
             string writeScope = _configuration["AzureB2CWriteScope"];
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
@@ -74,7 +76,7 @@ namespace CoreSystem2024.ProxyServices
 
         }
 
-        public async Task<IEnumerable<PlanogramClusterModel>> GetClustersCall(int standId)
+        public async Task<IEnumerable<PlanmClusterDto>> GetClustersCall(int standId)
         {
 
             string domain = _configuration["AppSettings:ApiUrl"];
@@ -84,7 +86,7 @@ namespace CoreSystem2024.ProxyServices
 
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
@@ -92,7 +94,7 @@ namespace CoreSystem2024.ProxyServices
 
             //maybe log something here
 
-            using (SecureHttpClient<IEnumerable<PlanogramClusterModel>> httpClient = new SecureHttpClient<IEnumerable<PlanogramClusterModel>>(domain, uriSuffix, _configuration))
+            using (SecureHttpClient<IEnumerable<PlanmClusterDto>> httpClient = new SecureHttpClient<IEnumerable<PlanmClusterDto>>(domain, uriSuffix, _configuration))
             {
                 try
                 {
@@ -107,7 +109,7 @@ namespace CoreSystem2024.ProxyServices
 
         }
 
-        public async Task<IEnumerable<PlanogramClusterModel>> GetTemplatesCall(int standId)
+        public async Task<IEnumerable<PlanmClusterDto>> GetTemplatesCall(int standId)
         {
             //var getPartURL = $("#apiURL").val() + "api/planogram/template/get/" + $('#brandId').val() + "/" + standId + "?token=" + _authCode + "&callback=?";
 
@@ -117,7 +119,7 @@ namespace CoreSystem2024.ProxyServices
             string writeScope = _configuration["AzureB2CWriteScope"];
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
@@ -125,7 +127,7 @@ namespace CoreSystem2024.ProxyServices
 
             //maybe log something here
 
-            using (SecureHttpClient<IEnumerable<PlanogramClusterModel>> httpClient = new SecureHttpClient<IEnumerable<PlanogramClusterModel>>(domain, uriSuffix, _configuration))
+            using (SecureHttpClient<IEnumerable<PlanmClusterDto>> httpClient = new SecureHttpClient<IEnumerable<PlanmClusterDto>>(domain, uriSuffix, _configuration))
             {
                 try
                 {
@@ -151,7 +153,7 @@ namespace CoreSystem2024.ProxyServices
 
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
@@ -184,7 +186,7 @@ namespace CoreSystem2024.ProxyServices
             //we need to re-auth using the reauth process
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 

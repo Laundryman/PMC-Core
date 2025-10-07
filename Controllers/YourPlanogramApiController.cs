@@ -1,9 +1,6 @@
 ﻿using CoreSystem2024.Controllers.shop;
 using CoreSystem2024.Helpers;
 using CoreSystem2024.Models;
-using dplo.Domain.Entities;
-using dplo.Service;
-using Dplo.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
@@ -14,6 +11,12 @@ using Umbraco.Cms.Core.Security;
 using CoreSystemII.Config;
 using Umbraco.Cms.Core;
 using System.Text.Json;
+using PMApplication.Entities;
+using PMApplication.Entities.OrderAggregate;
+using PMApplication.Entities.PlanogramAggregate;
+using PMApplication.Interfaces.ServiceInterfaces;
+using System.Security.Claims;
+using PMApplication.Enums;
 
 namespace CoreSystem2024.Controllers
 {
@@ -38,9 +41,8 @@ namespace CoreSystem2024.Controllers
 
 
 
-        public YourPlanogramApiController(ICategoryService categoryService, ICatalogueService catalogueService, ICountryService countryService, 
-            IPlanogramService planogramService, IOrderService orderService, 
-            IStandService standService, IYourPlanogramProxyApiService proxyApi, IMemberManager memberManager, IConfiguration config, EmailHelper emailHelper, ILogger<YourPlanogramApiController> logger, IConfiguration configuration) : base(config)
+        public YourPlanogramApiController(ICountryService countryService,
+            IYourPlanogramProxyApiService proxyApi, IMemberManager memberManager, IConfiguration config, EmailHelper emailHelper, ILogger<YourPlanogramApiController> logger, IConfiguration configuration) : base(config)
         {
             _countryService = countryService;
             _proxyApi = proxyApi;
@@ -254,8 +256,7 @@ namespace CoreSystem2024.Controllers
         [Route("/Api/YourPlanogramApi/GetPlanograms")]
         public async Task<IActionResult> GetPlanograms([FromBody] GetPlanoParams data)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
             RolesHelper.Initialize(_config);
 
             IEnumerable<PlanogramInfo> response;
@@ -269,19 +270,19 @@ namespace CoreSystem2024.Controllers
                     {
                         if (RolesHelper.IsClientValidator(userInfo.Roles))
                         {
-                            var userCountry = _countryService.GetCountry(userInfo.DiamCountryId);
-                            data.RegionId = userCountry.Regions.FirstOrDefault(r => r.BrandId == brandId)!.RegionId;
+                            var userCountry = await _countryService.GetCountry(userInfo.DiamCountryId);
+                            data.RegionId = userCountry.Regions.FirstOrDefault(r => r.BrandId == brandId)!.Id;
                         }
                         response = await _proxyApi.GetPlanogramsCall(status, (int)data.CountryId, (int)data.RegionId, (int)data.StandTypeId);
                     }
                     else
                     {
-                        response = await _proxyApi.GetPlanogramsCall(status, _countryService.GetCountry(userInfo.DiamCountryId).CountryId, 0, (int)data.StandTypeId);
+                        response = await _proxyApi.GetPlanogramsCall(status, _countryService.GetCountry(userInfo.DiamCountryId).Id, 0, (int)data.StandTypeId);
                     }
                 }
                 else
                 {
-                    response = await _proxyApi.GetPlanogramsCall( status, _countryService.GetCountry(userInfo.DiamCountryId).CountryId, 0, (int)data.StandTypeId);
+                    response = await _proxyApi.GetPlanogramsCall( status, _countryService.GetCountry(userInfo.DiamCountryId).Id, 0, (int)data.StandTypeId);
                 }
 
                     return Ok(response);
@@ -304,9 +305,7 @@ namespace CoreSystem2024.Controllers
         [Route("/Api/YourPlanogramApi/GetArchivedPlanogramsByJob")]
         public async Task<IActionResult> GetArchivedPlanogramsByJob([FromBody] GetPlanoParams data)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
             IEnumerable<PlanogramInfo> response;
             try
@@ -316,7 +315,7 @@ namespace CoreSystem2024.Controllers
                 {
                     if (RolesHelper.IsSuperUser(userInfo.Roles))
                     {
-                        response = await _proxyApi.GetArchivedPlanogramsByJobCall((int)data.JobId, data.JobCode, _countryService.GetCountry(userInfo.DiamCountryId).CountryId, (int)data.RegionId, (int)data.StandTypeId);
+                        response = await _proxyApi.GetArchivedPlanogramsByJobCall((int)data.JobId, data.JobCode, _countryService.GetCountry(userInfo.DiamCountryId).Id, (int)data.RegionId, (int)data.StandTypeId);
                     }
                     else
                     {
@@ -325,7 +324,7 @@ namespace CoreSystem2024.Controllers
                 }
                 else
                 {
-                    response = await _proxyApi.GetArchivedPlanogramsByJobCall((int)data.JobId, data.JobCode, _countryService.GetCountry(userInfo.DiamCountryId).CountryId, (int)data.RegionId, (int)data.StandTypeId);
+                    response = await _proxyApi.GetArchivedPlanogramsByJobCall((int)data.JobId, data.JobCode, _countryService.GetCountry(userInfo.DiamCountryId).Id, (int)data.RegionId, (int)data.StandTypeId);
                 }
 
                     return Ok(response);

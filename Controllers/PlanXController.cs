@@ -1,8 +1,6 @@
 ﻿using CoreSystem2024.Helpers;
 using CoreSystem2024.Models;
 using CoreSystem2024.Models;
-using dplo.Service;
-using dplo.Service.MSGraphUtils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
@@ -12,10 +10,12 @@ using Microsoft.Identity.Client;
 using Newtonsoft.Json;
 using System.Globalization;
 using CoreSystem2024.Controllers.shop;
+using PMApplication.Interfaces.ServiceInterfaces;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
 using UserInfo = CoreSystem2024.Helpers.UserInfo;
+using PMApplication.Specifications.Filters;
 
 
 namespace diam_planogram.Controllers
@@ -43,24 +43,6 @@ namespace diam_planogram.Controllers
         public async Task<IActionResult> EditPlanX(ContentModel model)
         {
 
-            try
-            {
-                var proxySupport = new ProxyApiSupport();
-                //// Retrieve the token with the specified scopes
-                var result = await proxySupport.AcquireTokenForScopes(new string[]
-                    { _azureSettings["ReadScope"], _azureSettings["WriteScope"]});
-            }
-            catch (MsalUiRequiredException)
-            {
-                /*
-                    If the tokens have expired or become invalid for any reason, ask the user to sign in again.
-                    Another cause of this exception is when you restart the app using InMemory cache.
-                    It will get wiped out while the user will be authenticated still because of their cookies, requiring the TokenCache to be initialized again
-                    through the sign in flow.
-                */
-                return new RedirectResult("/Welcome");
-            }
-
             //we will create a custom model
             var planXModel = new PlanXModel(model.Content);
             if (UserInfo.userViewModel != null)
@@ -75,20 +57,28 @@ namespace diam_planogram.Controllers
 
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
 
-
-            var orderWindow = _orderWindowService.GetCurrentOrderWindow(int.Parse(brandId), false)
-                ?? _orderWindowService.GetNextOrderWindow(int.Parse(brandId))
-                ?? _orderWindowService.GetCurrentOrderWindow(int.Parse(brandId), true);
+            var owFilter = new OrderWindowFilter
+            {
+                BrandId = planXModel.BrandId,
+                IncludeExpired = false
+            };
+            var orderWindows = await _orderWindowService.GetOrderWindows(owFilter);
+                if (orderWindows.Count == 0)
+                    owFilter.IncludeExpired = true;
+            orderWindows = await _orderWindowService.GetOrderWindows(owFilter);
+            var orderWindow = orderWindows.FirstOrDefault();
 
             if (orderWindow != null)
             {
                 planXModel.OrderWindowOpening = orderWindow.StartDate.AsUtc().ToString("O");
                 planXModel.OrderWindowClosing = orderWindow.EndDate.AsUtc().ToString("O");
             }
+            //get the calender - change the filter
+            owFilter.GetFutureWindows = true;
+            owFilter.IncludeExpired = false;
+            var orderWindowCalendar = await _orderWindowService.GetOrderWindows(owFilter);
 
-            var orderWindowCalendar = _orderWindowService.GetOrderWindowCalendar(int.Parse(brandId));
-
-            if (orderWindowCalendar != null && orderWindowCalendar.Any())
+            if (orderWindowCalendar.Any())
             {
                 planXModel.OrderWindowCalendar = JsonConvert.SerializeObject(orderWindowCalendar);
             }

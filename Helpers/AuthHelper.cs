@@ -1,12 +1,13 @@
 ﻿using CoreSystem2024.Models;
 //using System.Web.Http.Owin;
 using CoreSystemII.Config;
-using dplo.Service.MSGraphUtils;
-using Dplo.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Client;
 using System.Diagnostics;
+using System.Globalization;
+using System.Security.Claims;
+using System.Text;
 using PMApplication.Dtos;
 
 namespace CoreSystem2024.Helpers
@@ -127,7 +128,7 @@ namespace CoreSystem2024.Helpers
             //}
             return null;
         }
-        public static void SetUserSession(CurrentUser userInfo, HttpContext httpContext)
+        public static Guid SetUserSession(ClaimsPrincipal userInfo, HttpContext httpContext)
         {
             //Check User is valid for this client (scope should contain the client Id)
             IConfigurationSection appSettings = _config.GetSection("AppSettings");
@@ -166,7 +167,7 @@ namespace CoreSystem2024.Helpers
                 {
                     //_logger.DebugFormat("Auth session cookie does not exist");
                     var cookieOptions = new CookieOptions();
-                    cookieOptions.Domain = ConfigurationManager.AppSettings["cookieDomain"];
+                    cookieOptions.Domain = appSettings["cookieDomain"];
                     cookieOptions.Expires = DateTime.Now.AddYears(50);
                     cookieOptions.Secure = true;
 

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using CoreSystem2024.Helpers;
-using dplo.Service;
 using Umbraco.Cms.Core.Security;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
@@ -10,7 +9,9 @@ using CoreSystem2024.ProxyServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Configuration;
+using PMApplication.Interfaces.ServiceInterfaces;
 using Umbraco.Cms.Core.Security;
+using Microsoft.AspNetCore.Identity;
 
 namespace CoreSystem2024.Controllers
 {
@@ -27,16 +28,19 @@ namespace CoreSystem2024.Controllers
         private ICountryService _countryService;
         private readonly IConfiguration _configuration;
         private readonly IMemberManager _memberManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger<AuthApiController> _logger;
 
 
-        public AuthApiController(IStandService standService, IPlanogramService planogramService, ICountryService countryService, IMemberManager memberManager, IConfiguration configuration)
+        public AuthApiController(IStandService standService, IPlanogramService planogramService, ICountryService countryService, IMemberManager memberManager, IConfiguration configuration, SignInManager<IdentityUser> signInManager, ILogger<AuthApiController> logger)
         {
             _standService = standService;
             _planogramService = planogramService;
             _countryService = countryService;
             _memberManager = memberManager;
             _configuration = configuration;
+            _signInManager = signInManager;
+            _logger = logger;
         }
 
         #endregion
@@ -52,42 +56,62 @@ namespace CoreSystem2024.Controllers
             try
             {
                 var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-                var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-                bool IsShopper = RolesHelper.IsShopper(userInfo.Roles);
-                bool IsArchiver = RolesHelper.IsArchiver(userInfo.Roles);
-                bool IsCreator = RolesHelper.IsCreator(userInfo.Roles);
-                if (!IsShopper)
+                if (memberIdentity != null)
                 {
-                    IsShopper = RolesHelper.IsAdminShopper(userInfo.Roles);
-                }
-                //only show shop settings if there is a shop
-                var hasShop = _configuration["AppSettings:HasShop"];
-                if (hasShop != "true")
-                {
-                    IsShopper = false;
-                }
-                var myRole = new { Role = "clientEditor", Shopper = IsShopper, Creator = IsCreator, Archiver = IsArchiver};
-                if (RolesHelper.IsAdministrator(userInfo.Roles))
-                {
-                    myRole = new { Role = "administrator", Shopper = IsShopper, Creator = IsCreator, Archiver = IsArchiver };
+                    var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(memberIdentity);
+                    var userInfo = AuthHelper.GetUserInfo(claimsPrincipal);
+                    bool IsShopper = RolesHelper.IsShopper(userInfo.Roles);
+                    bool IsArchiver = RolesHelper.IsArchiver(userInfo.Roles);
+                    bool IsCreator = RolesHelper.IsCreator(userInfo.Roles);
+                    if (!IsShopper)
+                    {
+                        IsShopper = RolesHelper.IsAdminShopper(userInfo.Roles);
+                    }
+
+                    //only show shop settings if there is a shop
+                    var hasShop = _configuration["AppSettings:HasShop"];
+                    if (hasShop != "true")
+                    {
+                        IsShopper = false;
+                    }
+
+                    var myRole = new
+                        { Role = "clientEditor", Shopper = IsShopper, Creator = IsCreator, Archiver = IsArchiver };
+                    if (RolesHelper.IsAdministrator(userInfo.Roles))
+                    {
+                        myRole = new
+                            { Role = "administrator", Shopper = IsShopper, Creator = IsCreator, Archiver = IsArchiver };
+                        return Ok(myRole);
+                    }
+
+                    if (RolesHelper.IsValidator(userInfo.Roles))
+                    {
+                        myRole = new
+                            { Role = "validator", Shopper = IsShopper, Creator = IsCreator, Archiver = IsArchiver };
+                        return Ok(myRole);
+                    }
+
+                    if (RolesHelper.IsApprover(userInfo.Roles))
+                    {
+                        myRole = new
+                            { Role = "approver", Shopper = IsShopper, Creator = IsCreator, Archiver = IsArchiver };
+                        return Ok(myRole);
+                    }
+
+                    if (RolesHelper.IsClientEditor(userInfo.Roles))
+                    {
+                        myRole = new
+                            { Role = "clientEditor", Shopper = IsShopper, Creator = IsCreator, Archiver = IsArchiver };
+                        return Ok(myRole);
+                    }
+
                     return Ok(myRole);
                 }
-                if (RolesHelper.IsValidator(userInfo.Roles))
+                else
                 {
-                    myRole = new { Role = "validator", Shopper = IsShopper, Creator = IsCreator, Archiver = IsArchiver };
-                    return Ok(myRole);
+                    var myRole = new { Role = "clientEditor" };
+                    return BadRequest(myRole);
                 }
-                if (RolesHelper.IsApprover(userInfo.Roles))
-                {
-                    myRole = new { Role = "approver", Shopper = IsShopper, Creator = IsCreator, Archiver = IsArchiver };
-                    return Ok(myRole);
-                }
-                if (RolesHelper.IsClientEditor(userInfo.Roles))
-                {
-                    myRole = new { Role = "clientEditor", Shopper = IsShopper, Creator = IsCreator, Archiver = IsArchiver };
-                    return Ok(myRole);
-                }
-                return Ok(myRole);
             }
             catch (Exception ex)
             {

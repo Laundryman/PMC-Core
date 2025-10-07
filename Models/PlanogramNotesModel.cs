@@ -1,5 +1,5 @@
-﻿using dplo.Domain.Entities;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using PMApplication.Entities.PlanogramAggregate;
 
 namespace CoreSystem2024.Models
 {

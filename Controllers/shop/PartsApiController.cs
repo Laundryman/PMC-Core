@@ -2,12 +2,14 @@
 using CoreSystem2024.Models.Shop;
 using diam_planogram.Helpers;
 using diam_planogram.Models.Shop;
-using dplo.Domain;
-using dplo.Domain.Entities;
-using dplo.Service;
 using dplo_shop.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using PMApplication.Entities.PartAggregate;
+using PMApplication.Entities.StandAggregate;
+using PMApplication.Interfaces.ServiceInterfaces;
+using System.Security.Claims;
+using PMApplication.Specifications.Filters;
 using Umbraco.Cms.Core.Security;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
 using HttpGetAttribute = System.Web.Http.HttpGetAttribute;
@@ -20,35 +22,35 @@ namespace CoreSystem2024.Controllers.shop
         private const int PageSize = 24;
         private const int DefaultPartTypeId = 1;
         private readonly IStandService _standService;
+        //private readonly IStandTypeService _standTypeService;
         private readonly ICategoryService _categoryService;
         private readonly IConfiguration _config;
         private readonly ICountryService _countryService;
-        private readonly ICatalogueService _catalogueService;
+        private readonly IPartService _partService;
         private readonly IMemberManager _memberManager;
 
 
         public PartsApiController(ICategoryService categoryService, ICountryService countryService,
-            IStandService standService, IConfiguration config, ICatalogueService catalogueService, IMemberManager memberManager) : base(config)
+            IStandService standService, IConfiguration config, IPartService partService, IMemberManager memberManager) : base(config)
         {
             _categoryService = categoryService;
             _countryService = countryService;
             _standService = standService;
             _config = config;
-            _catalogueService = catalogueService;
+            _partService = partService;
             _memberManager = memberManager;
         }
 
         [Route("/umbraco/api/partsapi/GetStandTypes")]
         public async Task<IActionResult> GetStandTypes(int? parentCategoryId, int? partId)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
             IEnumerable<StandType> standTypes;
-            var userCountry = _countryService.GetCountry(CountryId);
+            var userCountry = await _countryService.GetCountry(CountryId);
             if (RolesHelper.IsAdminUser(userInfo.Roles)) // admin - get all
             {
-                standTypes = _standService.GetFilteredStandTypes(
+                standTypes = await _standService.GetFilteredStandTypes(
                     BrandId, null, null, null, parentCategoryId, null, true);
             }
             else if (RolesHelper.IsClientValidator(userInfo.Roles)) // regional manager
@@ -59,18 +61,18 @@ namespace CoreSystem2024.Controllers.shop
                     throw new Exception("Failed to look up region for this user's country/brandId: " +
                                         userInfo.DiamCountryId + " / " + BrandId);
 
-                standTypes = _standService.GetFilteredStandTypes(
-                    BrandId, region.RegionId, userCountry.CountryId, null, parentCategoryId, partId, true);
+                standTypes = await _standService.GetFilteredStandTypes(
+                    BrandId, region.Id, userCountry.Id, null, parentCategoryId, partId, true);
             }
             else // normal user
             {
-                standTypes = _standService.GetFilteredStandTypes(
-                    BrandId, null, userCountry.CountryId, null, parentCategoryId, partId, true);
+                standTypes = await _standService.GetFilteredStandTypes(
+                    BrandId, null, userCountry.Id, null, parentCategoryId, partId, true);
             }
 
             var model = new StandTypesModel
             {
-                StandTypes = standTypes.Select(x => new StandTypeModel { Id = x.StandTypeId, Name = x.Name }).ToList()
+                StandTypes = standTypes.Select(x => new StandTypeModel { Id = x.Id, Name = x.Name }).ToList()
             };
 
 
@@ -86,8 +88,7 @@ namespace CoreSystem2024.Controllers.shop
 
         public async Task<IActionResult> GetParts(int? parentCategoryId = null, int? page = 1, int? pageSize = PageSize, int? standTypeId = null)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
             var userCountry = _countryService.GetCountry(userInfo.DiamCountryId);
 
@@ -95,7 +96,13 @@ namespace CoreSystem2024.Controllers.shop
 
             if (standTypeId == null)
             {
-                standTypeId = _standService.GetStandTypes(BrandId).FirstOrDefault()?.StandTypeId;
+                var stFilter = new StandTypeFilter
+                {
+                    BrandId = BrandId
+                };
+                var standType = await _standService.GetStandTypes(stFilter);
+                if (standType.Any())
+                    standTypeId = standType.First().Id;
             }
 
             var userId = userInfo.Id; ;
@@ -104,16 +111,16 @@ namespace CoreSystem2024.Controllers.shop
 
             if (parentCategoryId != null)
             {
-                var category = _categoryService.GetCategory(parentCategoryId.Value);
+                var category = await _categoryService.GetCategory(parentCategoryId.Value);
                 pageTitle = category.Name;
             }
 
-            IEnumerable<PartInfo> parts;
+            //<PartInfo> parts;
 
-            parts = _catalogueService.GetFilteredShopParts(
+            var parts = await _partService.GetFilteredParts(
                 BrandId, page, pageSize, "Name", null, null,
                 null, parentCategoryId, null,
-                userCountry.CountryId, null, standTypeId);
+                userCountry.Id, null, standTypeId);
 
 
 
@@ -142,7 +149,7 @@ namespace CoreSystem2024.Controllers.shop
         //[[Route("api/parts/search")]
         [HttpGet]
         [Route("/umbraco/api/partsapi/Search")]
-        public IActionResult Search(string q = null, int? standTypeId = null)
+        public async Task<IActionResult> Search(string q = null, int? standTypeId = null)
         {
             var userCountry = _countryService.GetCountry(CountryId);
 
@@ -153,12 +160,11 @@ namespace CoreSystem2024.Controllers.shop
             }
 
 
-            IEnumerable<PartInfo> parts;
 
-            parts = _catalogueService.GetFilteredShopParts(
+            var parts = await _partService.GetFilteredShopParts(
                 BrandId, 1, 200, "Name", null, q,
                  null, null, null,
-                userCountry.CountryId, null, standTypeId);
+                userCountry.Id, null, standTypeId);
 
 
             var partModels = BuildPartModels(parts);
@@ -185,7 +191,7 @@ namespace CoreSystem2024.Controllers.shop
             var partModels =
                 parts.Select(x => new PartModel()
                 {
-                    Id = x.CatPartId,
+                    Id = x.Id,
                     Name = x.Name,
                     PartTypeId = x.PartTypeId,
                     Facings = x.Facings,

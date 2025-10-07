@@ -3,11 +3,14 @@ using CoreSystem2024.Models;
 using CoreSystem2024.Models.Shop;
 using diam_planogram.Models.Shop;
 using dplo_shop.Models;
-using dplo.Domain.Entities;
-using dplo.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using PMApplication.Dtos;
+using PMApplication.Enums;
+using PMApplication.Interfaces.ServiceInterfaces;
+using System.Security.Claims;
+using PMApplication.Specifications.Filters;
 using Umbraco.Cms.Core.Security;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
 
@@ -45,10 +48,15 @@ namespace CoreSystem2024.Controllers.shop
                 int brandId = int.Parse(_config["AppSettings:ClientBrandId"] ?? "0");
                 int countryId = int.Parse(_config["AppSettings:ClientCountryId"] ?? "0");
                 var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-                var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+                var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
                 var userCountry = _countryService.GetCountry(userInfo.DiamCountryId);
 
-                var categories = _categoryService.GetShopCategories(brandId, userCountry.CountryId);
+                //var cFilter = new CategoryFilter
+                //{
+                //    BrandId = brandId,
+                //    CountryId = userCountry.Id
+                //}
+                var categories = await _categoryService.GetShopCategories(brandId, userCountry.Id);
 
                 var notthese = new List<int>(new int[]
                 {
@@ -80,7 +88,7 @@ namespace CoreSystem2024.Controllers.shop
 
                 if (aOrderId != 0)
                 {
-                    var order = _orderService.GetOrder(aOrderId);
+                    var order = await _orderService.GetOrder(aOrderId);
 
                     if (order != null && order.OrderStatus == (int)OrderStatusEnum.Open)
                     {

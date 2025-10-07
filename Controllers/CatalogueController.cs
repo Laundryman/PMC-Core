@@ -2,8 +2,8 @@
 //using Dplo.ViewModels;
 //using dplo.Domain;
 //using dplo.Service;
-using CoreSystem.Models;
-using CoreSystem.Helpers;
+using CoreSystem2024.Models;
+using CoreSystem2024.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Logging;
@@ -12,11 +12,18 @@ using CoreSystem2024.Controllers.shop;
 using Umbraco.Cms.Core.Web;
 using AutoMapper;
 using diam_planogram.Models.Shop;
+using Microsoft.Extensions.Configuration;
 using PMApplication.Entities;
 using PMApplication.Entities.CountriesAggregate;
 using PMApplication.Entities.PartAggregate;
 using PMApplication.Enums;
 using PMApplication.Interfaces.ServiceInterfaces;
+using Umbraco.Cms.Core.Security;
+using Umbraco.Cms.Web.Common.Controllers;
+using Microsoft.AspNetCore.Identity;
+using PMApplication.Dtos;
+using PMApplication.Specifications.Filters;
+using Catalogue = CoreSystem2024.CMSModelBuilderModels.Catalogue;
 
 namespace diam_planogram.Controllers
 {
@@ -32,7 +39,12 @@ namespace diam_planogram.Controllers
         private ICategoryService _categoryService;
         private IProductService _productService;
         private IMapper _mapper;
+        private readonly IConfiguration _config;
+        private readonly IMemberManager _memberManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
 
+        private string? _domain;
+        private int _brandId;
         public CatalogueController(
             ILogger<RenderController> logger,
             ICompositeViewEngine compositeViewEngine,
@@ -42,7 +54,7 @@ namespace diam_planogram.Controllers
             IPartService partService,
             ICountryService countryService,
             ICategoryService categoryService,
-            IProductService productService, IMapper mapper, IConfiguration config, IMemberManager memberManager) : base(logger, compositeViewEngine, umbracoContextAccessor)
+            IProductService productService, IMapper mapper, IConfiguration config, IMemberManager memberManager, SignInManager<IdentityUser> signInManager) : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
             _standService = standService;
             _planogramService = planogramService;
@@ -53,6 +65,7 @@ namespace diam_planogram.Controllers
             _mapper = mapper;
             _config = config;
             _memberManager = memberManager;
+            _signInManager = signInManager;
             _domain = _config["AppSettings:ApiUrl"];
             _brandId = int.Parse(_config["AppSettings:ClientBrandId"]);
 
@@ -64,136 +77,202 @@ namespace diam_planogram.Controllers
         public async Task<IActionResult> Catalogue(Catalogue catalogueModel)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
-            //we will create a custom model
-            //var catalogueModel = new CatalogueModel();
-            catalogueModel.UserFirstName = userInfo.GivenName;
-            catalogueModel.UserLastName = userInfo.Surname;
-            var country = _countryService.GetCountry(userInfo.DiamCountryId);
-            catalogueModel.BrandId = _brandId;
-            catalogueModel.StandTypes = _standService.GetStandTypesWithStands(catalogueModel.BrandId, country.CountryId).ToList();
-            catalogueModel.ApiUrl = _config["AppSettings:ApiURL"]; 
-            catalogueModel.ServerUrl = _config["AppSettings:ServerURL"]; 
-
-
-            catalogueModel.CountryId = country.CountryId;
-            //TODO: we need to associate member with brands and with regions
-            var systemRole = RolesHelper.GetUserRole(userInfo.Roles, _config);
-            List<Country> countries = new List<Country>();
-            countries.Add(country);
-
-            IEnumerable<Category> parentCats = await _categoryService.GetParentCategories();
-            List<int> notthese = new List<int>(new int[] { 8, 28, 37 }); //Non product bearing categories
-            List<CategoryModel> pCatsToDisplay = new List<CategoryModel>();
-            foreach (Category cat in parentCats)
+            if (memberIdentity != null)
             {
-                var hasProducts = await _partService.GetParts(catalogueModel.BrandId, cat.Id, countries);
-                if (hasProducts && !notthese.Contains(cat.Id))
+                var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(memberIdentity);
+                var userInfo = AuthHelper.GetUserInfo(claimsPrincipal);
+
+                //we will create a custom model
+                //var catalogueModel = new CatalogueModel();
+                catalogueModel.UserFirstName = userInfo.GivenName;
+                catalogueModel.UserLastName = userInfo.Surname;
+                var country = await _countryService.GetCountry(userInfo.DiamCountryId);
+                catalogueModel.BrandId = _brandId;
+                var standTypeFilter = new StandTypeFilter
                 {
-                    var heroImageUrl = catalogueModel.ServerUrl + "/planogram/products/photo_art/placeholder.jpg";
-                    var heroProduct = _productService.GetHeroProduct(cat.CategoryId, catalogueModel.BrandId);
-                    if (heroProduct != null)
+                    BrandId = catalogueModel.BrandId,
+                    CountryId = country.Id 
+                };
+                   var standTypes = await _standService.GetStandTypes(standTypeFilter);
+                   catalogueModel.StandTypes = standTypes.ToList();
+
+                catalogueModel.ApiUrl = _config["AppSettings:ApiURL"];
+                catalogueModel.ServerUrl = _config["AppSettings:ServerURL"];
+
+
+                catalogueModel.CountryId = country.Id;
+                //TODO: we need to associate member with brands and with regions
+                var systemRole = RolesHelper.GetUserRole(userInfo.Roles, _config);
+                ICollection<CountryDto> countries = new List<CountryDto>();
+                countries.Add(_mapper.Map<CountryDto>(country));
+
+                var pcatFilter = new CategoryFilter
+                {
+                    ParentCatId = 0
+                };
+                var parentCats = await _categoryService.GetCategories(pcatFilter);
+                List<int> notthese = new List<int>(new int[] { 8, 28, 37 }); //Non product bearing categories
+                List<CategoryDto> pCatsToDisplay = new List<CategoryDto>();
+                foreach (Category cat in parentCats)
+                {
+                    var filter = new PartFilter
                     {
-                        var catHeroProduct = _productService.GetProduct(heroProduct.ProductId);
-                        if (catHeroProduct != null)
+                        BrandId = catalogueModel.BrandId,
+                        CategoryId = cat.Id,
+                        Countries = countries
+                    };
+                    var hasProducts = await _partService.GetParts(filter);
+                    if (hasProducts.Count > 0 && !notthese.Contains(cat.Id))
+                    {
+                        var heroImageUrl = catalogueModel.ServerUrl + "/planogram/products/photo_art/placeholder.jpg";
+                        var heroProduct = _productService.GetHeroProduct(cat.Id, catalogueModel.BrandId);
+                        if (heroProduct != null)
                         {
-                            heroImageUrl = catalogueModel.ServerUrl + "/planogram/products/photo_art/" +
-                                           catHeroProduct.ProductImage;
+                            var catHeroProduct = await _productService.GetProduct(heroProduct.Id);
+                            if (catHeroProduct != null)
+                            {
+                                heroImageUrl = catalogueModel.ServerUrl + "/planogram/products/photo_art/" +
+                                               catHeroProduct.ProductImage;
+                            }
                         }
+
+                        CategoryDto catModel = new CategoryDto();
+                        catModel = _mapper.Map<CategoryDto>(cat);
+                        catModel.HeroImageUrl = heroImageUrl;
+                        pCatsToDisplay.Add(catModel);
                     }
-
-                    CategoryModel catModel = new CategoryModel();
-                    catModel = _mapper.Map<CategoryModel>(cat);
-                    catModel.HeroImageUrl = heroImageUrl;
-                    pCatsToDisplay.Add(catModel);
                 }
-            }
 
-            catalogueModel.ParentCategories = pCatsToDisplay;
+                catalogueModel.ParentCategories = pCatsToDisplay;
 
-            try
-            {
-                if (catalogueModel.StandTypes.Count > 0)
+                try
                 {
-                    List<Part> parts = _partService.GetParts(catalogueModel.BrandId, pCatsToDisplay[0].CategoryId,
-                            catalogueModel.StandTypes.First().StandTypeId, countries)
-                        .Where(p => p.PartTypeId != (int)PartTypeEnum.SparePart).ToList();
-                    if (parts.Any())
-                        catalogueModel.Parts = parts;
+                    if (catalogueModel.StandTypes.Count > 0)
+                    {
+                        var filter = new PartFilter
+                        {
+                            BrandId = catalogueModel.BrandId,
+                            CategoryId = pCatsToDisplay[0].Id,
+                            StandTypeId = catalogueModel.StandTypes.First().Id,
+                            Countries = countries
+                        };
+
+                        IReadOnlyList<Part> partList = await _partService.GetParts(filter);
+                        var parts = partList.Where(p => p.PartTypeId != (int)PartTypeEnum.SparePart).ToList();
+                        if (parts.Any())
+                            catalogueModel.Parts = parts;
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
+                catch (Exception ex)
+                {
+                    return CurrentTemplate(catalogueModel);
+                }
+
+                //simply use the protected method CurrentTemplate<T>, this does all of the
+                //above for you... must nicer.
                 return CurrentTemplate(catalogueModel);
             }
-            //simply use the protected method CurrentTemplate<T>, this does all of the
-            //above for you... must nicer.
-            return CurrentTemplate(catalogueModel);
+            else
+            {
+                return Unauthorized("not logged in");
+            }
         }
 
         public async Task<IActionResult> CatalogueStandAlone(Catalogue catalogueModel)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
-            //we will create a custom model
-            //var catalogueModel = new CatalogueModel();
-            catalogueModel.UserFirstName = userInfo.GivenName;
-            catalogueModel.UserLastName = userInfo.Surname;
-            catalogueModel.BrandId = _brandId;
-            var country = _countryService.GetCountry(userInfo.DiamCountryId);
-            catalogueModel.CountryId = country.CountryId;
-            catalogueModel.StandTypes = _standService.GetStandTypesWithStands(catalogueModel.BrandId, country.CountryId).ToList();
-            catalogueModel.ApiUrl = _config["AppSettings:ApiURL"];
-            catalogueModel.ServerUrl = _config["AppSettings:ServerURL"];
-
-
-
-            List<Country> countries = new List<Country>();
-            countries.Add(country);
-
-
-            IEnumerable<Category> parentCats = _categoryService.GetParentCategories();
-            List<int> notthese = new List<int>(new int[] { 8, 28, 37, 56, 58, 60 });
-            List<CategoryModel> pCatsToDisplay = new List<CategoryModel>();
-            foreach (Category cat in parentCats)
+            if (memberIdentity != null)
             {
-                var hasProducts = _partService.GetParts(catalogueModel.BrandId, cat.CategoryId, countries).Any();
-                if (hasProducts && !notthese.Contains(cat.CategoryId))
+                var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(memberIdentity);
+                var userInfo = AuthHelper.GetUserInfo(claimsPrincipal);
+
+                //we will create a custom model
+                //var catalogueModel = new CatalogueModel();
+                catalogueModel.UserFirstName = userInfo.GivenName;
+                catalogueModel.UserLastName = userInfo.Surname;
+                catalogueModel.BrandId = _brandId;
+                var country = await _countryService.GetCountry(userInfo.DiamCountryId);
+                catalogueModel.CountryId = country.Id;
+                var stFilter = new StandTypeFilter
                 {
-                    var heroImageUrl = "placeholder.jpg";
-                    var heroProduct = _productService.GetHeroProduct(cat.CategoryId, catalogueModel.BrandId);
-                    if (heroProduct != null)
+                    BrandId = catalogueModel.BrandId,
+                    CountryId = country.Id,
+                    HasStands = true
+                };
+                var standTypes = await _standService.GetStandTypes(stFilter);
+                catalogueModel.StandTypes = standTypes.ToList();
+                catalogueModel.ApiUrl = _config["AppSettings:ApiURL"];
+                catalogueModel.ServerUrl = _config["AppSettings:ServerURL"];
+
+
+
+                List<CountryDto> countries = new List<CountryDto>();
+                countries.Add(_mapper.Map<CountryDto>(country));
+
+
+                var pcatFilter = new CategoryFilter
+                {
+                    ParentCatId = 0
+                };
+                var parentCats = await _categoryService.GetCategories(pcatFilter);
+                List<int> notthese = new List<int>(new int[] { 8, 28, 37, 56, 58, 60 });
+                List<CategoryDto> pCatsToDisplay = new List<CategoryDto>();
+                foreach (Category cat in parentCats)
+                {
+                    var filter = new PartFilter
                     {
-                        var catHeroProduct = _productService.GetProduct(heroProduct.ProductId);
-                        if (catHeroProduct != null)
+                        BrandId = catalogueModel.BrandId,
+                        CategoryId = cat.Id,
+                        Countries = countries
+                    };
+                    var partsList = await _partService.GetParts(filter);
+                    var hasProducts = partsList.Any();
+                    if (hasProducts && !notthese.Contains(cat.Id))
+                    {
+                        var heroImageUrl = "placeholder.jpg";
+                        var heroProduct = await _productService.GetHeroProduct(cat.Id, catalogueModel.BrandId);
+                        if (heroProduct != null)
                         {
-                            heroImageUrl = catalogueModel.ServerUrl + "/planogram/products/photo_art/" +
-                                           catHeroProduct.ProductImage;
+                            var catHeroProduct = await _productService.GetProduct(heroProduct.ProductId);
+                            if (catHeroProduct != null)
+                            {
+                                heroImageUrl = catalogueModel.ServerUrl + "/planogram/products/photo_art/" +
+                                               catHeroProduct.ProductImage;
+                            }
                         }
+
+                        CategoryDto catModel = new CategoryDto();
+                        catModel = _mapper.Map<CategoryDto>(cat);
+                        catModel.HeroImageUrl = heroImageUrl;
+                        pCatsToDisplay.Add(catModel);
                     }
-
-                    CategoryModel catModel = new CategoryModel();
-                    catModel = _mapper.Map<CategoryModel>(cat);
-                    catModel.HeroImageUrl = heroImageUrl;
-                    pCatsToDisplay.Add(catModel);
                 }
+
+                catalogueModel.ParentCategories = pCatsToDisplay;
+
+                //TODO: assign some values to the custom model...
+
+                //TODO: we need to associate member with brands and with regions
+                catalogueModel.BrandId = _brandId;
+
+                var filter2 = new PartFilter
+                {
+                    BrandId = catalogueModel.BrandId,
+                    CategoryId = pCatsToDisplay[0].Id,
+                    StandTypeId = catalogueModel.StandTypes.First().Id,
+                    Countries = countries,
+                    excludeSpareParts = true
+                };
+                IEnumerable<Part> parts = await _partService.GetParts(filter2);
+                catalogueModel.Parts = parts.ToList();
+                //simply use the protected method CurrentTemplate<T>, this does all of the
+                //above for you... must nicer.
+                return CurrentTemplate(catalogueModel);
             }
-
-            catalogueModel.ParentCategories = pCatsToDisplay;
-
-            //TODO: assign some values to the custom model...
-
-            //TODO: we need to associate member with brands and with regions
-            catalogueModel.BrandId = _brandId;
-
-
-            IEnumerable<Part> parts = _partService.GetParts(catalogueModel.BrandId, pCatsToDisplay[0].CategoryId, catalogueModel.StandTypes.First().StandTypeId, countries).Where(p => p.PartTypeId != (int)PartTypeEnum.SparePart);
-            catalogueModel.Parts = parts.ToList();
-            //simply use the protected method CurrentTemplate<T>, this does all of the
-            //above for you... must nicer.
-            return CurrentTemplate(catalogueModel);
+            else
+            {
+                return Unauthorized("not logged in");
+            }
 
         }
     }

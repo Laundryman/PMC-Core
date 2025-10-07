@@ -1,10 +1,13 @@
 ﻿//using System.Web.Http;
-using dplo.Domain;
-using dplo.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using PMApplication.Dtos;
+using PMApplication.Entities.CountriesAggregate;
+using PMApplication.Interfaces.ServiceInterfaces;
+using PMApplication.Specifications.Filters;
 using Umbraco.Cms.Web.Common.Controllers;
 using Umbraco.Cms.Web.Common.Filters;
+using IMapper = AutoMapper.IMapper;
 
 namespace diam_planogram.Controllers
 {
@@ -15,56 +18,70 @@ namespace diam_planogram.Controllers
 
         #region Services, managers
 
-        public ICatalogueService _catalogueService;
+        public IPartService _partService;
         public ICountryService _countryService;
+        public IMapper _mapper;
 
-        public SettingsApiController(ICatalogueService catalogueService, ICountryService countryService)
+        public SettingsApiController(IPartService partService, ICountryService countryService, IMapper mapper)
         {
-            _catalogueService = catalogueService;
+            _partService = partService;
             _countryService = countryService;
+            _mapper = mapper;
         }
 
         #endregion
         #region Countries
+
         [HttpGet]
         [Route("/Api/settingsapi/getCountryList")]
-        public IEnumerable<SelectListItem> GetCountryList(int regionId)
+        public async Task<IEnumerable<SelectListItem>> GetCountryList(int regionId)
         {
+            var countryFilter = new CountryFilter
+            {
+                RegionId = regionId,
+            };
 
-            IEnumerable<SelectListItem> countries = _countryService.GetCountriesByRegion(regionId)
-                .Select(c => new SelectListItem
+        var countries = await _countryService.GetCountries(countryFilter);
+             var countrySelectList = countries.Select(c => new SelectListItem
                 {
-                    Value = c.CountryId.ToString(),
+                    Value = c.Id.ToString(),
                     Text = c.Name
                 });
             //return Json(products, JsonRequestBehavior.AllowGet);
-            return countries;
+            return countrySelectList;
 
         }
 
         [HttpPost]
         [Route("/Api/settingsapi/getPartList")]
-        public IEnumerable<SelectListItem> GetPartList(int brandId, int categoryId, int standTypeId, [FromQuery] string[] countries)
+        public async Task<IEnumerable<SelectListItem>> GetPartList(int brandId, int categoryId, int standTypeId, [FromQuery] string[] countries)
         {
 
-            List<Country> countryList = new List<Country>();
+            List<CountryDto> countryList = new List<CountryDto>();
             for (var i = 0; i < countries.Count(); i++)
             {
-                Country country = _countryService.GetCountry(int.Parse(countries[i]));
-                countryList.Add(country);
+                Country country = await _countryService.GetCountry(int.Parse(countries[i]));
+                countryList.Add(_mapper.Map<CountryDto>(country));
             }
             //countryList = countryService.GetCountries().ToList();
 
             if (brandId != 0 && categoryId != 0 && countries != null)
             {
-                var parts = _catalogueService.GetParts(brandId, categoryId, standTypeId, countryList)
-                    .Select(p => new SelectListItem
+                var partFilter = new PartFilter
+                {
+                    BrandId = brandId,
+                    CategoryId = categoryId,
+                    StandTypeId = standTypeId,
+                    Countries = countryList
+                };
+                var parts = await _partService.GetParts(partFilter);
+                    var partSelectList = parts.Select(p => new SelectListItem
                     {
-                        Value = p.CatPartId.ToString(),
+                        Value = p.Id.ToString(),
                         Text = p.Name
                     });
                 //return Json(products, JsonRequestBehavior.AllowGet);
-                return parts;
+                return partSelectList;
             }
             else
             {

@@ -1,11 +1,11 @@
 ﻿using DiamShopSolution.Models.Shop;
-using dplo.Domain.Entities;
+using PMApplication.Entities.OrderAggregate;
 
 namespace diam_planogram.Models.Shop
 {
     public class OrderModel
     {
-        public int OrderId { get; set; }
+        public long OrderId { get; set; }
         public string OrderTitle { get; set; }
         public int OrderStatus { get; set; }
         public DateTime OrderCreated { get; set; }
@@ -34,7 +34,7 @@ namespace diam_planogram.Models.Shop
         public static explicit operator OrderModel(Order order)
         {
             OrderModel o = new OrderModel();
-            o.OrderId = order.OrderId;
+            o.OrderId = order.Id;
             o.OrderTitle = order.OrderTitle;
             o.OrderStatus = order.OrderStatus;
             o.OrderCreated = order.OrderCreated;

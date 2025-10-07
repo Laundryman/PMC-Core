@@ -1,10 +1,7 @@
 ﻿using CoreSystem2024.Helpers;
-using dplo.Domain;
-using dplo.Service;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Logging;
 using System.Configuration;
-using Dplo.ViewModels;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;

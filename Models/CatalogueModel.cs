@@ -1,6 +1,8 @@
-﻿using dplo.Domain;
-using dplo.Domain.Entities;
-using Dplo.ViewModels;
+﻿
+using diam_planogram.Models.Shop;
+using PMApplication.Entities;
+using PMApplication.Entities.PartAggregate;
+using PMApplication.Entities.StandAggregate;
 
 namespace CoreSystem2024.Models
 {

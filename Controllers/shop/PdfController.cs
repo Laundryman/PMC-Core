@@ -2,12 +2,12 @@
 using CoreSystem2024.Models.Shop;
 using diam_planogram.Helpers;
 using diam_planogram.Models.Shop;
-using dplo.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Graph.ExternalConnectors;
+using PMApplication.Interfaces.ServiceInterfaces;
+//using Microsoft.Graph.ExternalConnectors;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
 
@@ -33,9 +33,9 @@ namespace CoreSystem2024.Controllers.shop
 
 
 
-        private OrderModel BuildOrderConfirmationModel(int id)
+        private async Task<OrderModel> BuildOrderConfirmationModel(int id)
         {
-            var order = _orderService.GetOrder(id);
+            var order = await _orderService.GetOrder(id);
 
             if (order == null) throw new ArgumentException("Order ID not found");
 
@@ -49,9 +49,9 @@ namespace CoreSystem2024.Controllers.shop
         }
 
         //[Route("pdf/order-confirmation/{id:int}/{pdf:bool}")]
-        public IActionResult OrderConfirmation(int id, bool? preview)
+        public async Task<IActionResult> OrderConfirmation(int id, bool? preview)
         {
-            var orderModel = BuildOrderConfirmationModel(id);
+            var orderModel = await BuildOrderConfirmationModel(id);
 
             var model = new PdfModel { Order = orderModel };
 

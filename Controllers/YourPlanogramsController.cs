@@ -2,19 +2,23 @@
 using CoreSystem2024.Controllers.shop;
 using CoreSystem2024.Helpers;
 using CoreSystem2024.Models;
-using dplo.Domain;
-using dplo.Service;
-using dplo.Service.MSGraphUtils;
-using Dplo.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
+using PMApplication.Entities.CountriesAggregate;
+using PMApplication.Extensions;
+using PMApplication.Interfaces.ServiceInterfaces;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using PMApplication.Entities.StandAggregate;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
+using PMApplication.Specifications;
+using PMApplication.Specifications.Filters;
 using RedirectResult = Microsoft.AspNetCore.Mvc.RedirectResult;
 
 namespace diam_planogram.Controllers
@@ -56,9 +60,9 @@ namespace diam_planogram.Controllers
         public async Task<IActionResult> YourPlanograms(YourPlanograms model)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
-            var userCountry = _countryService.GetCountry(userInfo.DiamCountryId);
+            var userCountry = await _countryService.GetCountry(userInfo.DiamCountryId);
 
             var systemRole = RolesHelper.GetUserRole(userInfo.Roles, _config);
             //we will create a custom model
@@ -75,32 +79,44 @@ namespace diam_planogram.Controllers
             //GET THE FILTER LISTS
             if (RolesHelper.IsRegionalUser(userInfo.Roles) || RolesHelper.IsClientValidator(userInfo.Roles))
             {
-
-                var regions = _regionService.GetRegionsByBrand(model.BrandId).ToList();
+                var regionFilter = new RegionFilter
+                {
+                    BrandId = model.BrandId
+                };
+                var regions = await _regionService.GetRegions(regionFilter);
                 model.RegionId = 0;
 
                 
                 var userRegion = userCountry.Regions.FirstOrDefault(r => r.BrandId == model.BrandId);
                 if (userRegion != null)
                 {
-                    model.RegionId = userRegion.RegionId;
+                    model.RegionId = userRegion.Id;
                 }
                     
                 var countries = new List<Country>();
 
-                countries = _countryService.GetCountriesByRegion(model.RegionId).ToList();
+                var spec = new GetRegionSpec(model.RegionId);
+;                var region = await _regionService.GetRegion(model.RegionId);
+                countries = region.Countries.ToList();
 
-                model.Countries = countries.ToSelectListItems(userCountry.CountryId).ToList();
+                model.Countries = countries.ToSelectListItems(userCountry.Id).ToList();
 
                 //need to change the text if is regional manager
-                model.Countries.Insert(0, new System.Web.Mvc.SelectListItem { Selected = true, Text = "Select a region first", Value = "0" });
+                model.Countries.Insert(0, new SelectListItem { Selected = true, Text = "Select a region first", Value = "0" });
                 model.Regions = regions.ToSelectListItems(model.RegionId).ToList();
-                model.Regions.Insert(0, new System.Web.Mvc.SelectListItem { Selected = false, Text = "Select a region", Value = "0" });
+                model.Regions.Insert(0, new SelectListItem { Selected = false, Text = "Select a region", Value = "0" });
 
             }
-            var brandedStandTypes = _standService.GetStandTypes(model.BrandId).ToList();
+
+            var standFilter = new StandTypeFilter
+            {
+                BrandId = model.BrandId
+            };
+
+            
+            var brandedStandTypes = await _standService.GetStandTypes(standFilter);
             model.StandTypes = brandedStandTypes.ToSelectListItems(-1).ToList();
-            model.StandTypes.Insert(0, new System.Web.Mvc.SelectListItem { Selected = true, Text = "Select a stand type", Value = "0" });
+            model.StandTypes.Insert(0, new SelectListItem { Selected = true, Text = "Select a stand type", Value = "0" });
 
 
 

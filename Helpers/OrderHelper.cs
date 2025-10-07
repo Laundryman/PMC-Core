@@ -1,10 +1,9 @@
 ﻿using diam_planogram.Models.Shop;
 using DiamShopSolution.Models.Shop;
-using dplo.Domain.Entities;
-using dplo.Service;
-using System.Configuration;
-using dplo.Domain;
 using Microsoft.Extensions.Configuration;
+using PMApplication.Entities.OrderAggregate;
+using PMApplication.Entities.PartAggregate;
+using PMApplication.Interfaces.ServiceInterfaces;
 
 namespace diam_planogram.Helpers
 {
@@ -37,7 +36,7 @@ namespace diam_planogram.Helpers
             var orderModel = (OrderModel)order;
 
             // first get all the order items
-            var allOrderItems = orderService.GetOrderItemInfos(order.OrderId).ToList();
+            var allOrderItems = orderService.GetOrderItemInfos(order.Id).Result;
 
             orderModel.HasLegacyItems = allOrderItems.Any(x => !x.Shoppable);
 
@@ -82,7 +81,7 @@ namespace diam_planogram.Helpers
                     var fullPlanoQuantity = orderItems.First().Quantity;
                     var fullPlanoInitialQuantity = orderItems.First().InitialQuantity;
                     if (planogramId == null) continue;
-                    var plano = planogramService.GetPlanogram(planogramId.Value);
+                    var plano = planogramService.GetPlanogram(planogramId.Value).Result;
 
                     var planoModel = new PlanogramModel
                     {
@@ -124,14 +123,14 @@ namespace diam_planogram.Helpers
                     .Select(oi => oi.PlanogramId.Value).Distinct();
 
                 // get all the planos
-                var planos = planoIds.Select(planogramService.GetPlanogram);
+                var planos = planoIds.Select(p => planogramService.GetPlanogram(p).Result);
 
                 var planoModels = planos.Select(x => new PlanogramModel
                 {
                     Name = x.Name,
-                    OrderItems = partialPlanoOrderItems.Where(oi => oi.PlanogramId == x.PlanogramId),
+                    OrderItems = partialPlanoOrderItems.Where(oi => oi.PlanogramId == x.Id),
                     IsFullPlano = false,
-                    PlanogramId = x.PlanogramId,
+                    PlanogramId = x.Id,
                     ClusterName = x.Cluster.Name,
                     ClusterPartNumber = x.Cluster.ClusterPartNumber,
                     Dimensions = $"{x.Stand.Width}x{x.Stand.Height}"

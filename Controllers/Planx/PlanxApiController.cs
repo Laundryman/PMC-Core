@@ -2,12 +2,6 @@
 using CoreSystem2024.Helpers;
 using CoreSystem2024.Models;
 using CoreSystem2024.ProxyServices;
-using dplo.Domain;
-using dplo.Domain.Entities;
-using dplo.Helpers;
-using dplo.Service;
-using Dplo.ViewModels;
-using Dplo.ViewModels.PlanxModels;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -15,11 +9,16 @@ using Newtonsoft.Json;
 using System.Net;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Configuration;
-using Umbraco.Cms.Api.Management.ViewModels.Culture;
 using Umbraco.Cms.Core.Security;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
 using System.Net.Http;
 using dplo_shop.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Graph.Models;
+using PMApplication.Dtos.PlanModels;
+using PMApplication.Entities.PlanogramAggregate;
+using PMApplication.Interfaces.ServiceInterfaces;
+using PMApplication.Specifications.Filters;
 
 namespace CoreSystem2024.Controllers.Planx
 {
@@ -35,6 +34,7 @@ namespace CoreSystem2024.Controllers.Planx
         private readonly IPlanxProxyApiService proxyApi;
         private readonly IMemberManager _memberManager;
         private readonly IOrderService _orderService;
+        private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IConfiguration _config;
 
         #endregion
@@ -43,12 +43,13 @@ namespace CoreSystem2024.Controllers.Planx
 
         #region LocalApiCalls
 
-        public PlanxApiController(ICategoryService categoryService, ICatalogueService catalogueService, ICountryService countryService, IPlanogramService planogramService, IOrderService orderService, IStandService standService, ILogger<PlanxApiController> logger, IMemberManager memberManager, IPlanxProxyApiService proxyApi, IConfiguration config) : base(config)
+        public PlanxApiController(ICategoryService categoryService, ICountryService countryService, IPlanogramService planogramService, IOrderService orderService, IStandService standService, ILogger<PlanxApiController> logger, IMemberManager memberManager, IPlanxProxyApiService proxyApi, IConfiguration config, SignInManager<IdentityUser> signInManager) : base(config)
         {
             _logger = logger;
             _memberManager = memberManager;
             this.proxyApi = proxyApi;
             _config = config;
+            _signInManager = signInManager;
             _planogramService = planogramService;
             _orderService = orderService;
             _countryService = countryService;
@@ -88,13 +89,15 @@ namespace CoreSystem2024.Controllers.Planx
         [Route("/api/planxapi/GetCategoryMenu")]
         public async Task<IActionResult> GetCategoryMenu(GetMenuParams data)
         {
-            //we need to re-auth using the reauth process
-            ////var accessToken = //AuthHelper.ReAuth(Authorization, client);
-            var parentCategories = _categoryService.GetParentCategories();
+            var pcatFilter = new CategoryFilter
+            {
+                ParentCatId = 0
+            };
+            var parentCategories = await _categoryService.GetCategories(pcatFilter);
 
             var parentCat = parentCategories.Where(c => c.Name == data.category).FirstOrDefault();
 
-            var response = await proxyApi.GetCategoryMenuCall(data.planogramId, parentCat.CategoryId);
+            var response = await proxyApi.GetCategoryMenuCall(data.planogramId, parentCat.Id);
             //Get the json data from the result
 
             return Ok(response);
@@ -200,8 +203,12 @@ namespace CoreSystem2024.Controllers.Planx
         public async Task<IActionResult> GetPlanogramParts(int planogramId)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-            var countryId = _countryService.GetCountry(userInfo.DiamCountryId);
+            //if (memberIdentity != null)
+            //{
+            //    var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(memberIdentity);
+            //    var userInfo = AuthHelper.GetUserInfo(claimsPrincipal);
+            //    var countryId = _countryService.GetCountry(userInfo.DiamCountryId);
+            //}
 
 
             var response = await proxyApi.GetPlanogramPartsCall(planogramId);
@@ -215,8 +222,8 @@ namespace CoreSystem2024.Controllers.Planx
         public async Task<IActionResult> GetNewPlanogramParts(int planogramId)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-            var countryId = _countryService.GetCountry(userInfo.DiamCountryId);
+            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            //var countryId = _countryService.GetCountry(userInfo.DiamCountryId);
 
 
             var response = await proxyApi.GetNewPlanogramPartsCall(planogramId);
@@ -277,15 +284,19 @@ namespace CoreSystem2024.Controllers.Planx
 
         [HttpPost]
         [Route("/api/planxapi/SavePlanogramV2")]
-        public async Task<HttpResponseMessage> SavePlanogramV2(PlanxPlanogramInfo planogramData)
+        public async Task<HttpResponseMessage> SavePlanogramV2(PlanmPlanogramInfo planogramData)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userProfile = AuthHelper.GetUserInfo(memberIdentity);
-
-            planogramData.UserId = userProfile.Id;
-            planogramData.UserName = userProfile.DisplayName;
-            planogramData.CountryId = userProfile.DiamCountryId;
-            planogramData.UserRoles = userProfile.Roles;
+            if (memberIdentity != null)
+            {
+                var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(memberIdentity);
+                var userProfile = AuthHelper.GetUserInfo(claimsPrincipal);
+                var userInfo = AuthHelper.GetUserInfo(claimsPrincipal);
+                planogramData.UserId = userProfile.Id;
+                planogramData.UserName = userProfile.DisplayName;
+                planogramData.CountryId = userProfile.DiamCountryId;
+                planogramData.UserRoles = userProfile.Roles;
+            }
 
             _logger.LogDebug("Save Planogram start ");
 
@@ -309,7 +320,7 @@ namespace CoreSystem2024.Controllers.Planx
 
         [HttpPost]
         [Route("/api/planxapi/SavePlanogramJpeg")]
-        public async Task<IActionResult> SavePlanogramJpeg(PlanogramImageViewModel planoJpeg)
+        public async Task<IActionResult> SavePlanogramJpeg(PlanmPlanoImageDto planoJpeg)
         {
             _logger.LogDebug("Save planogram jpg");
 
@@ -345,7 +356,7 @@ namespace CoreSystem2024.Controllers.Planx
         }
         [HttpPost]
         [Route("/api/planxapi/SavePlanogramSvg")]
-        public async Task<HttpResponseMessage> SavePlanogramSvg(PlanogramImageViewModel planoSvg)
+        public async Task<HttpResponseMessage> SavePlanogramSvg(PlanmPlanoImageDto planoSvg)
         {
             //we need to re-auth using the reauth process
             //var accessToken = //AuthHelper.ReAuth(Authorization, client);
@@ -374,13 +385,13 @@ namespace CoreSystem2024.Controllers.Planx
 
         [HttpPost]
         [Route("/api/planxapi/GetPlanoPDF")]
-        public async Task<IActionResult> GetPlanoPDF(PlanogramImageViewModel planoSvg)
+        public async Task<IActionResult> GetPlanoPDF(PlanmPlanoImageDto planoSvg)
         {
             //we need to re-auth using the reauth process
             //var accessToken = //AuthHelper.ReAuth(Authorization, client);
 
             _logger.LogDebug("Save Planogram Image ");
-            var planogram = _planogramService.GetPlanogram(planoSvg.PlanogramId);
+            var planogram = await _planogramService.GetPlanogram(planoSvg.PlanogramId);
             var response = await proxyApi.GetPlanoPDFCall(planoSvg);
 
             _logger.LogDebug("Save scratchpad end ");
@@ -505,7 +516,7 @@ namespace CoreSystem2024.Controllers.Planx
             {
                 var memberIdentity = await _memberManager.GetCurrentMemberAsync();
 
-                var userProfile = AuthHelper.GetUserInfo(memberIdentity);
+                //var userProfile = AuthHelper.GetUserInfo(memberIdentity);
 
                 var isLocked = _planogramService.IsLocked(planogramId, null);
                 if (isLocked)
@@ -522,60 +533,60 @@ namespace CoreSystem2024.Controllers.Planx
         }
 
 
-        //[Route("api/v2/order/export/{orderId}")]
-        [HttpGet]
-        [Route("/api/planxapi/ExportSku")]
-        public IActionResult ExportSku(int planogramId = 0)
-        {
-            // we can retrieve the userId from the request
-            var currentUser = User;
+        ////[Route("api/v2/order/export/{orderId}")]
+        //[HttpGet]
+        //[Route("/api/planxapi/ExportSku")]
+        //public async Task<IActionResult> ExportSku(int planogramId = 0)
+        //{
+        //    // we can retrieve the userId from the request
+        //    var currentUser = User;
 
-            try
-            {
-                Planogram planogram = _planogramService.GetPlanogram(planogramId);
-                string fileName = string.Format("planogram_{0}_{1}.xls", DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"),
-                    planogram.Name);
-                string filePath = string.Format("{0}files\\ExportImport\\{1}",
-                    HttpContext.Request.PathBase, fileName);
+        //    try
+        //    {
+        //        Planogram planogram = await _planogramService.GetPlanogram(planogramId);
+        //        string fileName = string.Format("planogram_{0}_{1}.xls", DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"),
+        //            planogram.Name);
+        //        string filePath = string.Format("{0}files\\ExportImport\\{1}",
+        //            HttpContext.Request.PathBase, fileName);
 
-                var currentUri = new Uri(Request.GetDisplayUrl());
-                string domainURI = currentUri.Scheme + "://" + currentUri.Authority;
+        //        var currentUri = new Uri(Request.GetDisplayUrl());
+        //        string domainURI = currentUri.Scheme + "://" + currentUri.Authority;
 
-                string wPath = string.Format("{0}/files/ExportImport/", domainURI);
-                string webPath = string.Format("{0}{1}", wPath, Uri.EscapeDataString(fileName));
+        //        string wPath = string.Format("{0}/files/ExportImport/", domainURI);
+        //        string webPath = string.Format("{0}{1}", wPath, Uri.EscapeDataString(fileName));
 
 
-                var exportManager = new ExportManager(_planogramService, _orderService);
-                exportManager.ExportSkuListToXls(filePath, planogram);
+        //        var exportManager = new ExportManager(_planogramService, _orderService);
+        //        exportManager.ExportSkuListToXls(filePath, planogram);
 
-                //ExportManager.WriteResponseXls(filePath, fileName);
+        //        //ExportManager.WriteResponseXls(filePath, fileName);
 
-                return Ok(new FileDesc(fileName, webPath, 0));
-            }
-            catch (Exception Ex)
-            {
+        //        return Ok(new FileDesc(fileName, webPath, 0));
+        //    }
+        //    catch (Exception Ex)
+        //    {
 
-                // Get stack trace for the exception with source file information
-                //var st = new StackTrace(ex, true);
-                // Get the top stack frame
-                //var frame = st.GetFrame(0);
-                // Get the line number from the stack frame
-                //var line = frame.GetFileLineNumber();
-                string message;
-                if (Ex.InnerException != null)
-                {
-                    message = (Ex.Message + Ex.InnerException);
-                }
-                else
-                {
-                    message = (Ex.Message + Ex.StackTrace);
-                }
-                //log an error
+        //        // Get stack trace for the exception with source file information
+        //        //var st = new StackTrace(ex, true);
+        //        // Get the top stack frame
+        //        //var frame = st.GetFrame(0);
+        //        // Get the line number from the stack frame
+        //        //var line = frame.GetFileLineNumber();
+        //        string message;
+        //        if (Ex.InnerException != null)
+        //        {
+        //            message = (Ex.Message + Ex.InnerException);
+        //        }
+        //        else
+        //        {
+        //            message = (Ex.Message + Ex.StackTrace);
+        //        }
+        //        //log an error
 
-                return BadRequest(message);
-            }
+        //        return BadRequest(message);
+        //    }
 
-        }
+        //}
 
 
         #endregion

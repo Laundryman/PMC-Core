@@ -1,4 +1,5 @@
-﻿using dplo.Domain.Entities;
+﻿
+using PMApplication.Entities.OrderAggregate;
 
 namespace diam_planogram.Models.Shop
 {
@@ -14,21 +15,21 @@ namespace diam_planogram.Models.Shop
         public decimal Price { get; set; }
         public int? PlanogramId { get; set; }
 
-        public static explicit operator OrderItemModel(OrderItem orderItem)
-        {
-            var o = new OrderItemModel();
+        //public static explicit operator OrderItemModel(OrderItem orderItem)
+        //{
+        //    var o = new OrderItemModel();
 
-            o.OrderItemId = orderItem.OrderItemId;
-            o.OrderId = orderItem.OrderId;
-            o.Quantity = orderItem.Quantity;
-            o.DateAdded = orderItem.DateAdded;
-            o.PartId = orderItem.PartId;
-            o.PartName = orderItem.PartName;
-            o.PartNumber = orderItem.PartNumber;
-            o.Price = orderItem.Price;
-            o.PlanogramId = orderItem.PlanogramId;
+        //    o.OrderItemId = orderItem.Id;
+        //    o.OrderId = orderItem.OrderId;
+        //    o.Quantity = orderItem.Quantity;
+        //    o.DateAdded = orderItem.DateAdded;
+        //    o.PartId = orderItem.PartId;
+        //    o.PartName = orderItem.PartName;
+        //    o.PartNumber = orderItem.PartNumber;
+        //    o.Price = orderItem.Price;
+        //    o.PlanogramId = orderItem.PlanogramId;
 
-            return o;
-        }
+        //    return o;
+        //}
     }
 }

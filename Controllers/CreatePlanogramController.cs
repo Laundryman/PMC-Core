@@ -1,15 +1,17 @@
-﻿using CoreSystem2024.CMSModelBuilderModels;
+﻿using System.Security.Claims;
+using AutoMapper;
+using CoreSystem2024.CMSModelBuilderModels;
 using CoreSystem2024.Controllers.shop;
 using CoreSystem2024.Helpers;
 using CoreSystem2024.Models;
-using dplo.Service;
-using dplo.Service.MSGraphUtils;
-using Dplo.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
+using PMApplication.Dtos;
+using PMApplication.Interfaces.ServiceInterfaces;
+using PMApplication.Specifications.Filters;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
@@ -29,6 +31,8 @@ namespace diam_planogram.Controllers
         private IConfiguration _config;
         private readonly IConfiguration Configuration;
         private readonly IMemberManager _memberManager;
+        private readonly ILogger _logger;
+        private readonly IMapper _mapper;
         public CreatePlanogramController(ILogger<RenderController> logger, ICompositeViewEngine compositeViewEngine, IUmbracoContextAccessor umbracoContextAccessor, IStandService standService, IPlanogramService planogramService, IProductService productService, IConfiguration config, IConfiguration configuration, IMemberManager memberManager) : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
             _standService = standService;
@@ -56,7 +60,8 @@ namespace diam_planogram.Controllers
         {
 
                 var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-                var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+                var claimsPrincipal = ClaimsPrincipal.Current;
+                var userInfo = AuthHelper.GetUserInfo(claimsPrincipal);
                 string urlReferrer = Request.Headers["Referer"].ToString();
                 //if (string.IsNullOrEmpty(urlReferrer))
                 //{
@@ -102,10 +107,15 @@ namespace diam_planogram.Controllers
             model.UserRoles = userInfo.Roles;
             model.SystemRole = (int)systemRole;
 
+            var filter = new StandTypeFilter
+            {
+                BrandId = model.BrandId
+            };
+                //model.StandTypes = await _standService.GetStandTypesWithStands(model.BrandId).Select(st => (StandTypeDto)st).ToList();
 
-                model.StandTypes = _standService.GetStandTypesWithStands(model.BrandId).Select(st => (StandTypeViewModel)st).ToList();
-
-            return CurrentTemplate(model);
+                var standTypes = await _standService.GetStandTypes(filter);
+                var stDtos = _mapper.Map<IReadOnlyList<StandTypeDto>>(standTypes);
+            return CurrentTemplate(stDtos);
         }
     }
 }

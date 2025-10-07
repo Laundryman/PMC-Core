@@ -1,8 +1,8 @@
-﻿using dplo.Domain.Entities;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Text;
 using Microsoft.Extensions.Configuration;
+using PMApplication.Entities;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
 
 namespace CoreSystem2024.Helpers

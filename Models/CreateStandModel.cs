@@ -1,4 +1,5 @@
-﻿using Dplo.ViewModels;
+﻿
+using PMApplication.Dtos;
 
 namespace CoreSystem2024.Models
 {
@@ -7,7 +8,7 @@ namespace CoreSystem2024.Models
     {
         public CreateStandModel()
         {
-            this.StandTypes = new HashSet<StandTypeViewModel>();
+            this.StandTypes = new HashSet<StandTypeDto>();
             //this.Parts = new HashSet<Part>();
 
         }
@@ -19,7 +20,7 @@ namespace CoreSystem2024.Models
         public string UserLastName { get; set; }
         public string UserRoles { get; set; }
         public int SystemRole { get; set; }
-        public virtual ICollection<StandTypeViewModel> StandTypes { get; set; }
+        public virtual ICollection<StandTypeDto> StandTypes { get; set; }
         //public virtual ICollection<Part> Parts { get; set; }
 
 
