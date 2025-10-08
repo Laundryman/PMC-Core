@@ -12,7 +12,6 @@ using System.Security.Claims;
 using PMApplication.Specifications.Filters;
 using Umbraco.Cms.Core.Security;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
-using HttpGetAttribute = System.Web.Http.HttpGetAttribute;
 
 
 namespace CoreSystem2024.Controllers.shop

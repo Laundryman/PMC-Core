@@ -12,12 +12,13 @@ using System.Text;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Web.Common.Security;
-using CoreSystem2024.HttpClientWrapper;
 using PMApplication.Dtos;
 using Umbraco.Cms.Core;
 using PMApplication.Dtos.PlanModels;
 using PMApplication.Entities.PlanogramAggregate;
 using Microsoft.AspNetCore.Identity;
+using System.Net.Http.Json;
+using System.Net.Http;
 
 namespace CoreSystem2024.ProxyServices
 {
@@ -81,14 +82,14 @@ namespace CoreSystem2024.ProxyServices
         private readonly ILogger<YourPlanogramApiController> _logger;
         private readonly IConfiguration _configuration;
         private readonly IMemberManager _memberManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public PlanxProxyApiService(ILogger<YourPlanogramApiController> logger, IConfiguration configuration, IMemberManager memberManager, SignInManager<IdentityUser> signInManager)
+        public PlanxProxyApiService(ILogger<YourPlanogramApiController> logger, IConfiguration configuration, IMemberManager memberManager, IHttpClientFactory httpClientFactory)
         {
             _logger = logger;
             _configuration = configuration;
             _memberManager = memberManager;
-            _signInManager = signInManager;
+            _httpClientFactory = httpClientFactory;
         }
         #endregion
 
@@ -114,20 +115,10 @@ namespace CoreSystem2024.ProxyServices
             var uri = "api/v2/planx/get-menu/" + planogramId;
             var url = string.Format("{0}{1}", domain, uri);
             //maybe log something here
-
-            using (SecureHttpClient<IEnumerable<PlanmMenuPart>> httpClient = new SecureHttpClient<IEnumerable<PlanmMenuPart>>(domain, uri, _configuration))
-            {
-
-                try
-                {
-                    var response = await httpClient.Get(accessToken);
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmMenuPart>>(url);
+            return response;
 
 
         }
@@ -173,20 +164,11 @@ namespace CoreSystem2024.ProxyServices
             var uri = "api/v2/planx/get-category-menu/" + planogramId + "/" + categoryId;
             var url = string.Format("{0}{1}", domain, uri);
             //maybe log something here
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmMenuPart>>(url);
+            return response;
 
-            using (SecureHttpClient<IEnumerable<PlanmMenuPart>> httpClient = new SecureHttpClient<IEnumerable<PlanmMenuPart>>(domain, uri, _configuration))
-            {
-
-                try
-                {
-                    var response = await httpClient.Get(accessToken);
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
 
 
         }
@@ -210,20 +192,10 @@ namespace CoreSystem2024.ProxyServices
             var url = string.Format("{0}{1}", domain, uri);
             //maybe log something here
 
-
-            using (SecureHttpClient<MenuDto> httpClient = new SecureHttpClient<MenuDto>(domain, uri, _configuration))
-            {
-
-                try
-                {
-                    var response = await httpClient.Get(accessToken);
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetFromJsonAsync<MenuDto>(url);
+            return response;
 
         }
 
@@ -243,20 +215,10 @@ namespace CoreSystem2024.ProxyServices
 
             var uri = "api/v2/planx/get-planogram/" + planogramId;
             var url = string.Format("{0}{1}", domain, uri);
-
-            using (SecureHttpClient<PlanmPlanogramDto> httpClient = new SecureHttpClient<PlanmPlanogramDto>(domain, uri, _configuration))
-            {
-
-                try
-                {
-                    var response = await httpClient.Get(accessToken);
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetFromJsonAsync<PlanmPlanogramDto>(url);
+            return response;
 
         }
 
@@ -277,19 +239,10 @@ namespace CoreSystem2024.ProxyServices
             var uri = "api/v2/planx/get-stand/" + standId;
             var url = string.Format("{0}{1}", domain, uri);
 
-            using (SecureHttpClient<PlanmStandDto> httpClient = new SecureHttpClient<PlanmStandDto>(domain, uri, _configuration))
-            {
-
-                try
-                {
-                    var response = await httpClient.Get(accessToken);
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetFromJsonAsync<PlanmStandDto>(url);
+            return response;
 
 
         }
@@ -308,21 +261,10 @@ namespace CoreSystem2024.ProxyServices
 
             var uri = "api/v2/planx/get-planogram-preview/" + planogramId;
             var url = string.Format("{0}{1}", domain, uri);
-
-            using (SecureHttpClient<string> httpClient = new SecureHttpClient<string>(domain, uri, _configuration))
-            {
-
-                try
-                {
-                    var response = await httpClient.Get(accessToken);
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
-
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetFromJsonAsync<string>(url);
+            return response;
 
         }
 
@@ -384,22 +326,10 @@ namespace CoreSystem2024.ProxyServices
 
             var uri = "api/v2/planx/get-planogram-shelves/" + planogramId;
             var url = string.Format("{0}{1}", domain, uri);
-
-            using (SecureHttpClient<IEnumerable<PlanmPartInfo>> httpClient = new SecureHttpClient<IEnumerable<PlanmPartInfo>>(domain, uri, _configuration))
-            {
-
-                try
-                {
-                    var response = await httpClient.Get(accessToken);
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
-
-
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmPartInfo>>(url);
+            return response;
         }
 
         public async Task<IEnumerable<PlanmPartInfo>> GetPlanogramPartsCall(int planogramId)
@@ -418,22 +348,10 @@ namespace CoreSystem2024.ProxyServices
 
             var uri = "api/v2/planx/get-planogram-parts/" + planogramId;
             var url = string.Format("{0}{1}", domain, uri);
-
-            using (SecureHttpClient<IEnumerable<PlanmPartInfo>> httpClient = new SecureHttpClient<IEnumerable<PlanmPartInfo>>(domain, uri, _configuration))
-            {
-
-                try
-                {
-                    var response = await httpClient.Get(accessToken);
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
-
-
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmPartInfo>>(url);
+            return response;
         }
 
         public async Task<IEnumerable<PlanmPartInfo>> GetNewPlanogramPartsCall(int planogramId)
@@ -451,20 +369,10 @@ namespace CoreSystem2024.ProxyServices
 
             var uri = "api/v2/planx/get-new-parts/" + planogramId;
             var url = string.Format("{0}{1}", domain, uri);
-
-            using (SecureHttpClient<IEnumerable<PlanmPartInfo>> httpClient = new SecureHttpClient<IEnumerable<PlanmPartInfo>>(domain, uri, _configuration))
-            {
-
-                try
-                {
-                    var response = await httpClient.Get(accessToken);
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmPartInfo>>(url);
+            return response;
 
 
         }
@@ -485,21 +393,10 @@ namespace CoreSystem2024.ProxyServices
 
             var uri = "api/v2/planx/get-nonmarket-parts/" + planogramId + "/" + UserInfo.DiamCountryId;
             var url = string.Format("{0}{1}", domain, uri);
-
-            using (SecureHttpClient<IEnumerable<PlanogramPart>> httpClient = new SecureHttpClient<IEnumerable<PlanogramPart>>(domain, uri, _configuration))
-            {
-
-                try
-                {
-                    var response = await httpClient.Get(accessToken);
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
-
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanogramPart>>(url);
+            return response;
 
         }
 
@@ -539,22 +436,10 @@ namespace CoreSystem2024.ProxyServices
 
             var uri = "api/v2/planx/get-planogram-scratchpad/" + planogramId;
             var url = string.Format("{0}{1}", domain, uri);
-
-            using (SecureHttpClient<IEnumerable<PlanmPartInfo>> httpClient = new SecureHttpClient<IEnumerable<PlanmPartInfo>>(domain, uri, _configuration))
-            {
-
-                try
-                {
-                    var response = await httpClient.Get(accessToken);
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
-
-
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmPartInfo>>(url);
+            return response;
         }
 
         public async Task<PartDto> GetPartCall(int partId)
@@ -573,21 +458,10 @@ namespace CoreSystem2024.ProxyServices
 
             var uri = "api/v2/planx/get-part/" + partId;
             var url = string.Format("{0}{1}", domain, uri);
-            using (SecureHttpClient<PartDto> httpClient = new SecureHttpClient<PartDto>(domain, uri, _configuration))
-            {
-
-                try
-                {
-                    var response = await httpClient.Get(accessToken);
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
-
-
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetFromJsonAsync<PartDto>(url);
+            return response;
         }
 
         public async Task<PartProductsDto> GetPartProductsCall(int partId, int planogramId)
@@ -606,21 +480,10 @@ namespace CoreSystem2024.ProxyServices
 
             var uri = "api/v2/planx/get-part-products/" + partId + "/" + planogramId;
             var url = string.Format("{0}{1}", domain, uri);
-
-            using (SecureHttpClient<PartProductsDto> httpClient = new SecureHttpClient<PartProductsDto>(domain, uri, _configuration))
-            {
-
-                try
-                {
-                    var response = await httpClient.Get(accessToken);
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
-
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetFromJsonAsync<PartProductsDto>(url);
+            return response;
 
         }
 
@@ -641,21 +504,10 @@ namespace CoreSystem2024.ProxyServices
 
             var uri = "api/v2/planx/get-product-shades/" + productId;
             var url = string.Format("{0}{1}", domain, uri);
-
-            using (SecureHttpClient<ProductShadesDto> httpClient = new SecureHttpClient<ProductShadesDto>(domain, uri, _configuration))
-            {
-
-                try
-                {
-                    var response = await httpClient.Get(accessToken);
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
-
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetFromJsonAsync<ProductShadesDto>(url);
+            return response;
 
         }
 
@@ -674,29 +526,18 @@ namespace CoreSystem2024.ProxyServices
                 var memberIdentity = await _memberManager.GetCurrentMemberAsync();
                 if (memberIdentity != null)
                 {
-                    var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(memberIdentity);
-                    var userInfo = AuthHelper.GetUserInfo(claimsPrincipal);
+                    var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
                     var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
                     var uri = "api/v2/planx/get-plano-lock/" + planogramId + "/" + userInfo.Id + "/" +
                               userInfo.DisplayName;
                     var url = string.Format("{0}{1}", domain, uri);
                     //maybe log something here
+                    var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                    var response = await httpClient.GetFromJsonAsync<string>(url);
+                    return response;
 
-                    using (SecureHttpClient<string> httpClient =
-                           new SecureHttpClient<string>(domain, uri, _configuration))
-                    {
-
-                        try
-                        {
-                            var response = await httpClient.Get(accessToken);
-                            return response;
-                        }
-                        catch (Exception ex)
-                        {
-                            throw (ex);
-                        }
-                    }
                 }
                 else
                 {
@@ -729,21 +570,10 @@ namespace CoreSystem2024.ProxyServices
 
             var uri = "api/v2/planogram/getCommentCount/" + planogramId + "/" + brand;
             var url = string.Format("{0}{1}", domain, uri);
-
-            using (SecureHttpClient<int> httpClient = new SecureHttpClient<int>(domain, uri, _configuration))
-            {
-
-                try
-                {
-                    var response = await httpClient.Get(accessToken);
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
-
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetFromJsonAsync<int>(url);
+            return response;
 
         }
         public async Task<string> UnlockCall(int planogramId)
@@ -763,21 +593,10 @@ namespace CoreSystem2024.ProxyServices
             var uri = "api/v2/planogram/unlock/" + planogramId;
             var url = string.Format("{0}{1}", domain, uri);
             //maybe log something here
-
-            using (SecureHttpClient<string> httpClient = new SecureHttpClient<string>(domain, uri, _configuration))
-            {
-
-                try
-                {
-                    var response = await httpClient.Get(accessToken);
-                    return response;
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
-
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetFromJsonAsync<string>(url);
+            return response;
 
         }
 
@@ -805,41 +624,23 @@ namespace CoreSystem2024.ProxyServices
 
             var uri = "api/v2/planx/save-planogramV2/";
             var url = string.Format("{0}{1}", domain, uri);
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             _logger.LogDebug("Save planogram make call ");
 
 
-            //using (SecureHttpClient<PlanxPlanogramInfo> httpClient = new SecureHttpClient<PlanxPlanogramInfo>(domain, uri, _configuration))
-            //{
-
-            //    try
-            //    {
-            //        await httpClient.PutRequest(url, accessToken, planogramData);
-            //        //_logger.LogDebug("response from save = " + response + " :: " + StatusText);
-
-            //        return new HttpResponseMessage(HttpStatusCode.OK);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        throw (ex);
-            //    }
-            //}
-
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url))
             {
                 request.Content = content;
-                using (HttpClient httpClient = new HttpClient())
-                {
-                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                    var response = await httpClient.SendAsync(request);
+                var response = await httpClient.SendAsync(request);
 
-                    var StatusText = response.StatusCode + " " + response.ReasonPhrase + Environment.NewLine;
-                    var responseBodyAsText = await response.Content.ReadAsStringAsync();
-                    responseBodyAsText = responseBodyAsText.Replace("<br>", Environment.NewLine); // Insert new lines
-                    _logger.LogDebug("response from save = " + response + " :: " + StatusText);
+                var StatusText = response.StatusCode + " " + response.ReasonPhrase + Environment.NewLine;
+                var responseBodyAsText = await response.Content.ReadAsStringAsync();
+                responseBodyAsText = responseBodyAsText.Replace("<br>", Environment.NewLine); // Insert new lines
+                _logger.LogDebug("response from save = " + response + " :: " + StatusText);
 
-                    return response;
-                }
+                return response;
             }
 
 
@@ -870,24 +671,12 @@ namespace CoreSystem2024.ProxyServices
             var uri = "api/v2/planx/save-planogram-cassettes/";
             var url = string.Format("{0}{1}", domain, uri);
 
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            httpClient.PutAsJsonAsync<PlanmShelfInfoList>(url, shelves);
             _logger.LogDebug("Save Cassettes make call ");
 
-
-            using (SecureHttpClient<PlanmShelfInfoList> httpClient = new SecureHttpClient<PlanmShelfInfoList>(domain, uri, _configuration))
-            {
-
-                try
-                {
-                    await httpClient.PutRequest(url, accessToken, shelves);
-                    //_logger.LogDebug("response from save = " + response + " :: " + StatusText);
-
-                    return new HttpResponseMessage(HttpStatusCode.OK);
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
+            return new HttpResponseMessage(HttpStatusCode.OK);
 
         }
 
@@ -909,7 +698,8 @@ namespace CoreSystem2024.ProxyServices
 
             var uri = "api/v2/planx/save-planogram-jpeg-image/";
             var url = string.Format("{0}{1}", domain, uri);
-
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             _logger.LogDebug("Save planogram svg make call ");
 
             using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url))
@@ -919,18 +709,14 @@ namespace CoreSystem2024.ProxyServices
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 request.Content = content;
-                using (HttpClient httpClient = new HttpClient())
-                {
-                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                    var response = await httpClient.SendAsync(request);
+                var response = await httpClient.SendAsync(request);
 
-                    var StatusText = response.StatusCode + " " + response.ReasonPhrase + Environment.NewLine;
-                    var responseBodyAsText = await response.Content.ReadAsStringAsync();
-                    responseBodyAsText = responseBodyAsText.Replace("<br>", Environment.NewLine); // Insert new lines
-                    _logger.LogDebug("response from save jpg = " + responseBodyAsText + " :: " + StatusText);
+                var StatusText = response.StatusCode + " " + response.ReasonPhrase + Environment.NewLine;
+                var responseBodyAsText = await response.Content.ReadAsStringAsync();
+                responseBodyAsText = responseBodyAsText.Replace("<br>", Environment.NewLine); // Insert new lines
+                _logger.LogDebug("response from save jpg = " + responseBodyAsText + " :: " + StatusText);
 
-                    return response;
-                }
+                return response;
             }
 
         }
@@ -954,25 +740,13 @@ namespace CoreSystem2024.ProxyServices
 
             var uri = "api/v2/planx/save-planogram-svg-image/";
             var url = string.Format("{0}{1}", domain, uri);
-
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            await httpClient.PutAsJsonAsync<PlanmPlanoImageDto>(url, planoSvg);
             _logger.LogDebug("Save planogram svg make call ");
 
 
-            using (SecureHttpClient<PlanmPlanoImageDto> httpClient = new SecureHttpClient<PlanmPlanoImageDto>(domain, uri, _configuration))
-            {
-
-                try
-                {
-                    await httpClient.PutRequest(url, accessToken, planoSvg);
-                    //_logger.LogDebug("response from save = " + response + " :: " + StatusText);
-
-                    return new HttpResponseMessage(HttpStatusCode.OK);
-                }
-                catch (Exception ex)
-                {
-                    throw (ex);
-                }
-            }
+            return new HttpResponseMessage(HttpStatusCode.OK);
         }
 
         public async Task<HttpResponseMessage> GetPlanoPDFCall(PlanmPlanoImageDto planoSvg)
@@ -986,13 +760,6 @@ namespace CoreSystem2024.ProxyServices
             string writeScope = _configuration["AzureB2CWriteScope"];
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //if (memberIdentity != null)
-            //{
-            //    var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(memberIdentity);
-            //    var userInfo = AuthHelper.GetUserInfo(claimsPrincipal);
-            //}
-
-
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
@@ -1001,69 +768,15 @@ namespace CoreSystem2024.ProxyServices
 
             var uri = "api/v2/planx/get-planogram-pdf/";
             var url = string.Format("{0}{1}", domain, uri);
+            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             _logger.LogDebug("Get Planogram PDF make call ");
 
-
-            try
-            {
-                using (HttpClient httpClient = new HttpClient())
-                {
-                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                    var response = await httpClient.PostAsync(url, content);
-                    return response;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("GetPlanoPDFCall error: " + ex.Message);
-                throw ex;
-            }
-
-
-
+            var response = await httpClient.PostAsync(url, content);
+            return response;
 
         }
-
-        //public async Task<HttpResponseMessage> SaveScratchPadCall(PlanxShelfInfoList scratchpad)
-        //{
-        //    _logger.LogDebug("Save scratchpad call start ");
-
-
-        //    string domain = _configuration["AppSettings:ApiUrl"];
-        //    string brand = _configuration["AppSettings:ClientBrandId"];
-        //    string readScope = _configuration["AzureB2C:ReadScope"];
-        //    string writeScope = _configuration["AzureB2CWriteScope"];
-
-        //    var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
-
-
-        //    var json = JsonConvert.SerializeObject(scratchpad);
-        //    var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        //    var uri = "api/v2/planx/save-planogram-scratchpad/";
-        //    var url = string.Format("{0}{1}", domain, uri);
-
-        //    _logger.LogDebug("Save scratchpad make call ");
-
-        //    using (SecureHttpClient<PlanxShelfInfoList> httpClient = new SecureHttpClient<PlanxShelfInfoList>(domain, uri, _configuration))
-        //    {
-
-        //        try
-        //        {
-        //            await httpClient.PutRequest(url, accessToken, planoSvg);
-        //            //_logger.LogDebug("response from save = " + response + " :: " + StatusText);
-
-        //            return new HttpResponseMessage(HttpStatusCode.OK);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            throw (ex);
-        //        }
-        //    }
-
-        //}
 
         #endregion
     }

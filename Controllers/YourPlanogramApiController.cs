@@ -256,7 +256,8 @@ namespace CoreSystem2024.Controllers
         [Route("/Api/YourPlanogramApi/GetPlanograms")]
         public async Task<IActionResult> GetPlanograms([FromBody] GetPlanoParams data)
         {
-            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
+            var memberInfo = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberInfo);
             RolesHelper.Initialize(_config);
 
             IEnumerable<PlanogramInfo> response;

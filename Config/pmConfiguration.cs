@@ -1,14 +1,14 @@
 ﻿using System.Configuration;
 
-namespace CoreSystemII.Config
+namespace CoreSystem2024.Config
 {
-    public class DiamConfiguration : ConfigurationSection
+    public class pmConfiguration : ConfigurationSection
     {
 
 
-        public static DiamConfiguration GetConfig()
+        public static pmConfiguration GetConfig()
         {
-            return ConfigurationManager.GetSection("DiamPlanogramConfiguration") as DiamConfiguration;
+            return ConfigurationManager.GetSection("PlanogramConfiguration") as pmConfiguration;
         }
 
         [ConfigurationProperty("sessionName", DefaultValue = "sessionId", IsRequired = true)]

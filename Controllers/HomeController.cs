@@ -77,10 +77,10 @@ namespace diam_planogram.Controllers
             //}
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             var logins = _memberManager.GetLoginsAsync(memberIdentity);
-
-            if (ClaimsPrincipal.Current != null)
+            var isLoggedIn = User?.Identity?.IsAuthenticated ?? false;
+            if (isLoggedIn)
             {
-                var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
+                var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
                 if (User.Identity.IsAuthenticated)
                 {
@@ -138,13 +138,13 @@ namespace diam_planogram.Controllers
                 else
                 {
                     Response.Redirect("/Welcome");
-                    return null;
+                    return Unauthorized();
                 }
             }
             else
             {
                 Response.Redirect("/Welcome");
-                return null;
+                return Unauthorized();
             }
         }
 

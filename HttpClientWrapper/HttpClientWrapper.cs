@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Configuration;
-using System.Net.Http.Formatting;
+//using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 
 namespace CoreSystem2024.HttpClientWrapper
@@ -111,7 +111,8 @@ namespace CoreSystem2024.HttpClientWrapper
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                var response = await client.PostAsync(apiUrl, postObject, new JsonMediaTypeFormatter()).ConfigureAwait(false);
+                var cts = new CancellationTokenSource();
+                var response = await client.PostAsync(apiUrl, postObject, cts).ConfigureAwait(false);
 
                 response.EnsureSuccessStatusCode();
 
@@ -135,7 +136,9 @@ namespace CoreSystem2024.HttpClientWrapper
         {
             using (var client = new HttpClient())
             {
-                var response = await client.PutAsync(apiUrl, putObject, new JsonMediaTypeFormatter()).ConfigureAwait(false);
+                var cts = new CancellationTokenSource();
+                var response = await client.PostAsync(apiUrl, putObject, cts).ConfigureAwait(false);
+                //var response = await client.PutAsync(apiUrl, putObject, new JsonMediaTypeFormatter()).ConfigureAwait(false);
 
                 response.EnsureSuccessStatusCode();
             }

@@ -15,6 +15,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="HttpClientWrapper\**" />
+    <Content Remove="HttpClientWrapper\**" />
+    <EmbeddedResource Remove="HttpClientWrapper\**" />
+    <None Remove="HttpClientWrapper\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Config\pmConfiguration.cs" />
     <Compile Remove="Controllers\AccountController.cs" />
     <Compile Remove="Controllers\AzureAccountController.cs" />
     <Compile Remove="Controllers\EditSectionPlanogramApiController.cs" />
@@ -28,8 +36,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
-    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.3.0" />
-    <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.3.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.14.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.5" />
     <PackageReference Include="Microsoft.Graph" Version="5.83.0" />

@@ -37,7 +37,7 @@ namespace CoreSystem2024.Controllers.shop
             _logger = logger;
         }
 
-        [System.Web.Http.HttpGet]
+        [HttpGet]
         [Route("/umbraco/api/navigationapi/get")]
         public async Task<IActionResult> Get()
         {

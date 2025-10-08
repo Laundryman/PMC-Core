@@ -24,7 +24,7 @@ namespace CoreSystem2024.Controllers.shop
             _config = config;
         }
 
-        [System.Web.Http.HttpGet]
+        [HttpGet]
         [Route("umbraco/api/UmbracoContentApi/GetInformation")]
 
         public async Task<IActionResult> GetInformation()

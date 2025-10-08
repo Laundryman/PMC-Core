@@ -48,7 +48,7 @@ namespace CoreSystem2024.Controllers
 
         #region LocalApiCalls
 
-        [System.Web.Mvc.HttpGet]
+        [HttpGet]
         [Route("/Api/AuthApi/GetUserRole")]
         public async Task<IActionResult> GetUserRole()
         {

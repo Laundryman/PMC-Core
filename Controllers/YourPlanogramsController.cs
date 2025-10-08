@@ -60,7 +60,7 @@ namespace diam_planogram.Controllers
         public async Task<IActionResult> YourPlanograms(YourPlanograms model)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             var userCountry = await _countryService.GetCountry(userInfo.DiamCountryId);
 
@@ -93,11 +93,11 @@ namespace diam_planogram.Controllers
                     model.RegionId = userRegion.Id;
                 }
                     
-                var countries = new List<Country>();
+                //var countries = new List<Country>();
 
-                var spec = new GetRegionSpec(model.RegionId);
-;                var region = await _regionService.GetRegion(model.RegionId);
-                countries = region.Countries.ToList();
+                
+               var region = await _regionService.GetCountriesForRegion(model.RegionId);
+                var countries = region.Countries.ToList();
 
                 model.Countries = countries.ToSelectListItems(userCountry.Id).ToList();
 
