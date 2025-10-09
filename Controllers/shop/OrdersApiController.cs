@@ -18,7 +18,7 @@ using PMApplication.Interfaces.ServiceInterfaces;
 using System.Security.Claims;
 using J2N.Collections.ObjectModel;
 using Umbraco.Cms.Core.Security;
-using RolesHelper = CoreSystem2024.Helpers.RolesHelper;
+using RolesHelper = PMApplication.Helpers.RolesHelper;
 
 namespace CoreSystem2024.Controllers.shop
 {

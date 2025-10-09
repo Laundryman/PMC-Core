@@ -15,6 +15,7 @@ using PMApplication.Entities.JobsAggregate;
 using PMApplication.Entities.OrderAggregate;
 using PMApplication.Entities.PlanogramAggregate;
 using PMApplication.Interfaces.ServiceInterfaces;
+using PMApplication.Helpers;
 using Umbraco.Cms.Core.Security;
 
 namespace CoreSystem2024.ProxyServices
