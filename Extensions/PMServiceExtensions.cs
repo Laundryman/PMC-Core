@@ -16,7 +16,7 @@ using Umbraco.Cms.Core.Services;
 
 namespace CoreSystem2024.Extensions
 {
-    public static class DiamServiceExtensions
+    public static class PMServiceExtensions
     {
         public static IUmbracoBuilder AddPMServices(this IUmbracoBuilder builder)
         {

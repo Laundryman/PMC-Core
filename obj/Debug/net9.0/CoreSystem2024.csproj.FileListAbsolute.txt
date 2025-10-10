@@ -449,11 +449,7 @@ C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-C
 C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.CSharp.dll
 C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.Configuration.Binder.dll
 C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.Configuration.CommandLine.dll
-C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.Configuration.dll
-C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.Configuration.EnvironmentVariables.dll
-C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.Configuration.FileExtensions.dll
 C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.Configuration.Ini.dll
-C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.Configuration.Json.dll
 C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.Configuration.KeyPerFile.dll
 C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.Configuration.UserSecrets.dll
 C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.Configuration.Xml.dll
@@ -462,11 +458,8 @@ C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-C
 C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions.dll
 C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.Diagnostics.HealthChecks.dll
 C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.Features.dll
-C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.FileProviders.Abstractions.dll
 C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.FileProviders.Composite.dll
 C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.FileProviders.Embedded.dll
-C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.FileProviders.Physical.dll
-C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.FileSystemGlobbing.dll
 C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.Hosting.Abstractions.dll
 C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.Hosting.dll
 C:\Users\nickr\Dropbox\Laundromat Media\Projects\DIAM\Upgrade 3\TestClient\PMC-Core\bin\Debug\net9.0\refs\Microsoft.Extensions.Http.dll

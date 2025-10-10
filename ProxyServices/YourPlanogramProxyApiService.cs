@@ -484,10 +484,20 @@ namespace CoreSystem2024.ProxyServices
                 var url = "api/v2/planogram/get/yourplanograms/" + (int)status + "/" + countryId + "/" +
                                 regionId + "/" + standTypeId + "/" + brandId;
                 var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-                
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanogramInfo>>(url);
-                return response;
+
+
+                try
+                {
+                    httpClient.DefaultRequestHeaders.Authorization =
+                        new AuthenticationHeaderValue("Bearer", accessToken);
+                    var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanogramInfo>>(url);
+                    return response;
+                }
+                catch (Exception ex)
+                {
+                    var message = ex.Message;
+                    throw;
+                }
             }
             else
             {
