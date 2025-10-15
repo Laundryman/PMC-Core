@@ -221,9 +221,10 @@ namespace CoreSystem2024.Controllers
 
                 return Ok(response);
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest();
+                _logger.LogError("GetJobFolders error = " + ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -259,7 +260,7 @@ namespace CoreSystem2024.Controllers
         {
             var memberInfo = await _memberManager.GetCurrentMemberAsync();
             var userInfo = AuthHelper.GetUserInfo(memberInfo);
-            RolesHelper.Initialize(_config);
+            //RolesHelper.Initialize(_config);
 
             IEnumerable<PlanogramInfo> response;
             try
@@ -307,7 +308,8 @@ namespace CoreSystem2024.Controllers
         [Route("/Api/YourPlanogramApi/GetArchivedPlanogramsByJob")]
         public async Task<IActionResult> GetArchivedPlanogramsByJob([FromBody] GetPlanoParams data)
         {
-            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
+            var memberInfo = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberInfo);
 
             IEnumerable<PlanogramInfo> response;
             try
@@ -691,7 +693,7 @@ namespace CoreSystem2024.Controllers
                         PlanogramId = planogramId,
                         ToAddress = config["EmailSettings:ToAddress"],
                         RecipientName = config["EmailSettings:RecipientName"],
-                        //UserId = UserInfo.Id,
+                        //UserId = UserInfo.id,
                         EmailEnabled = config["EmailSettings:EmailEnabled"] == "true",
                         EmailSubject = "Planogram Submitted"
                     };

@@ -64,7 +64,7 @@ namespace CoreSystem2024.Controllers.shop
             var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
             var userCountry = await _countryService.GetCountry(userInfo.DiamCountryId);
-            RolesHelper.Initialize(_config);
+            //RolesHelper.Initialize(_config);
 
             IReadOnlyList<OrderInfo> orders;
 
@@ -422,7 +422,7 @@ namespace CoreSystem2024.Controllers.shop
 
         //    // need to include the xls in this email - or a link to it
         //    _logger.LogDebug("Get userId");
-        //    var userId = userInfo.Id;
+        //    var userId = userInfo.id;
         //    _logger.LogDebug("Got userId");
 
         //    var uri = new System.Uri(Request.GetDisplayUrl());
@@ -460,7 +460,7 @@ namespace CoreSystem2024.Controllers.shop
         //        OrderId = orderId,
         //        ToAddress = userInfo.Email,
         //        RecipientName = userInfo.GivenName + " " + userInfo.Surname,
-        //        UserId = userInfo.Id,
+        //        UserId = userInfo.id,
         //        EmailEnabled = DiamEmailConfiguration.GetConfig().EmailEnabled,
         //        EmailSubject = "Order Submitted"
         //    };
@@ -592,11 +592,11 @@ namespace CoreSystem2024.Controllers.shop
             var orderItem = order.OrderItems.FirstOrDefault(x => x.OrderId == model.OrderItemId);
 
 
-            // if (!RolesHelper.IsAdminShopper(Helpers.UserInfo.Roles) && orderItem?.PlanogramId != null)
+            // if (!RolesHelper.IsAdminShopper(Helpers.UserInfo.Roles) && orderItem?.id != null)
             //     throw new ArgumentException("This function is only available to admin shoppers.");
 
 
-            if (RolesHelper.IsAdminShopper(userInfo.Roles) || orderItem?.PlanogramId == null)
+            if (RolesHelper.IsAdminShopper(userInfo.Roles) || orderItem?.Id == null)
             {
                 var response = new ApiResponseModel();
 
@@ -644,7 +644,7 @@ namespace CoreSystem2024.Controllers.shop
 
             var orderPlanogram =
                 order.OrderPlanograms?.FirstOrDefault(
-                    op => op.OrderId == model.OrderId && op.PlanogramId == model.PlanogramId);
+                    op => op.OrderId == model.OrderId && op.Id == model.PlanogramId);
 
             // this bit is because of the changing requirements meaning we have two fashions of storing orderitems against planograms (legacy protection)
             if (orderPlanogram != null)

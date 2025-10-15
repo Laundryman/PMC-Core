@@ -24,8 +24,8 @@ namespace CoreSystem2024.Extensions
         //    var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
 
         //    var customUser = new MemberIdentityUser();
-        //    customUser.Id = userId;
-        //    customUser.UserName = principal.Identity.Name;
+        //    customUser.id = userId;
+        //    customUser.UserName = principal.identity.Name;
         //    customUser.IsApproved = true;
 
         //    //foreach (var claim in principal.Claims.Where(x => x.Type == ClaimTypes.Role))

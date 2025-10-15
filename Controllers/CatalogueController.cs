@@ -42,7 +42,7 @@ namespace diam_planogram.Controllers
         private IMapper _mapper;
         private readonly IConfiguration _config;
         private readonly IMemberManager _memberManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        //private readonly SignInManager<IdentityUser> _signInManager;
 
         private string? _domain;
         private int _brandId;
@@ -55,7 +55,7 @@ namespace diam_planogram.Controllers
             IPartService partService,
             ICountryService countryService,
             ICategoryService categoryService,
-            IProductService productService, IMapper mapper, IConfiguration config, IMemberManager memberManager, SignInManager<IdentityUser> signInManager) : base(logger, compositeViewEngine, umbracoContextAccessor)
+            IProductService productService, IMapper mapper, IConfiguration config, IMemberManager memberManager) : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
             _standService = standService;
             _planogramService = planogramService;
@@ -66,7 +66,7 @@ namespace diam_planogram.Controllers
             _mapper = mapper;
             _config = config;
             _memberManager = memberManager;
-            _signInManager = signInManager;
+            //_signInManager = signInManager;
             _domain = _config["AppSettings:ApiUrl"];
             _brandId = int.Parse(_config["AppSettings:ClientBrandId"]);
 
@@ -80,8 +80,8 @@ namespace diam_planogram.Controllers
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             if (memberIdentity != null)
             {
-                var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(memberIdentity);
-                var userInfo = AuthHelper.GetUserInfo(claimsPrincipal);
+                //var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(memberIdentity);
+                var userInfo = AuthHelper.GetUserInfo(User);
 
                 //we will create a custom model
                 //var catalogueModel = new CatalogueModel();
@@ -184,8 +184,8 @@ namespace diam_planogram.Controllers
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             if (memberIdentity != null)
             {
-                var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(memberIdentity);
-                var userInfo = AuthHelper.GetUserInfo(claimsPrincipal);
+                //var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(memberIdentity);
+                var userInfo = AuthHelper.GetUserInfo(User);
 
                 //we will create a custom model
                 //var catalogueModel = new CatalogueModel();

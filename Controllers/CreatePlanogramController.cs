@@ -87,7 +87,7 @@ namespace diam_planogram.Controllers
 
                     try
                     {
-                        //string userId = UserInfo.Id;
+                        //string userId = UserInfo.id;
                         _planogramService.UnLockPlanogram(planoIdToUnLock, userInfo);
                     }
                     catch (Exception Ex)

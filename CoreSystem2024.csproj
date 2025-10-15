@@ -40,9 +40,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.5" />
     <PackageReference Include="Microsoft.Graph" Version="5.83.0" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.65.0" />
-    <PackageReference Include="Microsoft.Identity.Web" Version="3.2.0" />
-    <PackageReference Include="Microsoft.Identity.Web.UI" Version="3.2.0" />
+    <PackageReference Include="Microsoft.identity.Client" Version="4.65.0" />
+    <PackageReference Include="Microsoft.identity.Web" Version="3.2.0" />
+    <PackageReference Include="Microsoft.identity.Web.UI" Version="3.2.0" />
     <PackageReference Include="RazorEngine.NetCore" Version="3.1.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />

@@ -334,15 +334,15 @@
               "target": "Package",
               "version": "[5.83.0, )"
             },
-            "Microsoft.Identity.Client": {
+            "Microsoft.identity.Client": {
               "target": "Package",
               "version": "[4.65.0, )"
             },
-            "Microsoft.Identity.Web": {
+            "Microsoft.identity.Web": {
               "target": "Package",
               "version": "[3.2.0, )"
             },
-            "Microsoft.Identity.Web.UI": {
+            "Microsoft.identity.Web.UI": {
               "target": "Package",
               "version": "[3.2.0, )"
             },

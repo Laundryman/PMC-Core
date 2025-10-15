@@ -305,7 +305,7 @@ namespace CoreSystem2024.Helpers
         //        {
         //            var result = await proxySupport.AcquireTokenInteractive(new string[]
         //                { Globals.ReadTasksScope, Globals.WriteTasksScope });
-        //            accessToken = result.IdToken;
+        //            accessToken = result.idToken;
         //        }
         //        catch (MsalException msalex)
         //        {

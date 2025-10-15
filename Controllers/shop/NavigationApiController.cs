@@ -45,7 +45,7 @@ namespace CoreSystem2024.Controllers.shop
             try
             {
                 AuthHelper.Initialize(_config);
-                RolesHelper.Initialize(_config);
+                //RolesHelper.Initialize(_config);
                 int brandId = int.Parse(_config["AppSettings:ClientBrandId"] ?? "0");
                 int countryId = int.Parse(_config["AppSettings:ClientCountryId"] ?? "0");
                 var memberIdentity = await _memberManager.GetCurrentMemberAsync();
@@ -55,7 +55,7 @@ namespace CoreSystem2024.Controllers.shop
                 //var cFilter = new CategoryFilter
                 //{
                 //    BrandId = brandId,
-                //    CountryId = userCountry.Id
+                //    CountryId = userCountry.id
                 //}
                 var categories = await _categoryService.GetShopCategories(brandId, userCountry.Id);
 

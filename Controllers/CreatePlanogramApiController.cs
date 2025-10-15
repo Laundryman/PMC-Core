@@ -31,7 +31,7 @@ namespace CoreSystem2024.Controllers
         private readonly ICountryService _countryService;
         private readonly ICreatePlanogramProxyService _proxyApi;
         private readonly IMemberManager _memberManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        //private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IConfiguration _config;
 
         #endregion
@@ -39,7 +39,7 @@ namespace CoreSystem2024.Controllers
 
         #region LocalApiCalls
 
-        public CreatePlanogramApiController(ICountryService countryService, IPlanogramService planogramService, IBrandService brandService, ILogger<YourPlanogramApiController> logger, IMemberManager memberManager, ICreatePlanogramProxyService proxyApi, IConfiguration config, SignInManager<IdentityUser> signInManager) : base(config)
+        public CreatePlanogramApiController(ICountryService countryService, IPlanogramService planogramService, IBrandService brandService, ILogger<YourPlanogramApiController> logger, IMemberManager memberManager, ICreatePlanogramProxyService proxyApi, IConfiguration config) : base(config)
         {
             _planogramService = planogramService;
             _brandService = brandService;
@@ -47,7 +47,7 @@ namespace CoreSystem2024.Controllers
             _memberManager = memberManager;
             _proxyApi = proxyApi;
             _config = config;
-            _signInManager = signInManager;
+            //_signInManager = signInManager;
             _countryService = countryService;
         }
 
@@ -138,7 +138,7 @@ namespace CoreSystem2024.Controllers
                 var brand = await _brandService.GetBrand(int.Parse(ConfigurationManager.AppSettings["brand"]));
                 var editPCreds = new EditPlanogramCreds
                 {
-                    Action = "edit",
+                    Action = "edit",    
                     UserId = UserInfo.Id,
                     PlanogramId = planogram.Id,
                     clusterId = planogram.ClusterId,

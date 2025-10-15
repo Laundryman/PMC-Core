@@ -62,9 +62,9 @@ namespace diam_planogram.Controllers
                 //We're not using the country and region here: but we need to think about how we might regarding users.
                 var filter = new NoteFilter
                 {
-                    //UserId = userInfo.Id,
+                    //UserId = userInfo.id,
                     //BrandId = planogramNotesModel.BrandId,
-                    //CountryId = country.Id,
+                    //CountryId = country.id,
                     PlanogramId = planogramId
                 };
                 var notes = await _planogramService.GetPlanogramNotes(filter);

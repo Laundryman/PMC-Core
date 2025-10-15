@@ -1014,20 +1014,20 @@ function DisplayPlanograms(statusId) {
                     var tableNameCell = '<td class="planogram-tbl-cell planogram-name-cell">' +
                         '<div class="rename-container clearfix">' +
                         '<div class="planogram-name' + IsValidated + '"><input name="" value="' +
-                        plano.name + '" class="planoName" planoid="' + plano.planogramId + '">' +
+                        plano.name + '" class="planoName" planoid="' + plano.id + '">' +
                         '<div class="plano-name-click" style="position:absolute; left:0; right:0; top:0; bottom:0;"></div></div>';
                     var btnSavePlanoContainer = '<div class="btn-save-plano-container clearfix" style="display: none;">' +
-                        '<a href="javascript:void(0);" id="btnRenamePlanogram"  class="butn planogram-buttons btn-save-planogram" type="button" style="display:block;" data-planogramid="' + plano.planogramId + '">Save</a>' +
+                        '<a href="javascript:void(0);" id="btnRenamePlanogram"  class="butn planogram-buttons btn-save-planogram" type="button" style="display:block;" data-planogramid="' + plano.id + '">Save</a>' +
                         '</div >'
                     var planoInfo = '<div class="plano-modified-date">' + plano.formattedDateUpdated + '<br>by: ' + plano.lubName + '</div>';
 
-                    var saveAs = '<div class="saveas-container clearfix" planoid="' + plano.planogramId + '">' +
-                        '<div class="planogram-newname" planoid="' + plano.planogramId + '">' +
-                        '<input name="" type="text" value="' + plano.name + '" id="" class="planoNewName" planoid="' + plano.planogramId + '">' +
+                    var saveAs = '<div class="saveas-container clearfix" planoid="' + plano.id + '">' +
+                        '<div class="planogram-newname" planoid="' + plano.id + '">' +
+                        '<input name="" type="text" value="' + plano.name + '" id="" class="planoNewName" planoid="' + plano.id + '">' +
                         '<div class="plano-name-click" style="position:absolute; left:0; right:0; top:0; bottom:0;"></div >' +
                         '</div>' +
-                        '<button type="button" id="btnJSSaveAs" class="btn-save-as planogram-buttons" data-planogramid="' + plano.planogramId + '" data-planogramtitle="' + plano.name + '">Save As</button>' +
-                        '<input type="button" id="btnCancelSaveAs" value="Cancel" planoid="' + plano.planogramId + '" class="btn-cancel-save-as-planogram planogram-buttons">' +
+                        '<button type="button" id="btnJSSaveAs" class="btn-save-as planogram-buttons" data-planogramid="' + plano.id + '" data-planogramtitle="' + plano.name + '">Save As</button>' +
+                        '<input type="button" id="btnCancelSaveAs" value="Cancel" planoid="' + plano.id + '" class="btn-cancel-save-as-planogram planogram-buttons">' +
                         '</div> ' +
                         '</td></tr>';
 
@@ -1050,20 +1050,20 @@ function DisplayPlanograms(statusId) {
                     var archiveBtn = '';
 
                     if (plano.hasVersion) {
-                        viewBtn = '<a href="javascript:void(0);" class="butn planogram-buttons view-version" type="button" style="display:block;" data-planogramid="' + plano.planogramId + '">View</a>';
+                        viewBtn = '<a href="javascript:void(0);" class="butn planogram-buttons view-version" type="button" style="display:block;" data-planogramid="' + plano.id + '">View</a>';
                     }
                     else if (plano.planogramPreviewSrc !== null && typeof (plano.planogramPreviewSrc) !== 'undefined') {
                         //if (plano.planogramPreviewSrc.substring(0, 4) == 'data') {
-                        viewBtn = '<a href="javascript:void(0);" id="btnPlanoPreview" data-planogramId="' + plano.planogramId + '" target="_blank" type="button" class="butn planogram-buttons view">View</a>';
+                        viewBtn = '<a href="javascript:void(0);" id="btnPlanoPreview" data-planogramId="' + plano.id + '" target="_blank" type="button" class="butn planogram-buttons view">View</a>';
                         //}
                     }
 
-                    editBtn = '<a href="javascript:void(0);" id = "btnPlanxEdit" class="butn planogram-buttons planx-edit" type="button"  data-planogramid="' + plano.planogramId + '" data-planogramtitle="' + plano.name + '" >Edit</a>';
+                    editBtn = '<a href="javascript:void(0);" id = "btnPlanxEdit" class="butn planogram-buttons planx-edit" type="button"  data-planogramid="' + plano.id + '" data-planogramtitle="' + plano.name + '" >Edit</a>';
 
-                    deleteBtn = '<a href="javascript:void(0);" name="btnDeletePlanogram" class="butn btn-delete-planogram planogram-buttons" data-planogramid="' + plano.planogramId + '" >Delete</a>';
+                    deleteBtn = '<a href="javascript:void(0);" name="btnDeletePlanogram" class="butn btn-delete-planogram planogram-buttons" data-planogramid="' + plano.id + '" >Delete</a>';
 
-                    btnSaveAs = '<button type="button" planoid="' + plano.planogramId + '" class="butn btn-save-as-action planogram-buttons">Save As</button>';
-                    excelBtn = '<button type="button" name="" id=skulist-"' + plano.planogramId + '" class="butn btn-export-sku-list planogram-buttons" onclick="GetJsonSkuDownload(' + plano.planogramId + ', \'' + plano.name + '\')" data-planoid="' + plano.planogramId + '">Excel Planogram</button>';
+                    btnSaveAs = '<button type="button" planoid="' + plano.id + '" class="butn btn-save-as-action planogram-buttons">Save As</button>';
+                    excelBtn = '<button type="button" name="" id=skulist-"' + plano.id + '" class="butn btn-export-sku-list planogram-buttons" onclick="GetJsonSkuDownload(' + plano.id + ', \'' + plano.name + '\')" data-planoid="' + plano.id + '">Excel Planogram</button>';
 
                     let commentClass = 'has-comment';
                     let commentCount = plano.commentCount;
@@ -1071,7 +1071,7 @@ function DisplayPlanograms(statusId) {
                         commentClass = 'no-comment'
                         commentCount = ''
                     }
-                    commentBtn = '<button type="button" class="butn planogram-buttons view-notes" data-planogramid="' + plano.planogramId + '" data-planogramtitle="' + plano.name + '">Comments</button>' +
+                    commentBtn = '<button type="button" class="butn planogram-buttons view-notes" data-planogramid="' + plano.id + '" data-planogramtitle="' + plano.name + '">Comments</button>' +
                         '<span id="spnHasComments" class="' + commentClass + '">' + commentCount + '</span>';
 
                     switch (statusId) {
@@ -1080,12 +1080,12 @@ function DisplayPlanograms(statusId) {
                             if (plano.locked) {
                                 submitBtn = submitBtn + ' disable-click '
                             }
-                            submitBtn = submitBtn + '" data-planogramid="' + plano.planogramId + '">Submit</a>';
+                            submitBtn = submitBtn + '" data-planogramid="' + plano.id + '">Submit</a>';
                             break;
                         case 2: //submitted
-                            approveBtn = '<a href="javascript:void(0);" id=btnApprovePlanogram" value="Approve" name="btnApprovePlanogram" class="butn btn-approve-planogram planogram-buttons"  data-planogramid="' + plano.planogramId + '">Approve</a>';
-                            rejectBtn = '<a href="javascript:void(0);" id=btnRejectPlanogram" value="Reject" name="btnRejectPlanogram" class="butn btn-reject-planogram planogram-buttons"  data-planogramid="' + plano.planogramId + '">Reject</a>';
-                            archiveBtn = '<a href="javascript:void(0);" id=btnArchivePlanogram" value="Archive" name="btnArchivePlanogram" class="butn btn-archive-planogram planogram-buttons"  data-planogramid="' + plano.planogramId + '">Archive</a>';
+                            approveBtn = '<a href="javascript:void(0);" id=btnApprovePlanogram" value="Approve" name="btnApprovePlanogram" class="butn btn-approve-planogram planogram-buttons"  data-planogramid="' + plano.id + '">Approve</a>';
+                            rejectBtn = '<a href="javascript:void(0);" id=btnRejectPlanogram" value="Reject" name="btnRejectPlanogram" class="butn btn-reject-planogram planogram-buttons"  data-planogramid="' + plano.id + '">Reject</a>';
+                            archiveBtn = '<a href="javascript:void(0);" id=btnArchivePlanogram" value="Archive" name="btnArchivePlanogram" class="butn btn-archive-planogram planogram-buttons"  data-planogramid="' + plano.id + '">Archive</a>';
                             break;
                         case 5: //approved
                             var valLable = "Validate";
@@ -1093,11 +1093,11 @@ function DisplayPlanograms(statusId) {
                             {
                                 valLable = "UnValidate"
                             }
-                            validateBtn = '<a href="javascript:void(0);" id=btnValidatePlanogram" value="Archive" name="btnValidatePlanogram" class="butn btn-validate-planogram planogram-buttons"  data-planogramid="' + plano.planogramId + '">' + valLable + '</a>';
-                            //buttonRow = buttonRow + '<a href="javascript:void(0);" id=btnUnValidatePlanogram" value="Archive" name="btnUnValidatePlanogram" class="butn btn-unvalidate-planogram planogram-buttons"  data-planogramid="' + plano.planogramId + '"></a>';
-                            archiveBtn = '<a href="javascript:void(0);" id=btnArchivePlanogram" value="Archive" name="btnArchivePlanogram" class="butn btn-archive-planogram planogram-buttons"  data-planogramid="' + plano.planogramId + '">Archive</a>';
+                            validateBtn = '<a href="javascript:void(0);" id=btnValidatePlanogram" value="Archive" name="btnValidatePlanogram" class="butn btn-validate-planogram planogram-buttons"  data-planogramid="' + plano.id + '">' + valLable + '</a>';
+                            //buttonRow = buttonRow + '<a href="javascript:void(0);" id=btnUnValidatePlanogram" value="Archive" name="btnUnValidatePlanogram" class="butn btn-unvalidate-planogram planogram-buttons"  data-planogramid="' + plano.id + '"></a>';
+                            archiveBtn = '<a href="javascript:void(0);" id=btnArchivePlanogram" value="Archive" name="btnArchivePlanogram" class="butn btn-archive-planogram planogram-buttons"  data-planogramid="' + plano.id + '">Archive</a>';
                             if (role.shopper) {
-                                orderBtn = '<a href="javascript:void(0);" id=btnAddToOrder" value="Archive" name="btnAddToOrder" class="butn btn-order-planogram planogram-buttons"  data-planogramid="' + plano.planogramId + '">Add To Order</a>';
+                                orderBtn = '<a href="javascript:void(0);" id=btnAddToOrder" value="Archive" name="btnAddToOrder" class="butn btn-order-planogram planogram-buttons"  data-planogramid="' + plano.id + '">Add To Order</a>';
                             }
                             break;
 
@@ -1365,17 +1365,17 @@ function DisplayArchivedPlanograms(jobCode, jobId, statusId) {
                     var tableNameCell = '<td class="planogram-tbl-cell planogram-name-cell">' +
                         '<div class="rename-container clearfix">' +
                         '<div class="planogram-name"><input name="" value="' +
-                        plano.name + '" class="planoName" planoid="' + plano.planogramId + '">' +
+                        plano.name + '" class="planoName" planoid="' + plano.id + '">' +
                         '<div class="plano-name-click" style="position:absolute; left:0; right:0; top:0; bottom:0;"></div></div>';
 
                     var planoInfo = '<div class="plano-modified-date">' + plano.formattedDateUpdated + '<br>by: ' + plano.lubName + '</div>';
 
-                    var saveAs = '<div class="saveas-container clearfix" planoid="' + plano.planogramId + '">' +
-                        '<div class="planogram-newname" planoid="' + plano.planogramId + '">' +
-                        '<input name="" type="text" value="' + plano.name + '" id="" class="planoNewName" planoid="' + plano.planogramId + '">' +
+                    var saveAs = '<div class="saveas-container clearfix" planoid="' + plano.id + '">' +
+                        '<div class="planogram-newname" planoid="' + plano.id + '">' +
+                        '<input name="" type="text" value="' + plano.name + '" id="" class="planoNewName" planoid="' + plano.id + '">' +
                         '</div>' +
-                        '<button type="button" id="btnJSSaveAs" class="btn-save-as planogram-buttons" data-planogramid="' + plano.planogramId + '" data-planogramtitle="' + plano.name + '">Save As</button>' +
-                        '<input type="button" id="btnCancelSaveAs" value="Cancel" planoid="' + plano.planogramId + '" class="btn-cancel-save-as-planogram planogram-buttons"></div>' +
+                        '<button type="button" id="btnJSSaveAs" class="btn-save-as planogram-buttons" data-planogramid="' + plano.id + '" data-planogramtitle="' + plano.name + '">Save As</button>' +
+                        '<input type="button" id="btnCancelSaveAs" value="Cancel" planoid="' + plano.id + '" class="btn-cancel-save-as-planogram planogram-buttons"></div>' +
                         '</td></tr>';
 
                     var buttonRow = '<tr class="button-row">' +
@@ -1383,20 +1383,20 @@ function DisplayArchivedPlanograms(jobCode, jobId, statusId) {
                         '<div class="plano-action-container accordion-content" style="display:none">' +
                         '<div class="button-row row">';
                     if (plano.hasVersion) {
-                        buttonRow = buttonRow + '<a href="javascript:void(0);" class="butn planogram-buttons view-version" type="button" style="display:block;" data-planogramid="' + plano.planogramId + '">View</a>';
+                        buttonRow = buttonRow + '<a href="javascript:void(0);" class="butn planogram-buttons view-version" type="button" style="display:block;" data-planogramid="' + plano.id + '">View</a>';
                     }
                     else if (plano.planogramPreviewSrc !== null && typeof (plano.planogramPreviewSrc) !== 'undefined') {
                         //if (plano.planogramPreviewSrc.substring(0, 4) == 'data') {
-                        buttonRow = buttonRow + '<a href="javascript:void(0);" id="btnPlanoPreview" data-planogramId="' + plano.planogramId + '" target="_blank" type="button" class="butn planogram-buttons view">View</a>';
+                        buttonRow = buttonRow + '<a href="javascript:void(0);" id="btnPlanoPreview" data-planogramId="' + plano.id + '" target="_blank" type="button" class="butn planogram-buttons view">View</a>';
                         //}
                     }
 
                     if (userRole !== "clientEditor") {
-                        buttonRow = buttonRow + '<button type="button" planoid="' + plano.planogramId + '" class="butn btn-save-as-action planogram-buttons">Save As</button>';
+                        buttonRow = buttonRow + '<button type="button" planoid="' + plano.id + '" class="butn btn-save-as-action planogram-buttons">Save As</button>';
                     }
-                    buttonRow = buttonRow + '<button type="button" name="" id=skulist-"' + plano.planogramId + '" class="butn btn-export-sku-list planogram-buttons" onclick="GetJsonSkuDownload(' + plano.planogramId + ', \'' + plano.name + '\')" data-planoid="' + plano.planogramId + '">Excel Planogram</button>';
+                    buttonRow = buttonRow + '<button type="button" name="" id=skulist-"' + plano.id + '" class="butn btn-export-sku-list planogram-buttons" onclick="GetJsonSkuDownload(' + plano.id + ', \'' + plano.name + '\')" data-planoid="' + plano.id + '">Excel Planogram</button>';
 
-                    buttonRow = buttonRow + '<button type="button" class="butn planogram-buttons view-notes" data-planogramid="' + plano.planogramId + '" data-planogramtitle="' + plano.name + '">Comments</button>' +
+                    buttonRow = buttonRow + '<button type="button" class="butn planogram-buttons view-notes" data-planogramid="' + plano.id + '" data-planogramtitle="' + plano.name + '">Comments</button>' +
                         '<span id="spnHasComments" class="has-comment">' + plano.commentCount + '</span>' +
                         '</div>';
 

@@ -19,7 +19,7 @@ namespace diam_planogram.Models.Shop
         //{
         //    var o = new OrderItemModel();
 
-        //    o.OrderItemId = orderItem.Id;
+        //    o.OrderItemId = orderItem.id;
         //    o.OrderId = orderItem.OrderId;
         //    o.Quantity = orderItem.Quantity;
         //    o.DateAdded = orderItem.DateAdded;
@@ -27,7 +27,7 @@ namespace diam_planogram.Models.Shop
         //    o.PartName = orderItem.PartName;
         //    o.PartNumber = orderItem.PartNumber;
         //    o.Price = orderItem.Price;
-        //    o.PlanogramId = orderItem.PlanogramId;
+        //    o.id = orderItem.id;
 
         //    return o;
         //}
