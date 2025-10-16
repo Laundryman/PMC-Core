@@ -28,7 +28,7 @@ namespace CoreSystem2024.ProxyServices
         Task<IEnumerable<PlanmMenuPart>> GetMenuCall(int planogramId);
         Task<IEnumerable<PlanmMenuPart>> GetCategoryMenuCall(int planogramId, int categoryId);
         Task<MenuDto> GetMenuCategoriesCall(int planogramId);
-        Task<PlanogramDto> GetPlanogramCall(int planogramId);
+        Task<PlanmPlanogramDto> GetPlanogramCall(int planogramId);
         Task<PlanmStandDto> GetStandCall(int standId);
 
         Task<string> GetPlanogramPreviewCall(int planogramId);
@@ -100,11 +100,6 @@ namespace CoreSystem2024.ProxyServices
         public async Task<IEnumerable<PlanmMenuPart>> GetMenuCall(int planogramId)
         {
 
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
@@ -112,10 +107,9 @@ namespace CoreSystem2024.ProxyServices
             var handler = new JwtSecurityTokenHandler();
             var jwtSecurityToken = handler.ReadJwtToken(accessToken);
             //_logger.LogError("access token " + " ---- " + jwtSecurityToken.ToString());
-            var uri = "api/v2/planx/get-menu/" + planogramId;
-            var url = string.Format("{0}{1}", domain, uri);
+            var url = "api/v2/planx/get-menu/" + planogramId;
             //maybe log something here
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmMenuPart>>(url);
             return response;
@@ -123,48 +117,18 @@ namespace CoreSystem2024.ProxyServices
 
         }
 
-        Task<IEnumerable<PlanmMenuPart>> IPlanxProxyApiService.GetCategoryMenuCall(int planogramId, int categoryId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<MenuDto> IPlanxProxyApiService.GetMenuCategoriesCall(int planogramId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<PlanogramDto> IPlanxProxyApiService.GetPlanogramCall(int planogramId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<PlanmStandDto> IPlanxProxyApiService.GetStandCall(int standId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<IEnumerable<PlanmMenuPart>> IPlanxProxyApiService.GetMenuCall(int planogramId)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<IEnumerable<PlanmMenuPart>> GetCategoryMenuCall(int planogramId, int categoryId)
         {
-
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
-            var uri = "api/v2/planx/get-category-menu/" + planogramId + "/" + categoryId;
-            var url = string.Format("{0}{1}", domain, uri);
+            var url = "api/v2/planx/get-category-menu/" + planogramId + "/" + categoryId;
             //maybe log something here
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmMenuPart>>(url);
             return response;
@@ -176,11 +140,6 @@ namespace CoreSystem2024.ProxyServices
         public async Task<MenuDto> GetMenuCategoriesCall(int planogramId)
         {
 
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
@@ -188,11 +147,8 @@ namespace CoreSystem2024.ProxyServices
 
 
 
-            var uri = "api/v2/planx/get-menu-categories/" + planogramId;
-            var url = string.Format("{0}{1}", domain, uri);
-            //maybe log something here
-
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var url = "api/v2/planx/get-menu-categories/" + planogramId;
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await httpClient.GetFromJsonAsync<MenuDto>(url);
             return response;
@@ -202,20 +158,15 @@ namespace CoreSystem2024.ProxyServices
         public async Task<PlanmPlanogramDto> GetPlanogramCall(int planogramId)
         {
 
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
-            var uri = "api/v2/planx/get-planogram/" + planogramId;
-            var url = string.Format("{0}{1}", domain, uri);
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var url = "api/v2/planx/get-planogram/" + planogramId;
+            
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await httpClient.GetFromJsonAsync<PlanmPlanogramDto>(url);
             return response;
@@ -225,21 +176,14 @@ namespace CoreSystem2024.ProxyServices
 
         public async Task<PlanmStandDto> GetStandCall(int standId)
         {
-
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
-            var uri = "api/v2/planx/get-stand/" + standId;
-            var url = string.Format("{0}{1}", domain, uri);
+            var url = "api/v2/planx/get-stand/" + standId;
 
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await httpClient.GetFromJsonAsync<PlanmStandDto>(url);
             return response;
@@ -249,39 +193,20 @@ namespace CoreSystem2024.ProxyServices
         public async Task<string> GetPlanogramPreviewCall(int planogramId)
         {
 
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
-            var uri = "api/v2/planx/get-planogram-preview/" + planogramId;
-            var url = string.Format("{0}{1}", domain, uri);
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var url = "api/v2/planx/get-planogram-preview/" + planogramId;
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await httpClient.GetFromJsonAsync<string>(url);
             return response;
 
         }
 
-        Task<IEnumerable<PlanmPartInfo>> IPlanxProxyApiService.GetPlanogramShelvesCall(int planogramId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<IEnumerable<PlanmPartInfo>> IPlanxProxyApiService.GetPlanogramPartsCall(int planogramId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<IEnumerable<PlanmPartInfo>> IPlanxProxyApiService.GetNewPlanogramPartsCall(int planogramId)
-        {
-            throw new NotImplementedException();
-        }
         //public async Task<IActionResult> GetLatestVersionCall(int planogramId)
         //{
 
@@ -313,20 +238,14 @@ namespace CoreSystem2024.ProxyServices
         //}
         public async Task<IEnumerable<PlanmPartInfo>> GetPlanogramShelvesCall(int planogramId)
         {
-
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
-            var uri = "api/v2/planx/get-planogram-shelves/" + planogramId;
-            var url = string.Format("{0}{1}", domain, uri);
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var url = "api/v2/planx/get-planogram-shelves/" + planogramId;
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmPartInfo>>(url);
             return response;
@@ -334,21 +253,12 @@ namespace CoreSystem2024.ProxyServices
 
         public async Task<IEnumerable<PlanmPartInfo>> GetPlanogramPartsCall(int planogramId)
         {
-
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
-
-            var uri = "api/v2/planx/get-planogram-parts/" + planogramId;
-            var url = string.Format("{0}{1}", domain, uri);
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var url = "api/v2/planx/get-planogram-parts/" + planogramId;
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmPartInfo>>(url);
             return response;
@@ -356,20 +266,11 @@ namespace CoreSystem2024.ProxyServices
 
         public async Task<IEnumerable<PlanmPartInfo>> GetNewPlanogramPartsCall(int planogramId)
         {
-
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
-            var uri = "api/v2/planx/get-new-parts/" + planogramId;
-            var url = string.Format("{0}{1}", domain, uri);
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var url = "api/v2/planx/get-new-parts/" + planogramId;
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmPartInfo>>(url);
             return response;
@@ -379,54 +280,18 @@ namespace CoreSystem2024.ProxyServices
 
         public async Task<IEnumerable<PlanogramPart>> GetNonMarketPartsCall(int planogramId)
         {
-
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
-
-            var uri = "api/v2/planx/get-nonmarket-parts/" + planogramId + "/" + UserInfo.DiamCountryId;
-            var url = string.Format("{0}{1}", domain, uri);
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var url = "api/v2/planx/get-nonmarket-parts/" + planogramId + "/" + UserInfo.DiamCountryId;
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanogramPart>>(url);
             return response;
 
         }
 
-        Task<IEnumerable<PlanmPartInfo>> IPlanxProxyApiService.GetScratchPadCall(int planogramId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<PartDto> IPlanxProxyApiService.GetPartCall(int partId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<PartProductsDto> IPlanxProxyApiService.GetPartProductsCall(int partId, int planogramId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<ProductShadesDto> IPlanxProxyApiService.GetProductShadesCall(int productId)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<IEnumerable<PlanmPartInfo>> GetScratchPadCall(int planogramId)
         {
-
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
@@ -434,9 +299,8 @@ namespace CoreSystem2024.ProxyServices
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
-            var uri = "api/v2/planx/get-planogram-scratchpad/" + planogramId;
-            var url = string.Format("{0}{1}", domain, uri);
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var url = "api/v2/planx/get-planogram-scratchpad/" + planogramId;
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmPartInfo>>(url);
             return response;
@@ -445,20 +309,14 @@ namespace CoreSystem2024.ProxyServices
         public async Task<PartDto> GetPartCall(int partId)
         {
 
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
-            var uri = "api/v2/planx/get-part/" + partId;
-            var url = string.Format("{0}{1}", domain, uri);
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var url = "api/v2/planx/get-part/" + partId;
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await httpClient.GetFromJsonAsync<PartDto>(url);
             return response;
@@ -466,21 +324,12 @@ namespace CoreSystem2024.ProxyServices
 
         public async Task<PartProductsDto> GetPartProductsCall(int partId, int planogramId)
         {
-
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
-            var uri = "api/v2/planx/get-part-products/" + partId + "/" + planogramId;
-            var url = string.Format("{0}{1}", domain, uri);
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var url = "api/v2/planx/get-part-products/" + partId + "/" + planogramId;
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await httpClient.GetFromJsonAsync<PartProductsDto>(url);
             return response;
@@ -490,21 +339,10 @@ namespace CoreSystem2024.ProxyServices
 
         public async Task<ProductShadesDto> GetProductShadesCall(int productId)
         {
-
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
-
-            var uri = "api/v2/planx/get-product-shades/" + productId;
-            var url = string.Format("{0}{1}", domain, uri);
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var url = "api/v2/planx/get-product-shades/" + productId;
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await httpClient.GetFromJsonAsync<ProductShadesDto>(url);
             return response;
@@ -514,26 +352,20 @@ namespace CoreSystem2024.ProxyServices
         public async Task<String> GetPlanoLockCall(int planogramId)
         {
 
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-
-
             try
             {
                 //we need to re-auth using the reauth process
                 var memberIdentity = await _memberManager.GetCurrentMemberAsync();
                 if (memberIdentity != null)
                 {
-                    var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
+                    var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
                     var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-                    var uri = "api/v2/planx/get-plano-lock/" + planogramId + "/" + userInfo.Id + "/" +
+                    var url = "api/v2/planx/get-plano-lock/" + planogramId + "/" + userInfo.Id + "/" +
                               userInfo.DisplayName;
-                    var url = string.Format("{0}{1}", domain, uri);
+                    
                     //maybe log something here
-                    var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+                    var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
                     httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
                     var response = await httpClient.GetFromJsonAsync<string>(url);
                     return response;
@@ -555,22 +387,11 @@ namespace CoreSystem2024.ProxyServices
         public async Task<int> GetPlanoComCountCall(int planogramId)
         {
 
-            string domain = _configuration["AppSettings:ApiUrl"];
             string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-
-
-            //we need to re-auth using the reauth process
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
-
-            var uri = "api/v2/planogram/getCommentCount/" + planogramId + "/" + brand;
-            var url = string.Format("{0}{1}", domain, uri);
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var url = "api/v2/planogram/getCommentCount/" + planogramId + "/" + brand;
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await httpClient.GetFromJsonAsync<int>(url);
             return response;
@@ -578,22 +399,11 @@ namespace CoreSystem2024.ProxyServices
         }
         public async Task<string> UnlockCall(int planogramId)
         {
-
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
-
-            var uri = "api/v2/planogram/unlock/" + planogramId;
-            var url = string.Format("{0}{1}", domain, uri);
+            var url = "api/v2/planogram/unlock/" + planogramId;
             //maybe log something here
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await httpClient.GetFromJsonAsync<string>(url);
             return response;
@@ -606,13 +416,6 @@ namespace CoreSystem2024.ProxyServices
         {
             _logger.LogDebug("Save Cassettes call start ");
 
-
-
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
@@ -622,9 +425,8 @@ namespace CoreSystem2024.ProxyServices
             var json = JsonConvert.SerializeObject(planogramData);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var uri = "api/v2/planx/save-planogramV2/";
-            var url = string.Format("{0}{1}", domain, uri);
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var url = "api/v2/planx/save-planogramV2/";
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             _logger.LogDebug("Save planogram make call ");
@@ -651,27 +453,13 @@ namespace CoreSystem2024.ProxyServices
         public async Task<HttpResponseMessage> SaveCassettesCall(PlanmShelfInfoList shelves)
         {
             _logger.LogDebug("Save Cassettes call start ");
-
-
-
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
-
             var json = JsonConvert.SerializeObject(shelves);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var url = "api/v2/planx/save-planogram-cassettes/";
 
-            var uri = "api/v2/planx/save-planogram-cassettes/";
-            var url = string.Format("{0}{1}", domain, uri);
-
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             httpClient.PutAsJsonAsync<PlanmShelfInfoList>(url, shelves);
             _logger.LogDebug("Save Cassettes make call ");
@@ -684,21 +472,10 @@ namespace CoreSystem2024.ProxyServices
         public async Task<HttpResponseMessage> SavePlanogramJpegCall(PlanmPlanoImageDto planoJpeg)
         {
             _logger.LogDebug("Save planogram jpg call start ");
-
-
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
-            var uri = "api/v2/planx/save-planogram-jpeg-image/";
-            var url = string.Format("{0}{1}", domain, uri);
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var url = "api/v2/planx/save-planogram-jpeg-image/";
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             _logger.LogDebug("Save planogram svg make call ");
 
@@ -723,24 +500,12 @@ namespace CoreSystem2024.ProxyServices
         public async Task<HttpResponseMessage> SavePlanogramSvgCall(PlanmPlanoImageDto planoSvg)
         {
             _logger.LogDebug("Save planogram svg call start ");
-
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
-
             var json = JsonConvert.SerializeObject(planoSvg);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var uri = "api/v2/planx/save-planogram-svg-image/";
-            var url = string.Format("{0}{1}", domain, uri);
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var url = "api/v2/planx/save-planogram-svg-image/";
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             await httpClient.PutAsJsonAsync<PlanmPlanoImageDto>(url, planoSvg);
             _logger.LogDebug("Save planogram svg make call ");
@@ -753,12 +518,6 @@ namespace CoreSystem2024.ProxyServices
         {
             _logger.LogDebug("Get planogram pdf call start ");
 
-
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
@@ -766,9 +525,8 @@ namespace CoreSystem2024.ProxyServices
             var json = JsonConvert.SerializeObject(planoSvg);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var uri = "api/v2/planx/get-planogram-pdf/";
-            var url = string.Format("{0}{1}", domain, uri);
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
+            var url = "api/v2/planx/get-planogram-pdf/";
+            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             _logger.LogDebug("Get Planogram PDF make call ");

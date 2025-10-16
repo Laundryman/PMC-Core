@@ -371,7 +371,7 @@ namespace CoreSystem2024.ProxyServices
                 }
 
 
-                var uri = "api/v2/planogram/get/archived/job/" + (isPowerUser ? 1 : 0) + "/" + jobId + "/" + jobCode +
+                var url = "api/v2/planogram/get/archived/job/" + (isPowerUser ? 1 : 0) + "/" + jobId + "/" + jobCode +
                           "/" + brandId + "/" + countryId + "/" + regionId + "/" + standTypeId + "/" +
                           (isDiamUser ? 1 : 0);
                 //var uri = "api/v2/planogram/get/archived/job/" + jobId + "/" + jobCode + "/" + brandId + "/" + countryId + "/" + regionId + "/" + standTypeId;
@@ -379,7 +379,6 @@ namespace CoreSystem2024.ProxyServices
                 var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
-                var url = string.Format("{0}{1}", domain, uri);
                 var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
                 var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanogramInfo>>(url);

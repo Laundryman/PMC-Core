@@ -13,6 +13,7 @@ using Umbraco.Cms.Core.Security;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
 using System.Net.Http;
 using dplo_shop.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Graph.Models;
 using PMApplication.Dtos.PlanModels;
@@ -22,6 +23,7 @@ using PMApplication.Specifications.Filters;
 
 namespace CoreSystem2024.Controllers.Planx
 {
+    [Authorize]
     public class PlanxApiController : BaseApiController
     {
 
@@ -34,7 +36,7 @@ namespace CoreSystem2024.Controllers.Planx
         private readonly IPlanxProxyApiService proxyApi;
         private readonly IMemberManager _memberManager;
         private readonly IOrderService _orderService;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        //private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IConfiguration _config;
 
         #endregion
@@ -43,13 +45,13 @@ namespace CoreSystem2024.Controllers.Planx
 
         #region LocalApiCalls
 
-        public PlanxApiController(ICategoryService categoryService, ICountryService countryService, IPlanogramService planogramService, IOrderService orderService, IStandService standService, ILogger<PlanxApiController> logger, IMemberManager memberManager, IPlanxProxyApiService proxyApi, IConfiguration config, SignInManager<IdentityUser> signInManager) : base(config)
+        public PlanxApiController(ICategoryService categoryService, ICountryService countryService, IPlanogramService planogramService, IOrderService orderService, IStandService standService, ILogger<PlanxApiController> logger, IMemberManager memberManager, IPlanxProxyApiService proxyApi, IConfiguration config) : base(config)
         {
             _logger = logger;
             _memberManager = memberManager;
             this.proxyApi = proxyApi;
             _config = config;
-            _signInManager = signInManager;
+            //_signInManager = signInManager;
             _planogramService = planogramService;
             _orderService = orderService;
             _countryService = countryService;
@@ -289,9 +291,7 @@ namespace CoreSystem2024.Controllers.Planx
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             if (memberIdentity != null)
             {
-                var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(memberIdentity);
-                var userProfile = AuthHelper.GetUserInfo(claimsPrincipal);
-                var userInfo = AuthHelper.GetUserInfo(claimsPrincipal);
+                var userProfile = AuthHelper.GetUserInfo(memberIdentity);
                 planogramData.UserId = userProfile.Id;
                 planogramData.UserName = userProfile.DisplayName;
                 planogramData.CountryId = userProfile.DiamCountryId;
