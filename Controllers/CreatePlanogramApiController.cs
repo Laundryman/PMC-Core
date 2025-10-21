@@ -13,6 +13,7 @@ using PMApplication.Dtos.PlanModels;
 using PMApplication.Entities.CountriesAggregate;
 using PMApplication.Entities.PlanogramAggregate;
 using PMApplication.Interfaces.ServiceInterfaces;
+using PMApplication.Specifications.Filters;
 using Umbraco.Cms.Core.Security;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
 
@@ -173,8 +174,13 @@ namespace CoreSystem2024.Controllers
                 var claimsPrincipal = ClaimsPrincipal.Current;
 
                 var userProfile = AuthHelper.GetUserInfo(claimsPrincipal);
+                var filter = new PlanogramLockFilter
+                {
+                    PlanogramId = planogramId,
+                    User = userProfile
+                };
                 
-                _planogramService.UnLockPlanogram(planogramId, userProfile);
+                await _planogramService.UnLockPlanogram(filter);
                 return Ok();
             }
             catch (Exception Ex)

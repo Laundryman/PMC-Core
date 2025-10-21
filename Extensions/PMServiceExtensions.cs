@@ -61,7 +61,7 @@ namespace CoreSystem2024.Extensions
             builder.Services.AddTransient<IPartRepository, PartRepository>();
             builder.Services.AddTransient<IPartTypeRepository, PartTypeRepository>();
             builder.Services.AddTransient<IPlanogramRepository, PlanogramRepository>();
-            //builder.Services.AddTransient<IPlanogramLockRepository, PlanogramLockRepository>();
+            builder.Services.AddTransient<IPlanogramLockRepository, PlanogramLockRepository>();
             builder.Services.AddTransient<IPlanogramNoteRepository, PlanogramNoteRepository>();
             builder.Services.AddTransient<IPlanogramPartRepository, PlanogramPartRepository>();
             //builder.Services.AddTransient<IPlanogramPartFacingRepository, PlanogramPartFacingRepository>();

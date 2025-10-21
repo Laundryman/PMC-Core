@@ -87,8 +87,13 @@ namespace diam_planogram.Controllers
 
                     try
                     {
-                        //string userId = UserInfo.id;
-                        _planogramService.UnLockPlanogram(planoIdToUnLock, userInfo);
+                        var lockFilter = new PlanogramLockFilter
+                        {
+                            PlanogramId = planoIdToUnLock,
+                            User = userInfo
+                        };
+                    //string userId = UserInfo.id;
+                    await _planogramService.UnLockPlanogram(lockFilter);
                     }
                     catch (Exception Ex)
                     {

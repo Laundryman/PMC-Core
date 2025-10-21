@@ -516,12 +516,15 @@ namespace CoreSystem2024.Controllers.Planx
             {
                 var memberIdentity = await _memberManager.GetCurrentMemberAsync();
 
-                //var userProfile = AuthHelper.GetUserInfo(memberIdentity);
+                var lockFilter = new PlanogramLockFilter
+                {
+                    PlanogramId = planogramId
+                };
 
-                var isLocked = _planogramService.IsLocked(planogramId, null);
+                var isLocked = await _planogramService.IsLocked(lockFilter);
                 if (isLocked)
                 {
-                    _planogramService.UnLockPlanogram(planogramId);
+                    await _planogramService.UnLockPlanogram(lockFilter);
                 }
 
                 return Ok();
