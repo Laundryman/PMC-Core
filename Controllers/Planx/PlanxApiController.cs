@@ -296,6 +296,7 @@ namespace CoreSystem2024.Controllers.Planx
                 planogramData.UserName = userProfile.DisplayName;
                 planogramData.CountryId = userProfile.DiamCountryId;
                 planogramData.UserRoles = userProfile.Roles;
+                planogramData.BrandId = BrandId;
             }
 
             _logger.LogDebug("Save Planogram start ");

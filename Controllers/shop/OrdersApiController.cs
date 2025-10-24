@@ -534,7 +534,7 @@ namespace CoreSystem2024.Controllers.shop
 
             var response = new ApiResponseModel();
 
-            var part = _partService.GetPart(model.PartId);
+            var part = await _partService.GetPart(model.PartId);
             var order = await _orderService.GetOrder(model.OrderId.Value);
 
             if (order.OrderStatus != (int)OrderStatusEnum.Open)
