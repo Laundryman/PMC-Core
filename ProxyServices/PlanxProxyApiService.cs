@@ -99,20 +99,29 @@ namespace CoreSystem2024.ProxyServices
 
         public async Task<IEnumerable<PlanmMenuPart>> GetMenuCall(int planogramId)
         {
+            try
+            {
 
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-            var handler = new JwtSecurityTokenHandler();
-            var jwtSecurityToken = handler.ReadJwtToken(accessToken);
-            //_logger.LogError("access token " + " ---- " + jwtSecurityToken.ToString());
-            var url = "api/v2/planx/get-menu/" + planogramId;
-            //maybe log something here
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmMenuPart>>(url);
-            return response;
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var handler = new JwtSecurityTokenHandler();
+                var jwtSecurityToken = handler.ReadJwtToken(accessToken);
+                //_logger.LogError("access token " + " ---- " + jwtSecurityToken.ToString());
+                var url = "api/v2/planx/get-menu/" + planogramId;
+                //maybe log something here
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmMenuPart>>(url);
+                return response;
+                //return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GetMenuCall error: " + ex.Message);
+                throw ex;
+            }
 
 
         }
@@ -120,18 +129,25 @@ namespace CoreSystem2024.ProxyServices
 
         public async Task<IEnumerable<PlanmMenuPart>> GetCategoryMenuCall(int planogramId, int categoryId)
         {
+            try
+            {
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
-            var url = "api/v2/planx/get-category-menu/" + planogramId + "/" + categoryId;
-            //maybe log something here
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmMenuPart>>(url);
-            return response;
+                var url = "api/v2/planx/get-category-menu/" + planogramId + "/" + categoryId;
+                //maybe log something here
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmMenuPart>>(url);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GetCategoryMenuCall error: " + ex.Message);
+                throw ex;
+            }
 
 
 
@@ -139,213 +155,279 @@ namespace CoreSystem2024.ProxyServices
 
         public async Task<MenuDto> GetMenuCategoriesCall(int planogramId)
         {
+            try
+            {
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
 
-            var url = "api/v2/planx/get-menu-categories/" + planogramId;
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<MenuDto>(url);
-            return response;
+                var url = "api/v2/planx/get-menu-categories/" + planogramId;
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<MenuDto>(url);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GetMenuCategoriesCall error: " + ex.Message);
+                throw ex;
+            }
+
 
         }
 
         public async Task<PlanmPlanogramDto> GetPlanogramCall(int planogramId)
         {
+            try
+            {
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
-            var url = "api/v2/planx/get-planogram/" + planogramId;
-            
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<PlanmPlanogramDto>(url);
-            return response;
+                var url = "api/v2/planx/get-planogram/" + planogramId;
+
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<PlanmPlanogramDto>(url);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GetPlanogramCall error: " + ex.Message);
+                throw ex;
+            }
 
         }
 
 
         public async Task<PlanmStandDto> GetStandCall(int standId)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            try
+            {
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
-            var url = "api/v2/planx/get-stand/" + standId;
+                var url = "api/v2/planx/get-stand/" + standId;
 
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<PlanmStandDto>(url);
-            return response;
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<PlanmStandDto>(url);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GetStandCall error: " + ex.Message);
+                throw ex;
+            }
 
 
         }
+
         public async Task<string> GetPlanogramPreviewCall(int planogramId)
         {
+            try
+            {
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
 
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
-            var url = "api/v2/planx/get-planogram-preview/" + planogramId;
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<string>(url);
-            return response;
+                var url = "api/v2/planx/get-planogram-preview/" + planogramId;
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<string>(url);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GetPlanogramPreviewCall error: " + ex.Message);
+                throw ex;
 
+            }
         }
 
-        //public async Task<IActionResult> GetLatestVersionCall(int planogramId)
-        //{
 
-        //    string domain = _configuration["AppSettings:ApiUrl"];
-        //    string brand = _configuration["AppSettings:ClientBrandId"];
-        //    string readScope = _configuration["AzureB2C:ReadScope"];
-        //    string writeScope = _configuration["AzureB2CWriteScope"];
-
-        //    var accessToken = await AuthHelper.GetAccessToken(new string[] { readScope });
-
-        //    var uri = "api/v2/planx/get-latest-version/" + planogramId;
-        //    var url = string.Format("{0}{1}", domain, uri);
-
-        //    using (SecureHttpClient<string> httpClient = new SecureHttpClient<string>(domain, uri, _configuration))
-        //    {
-
-        //        try
-        //        {
-        //            var response = await httpClient.Get(accessToken);
-        //            return response;
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            throw (ex);
-        //        }
-        //    }
-
-
-        //}
         public async Task<IEnumerable<PlanmPartInfo>> GetPlanogramShelvesCall(int planogramId)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            try
+            {
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
-            var url = "api/v2/planx/get-planogram-shelves/" + planogramId;
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmPartInfo>>(url);
-            return response;
+                var url = "api/v2/planx/get-planogram-shelves/" + planogramId;
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmPartInfo>>(url);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GetPlanogramShelvesCall error: " + ex.Message);
+                throw ex;
+            }
         }
 
         public async Task<IEnumerable<PlanmPartInfo>> GetPlanogramPartsCall(int planogramId)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+            try
+            {
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-            var url = "api/v2/planx/get-planogram-parts/" + planogramId;
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmPartInfo>>(url);
-            return response;
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var url = "api/v2/planx/get-planogram-parts/" + planogramId;
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmPartInfo>>(url);
+                return response;
+                //return new List<PlanmPartInfo>();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GetPlanogramPartsCall error: " + ex.Message);
+                throw ex;
+            }
         }
 
         public async Task<IEnumerable<PlanmPartInfo>> GetNewPlanogramPartsCall(int planogramId)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+            try
+            {
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
-            var url = "api/v2/planx/get-new-parts/" + planogramId;
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmPartInfo>>(url);
-            return response;
+                var url = "api/v2/planx/get-new-parts/" + planogramId;
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmPartInfo>>(url);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GetNewPlanogramPartsCall error: " + ex.Message);
+                throw ex;
+            }
 
 
         }
 
         public async Task<IEnumerable<PlanogramPart>> GetNonMarketPartsCall(int planogramId)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-            var url = "api/v2/planx/get-nonmarket-parts/" + planogramId + "/" + UserInfo.DiamCountryId;
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanogramPart>>(url);
-            return response;
+            try
+            {
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var url = "api/v2/planx/get-nonmarket-parts/" + planogramId + "/" + UserInfo.DiamCountryId;
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanogramPart>>(url);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GetNonMarketPartsCall error: " + ex.Message);
+                throw ex;
+            }
 
         }
 
         public async Task<IEnumerable<PlanmPartInfo>> GetScratchPadCall(int planogramId)
         {
+            try
+            {
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
-            var url = "api/v2/planx/get-planogram-scratchpad/" + planogramId;
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmPartInfo>>(url);
-            return response;
+                var url = "api/v2/planx/get-planogram-scratchpad/" + planogramId;
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmPartInfo>>(url);
+                return response;
+                //return new List<PlanmPartInfo>();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GetScratchPadCall error: " + ex.Message);
+                throw ex;
+            }
         }
 
         public async Task<PartDto> GetPartCall(int partId)
         {
+            try
+            {
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
-            var url = "api/v2/planx/get-part/" + partId;
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<PartDto>(url);
-            return response;
+                var url = "api/v2/planx/get-part/" + partId;
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<PartDto>(url);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GetPartCall error: " + ex.Message);
+                throw ex;
+            }
         }
 
         public async Task<PartProductsDto> GetPartProductsCall(int partId, int planogramId)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+            try
+            {
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
-            var url = "api/v2/planx/get-part-products/" + partId + "/" + planogramId;
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<PartProductsDto>(url);
-            return response;
+                var url = "api/v2/planx/get-part-products/" + partId + "/" + planogramId;
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<PartProductsDto>(url);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GetPartProductsCall error: " + ex.Message);
+                throw ex;
+            }
 
         }
 
 
         public async Task<ProductShadesDto> GetProductShadesCall(int productId)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-            var url = "api/v2/planx/get-product-shades/" + productId;
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<ProductShadesDto>(url);
-            return response;
+            try
+            {
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var url = "api/v2/planx/get-product-shades/" + productId;
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<ProductShadesDto>(url);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GetProductShadesCall error: " + ex.Message);
+                throw ex;
+            }
 
         }
 
@@ -386,27 +468,42 @@ namespace CoreSystem2024.ProxyServices
 
         public async Task<int> GetPlanoComCountCall(int planogramId)
         {
-
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-            var url = "api/v2/planogram/getCommentCount/" + planogramId + "/" + brand;
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<int>(url);
-            return response;
+            try
+            {
+                string brand = _configuration["AppSettings:ClientBrandId"];
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var url = "api/v2/planogram/getCommentCount/" + planogramId + "/" + brand;
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<int>(url);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GetPlanoComCountCall error: " + ex.Message);
+                throw ex;
+            }
 
         }
         public async Task<string> UnlockCall(int planogramId)
         {
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-            var url = "api/v2/planogram/unlock/" + planogramId;
-            //maybe log something here
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<string>(url);
-            return response;
+            try
+            {
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var url = "api/v2/planogram/unlock/" + planogramId;
+                //maybe log something here
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<string>(url);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("UnlockCall error: " + ex.Message);
+                throw ex;
+            }
 
         }
 
@@ -415,34 +512,41 @@ namespace CoreSystem2024.ProxyServices
         public async Task<HttpResponseMessage> SavePlanogramCallV2(PlanmPlanogramInfo planogramData)
         {
             _logger.LogDebug("Save Cassettes call start ");
-
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
-
-            var json = JsonConvert.SerializeObject(planogramData);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var url = "api/v2/planx/save-planogramV2/";
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            _logger.LogDebug("Save planogram make call ");
-
-
-            using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url))
+            try
             {
-                request.Content = content;
-                var response = await httpClient.SendAsync(request);
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
-                var StatusText = response.StatusCode + " " + response.ReasonPhrase + Environment.NewLine;
-                var responseBodyAsText = await response.Content.ReadAsStringAsync();
-                responseBodyAsText = responseBodyAsText.Replace("<br>", Environment.NewLine); // Insert new lines
-                _logger.LogDebug("response from save = " + response + " :: " + StatusText);
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
-                return response;
+
+                var json = JsonConvert.SerializeObject(planogramData);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var url = "api/v2/planx/save-planogram/";
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+                _logger.LogDebug("Save planogram make call ");
+
+
+                using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url))
+                {
+                    request.Content = content;
+                    var response = await httpClient.SendAsync(request);
+
+                    var StatusText = response.StatusCode + " " + response.ReasonPhrase + Environment.NewLine;
+                    var responseBodyAsText = await response.Content.ReadAsStringAsync();
+                    responseBodyAsText = responseBodyAsText.Replace("<br>", Environment.NewLine); // Insert new lines
+                    _logger.LogDebug("response from save = " + response + " :: " + StatusText);
+
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("SavePlanogramCallV2 error: " + ex.Message);
+                throw ex;
             }
 
 
@@ -453,18 +557,26 @@ namespace CoreSystem2024.ProxyServices
         public async Task<HttpResponseMessage> SaveCassettesCall(PlanmShelfInfoList shelves)
         {
             _logger.LogDebug("Save Cassettes call start ");
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-            var json = JsonConvert.SerializeObject(shelves);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var url = "api/v2/planx/save-planogram-cassettes/";
+            try
+            {
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var json = JsonConvert.SerializeObject(shelves);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var url = "api/v2/planx/save-planogram-cassettes/";
 
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            httpClient.PutAsJsonAsync<PlanmShelfInfoList>(url, shelves);
-            _logger.LogDebug("Save Cassettes make call ");
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                httpClient.PutAsJsonAsync<PlanmShelfInfoList>(url, shelves);
+                _logger.LogDebug("Save Cassettes make call ");
 
-            return new HttpResponseMessage(HttpStatusCode.OK);
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("SaveCassettesCall error: " + ex.Message);
+                throw ex;
+            }
 
         }
 
@@ -472,67 +584,93 @@ namespace CoreSystem2024.ProxyServices
         public async Task<HttpResponseMessage> SavePlanogramJpegCall(PlanmPlanoImageDto planoJpeg)
         {
             _logger.LogDebug("Save planogram jpg call start ");
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-            var url = "api/v2/planx/save-planogram-jpeg-image/";
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            _logger.LogDebug("Save planogram svg make call ");
-
-            using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url))
+            try
             {
-                //string imageFile = Convert.ToBase64String(buffer);
-                var json = JsonConvert.SerializeObject(planoJpeg);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var url = "api/v2/planx/save-planogram-jpeg-image/";
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                _logger.LogDebug("Save planogram svg make call ");
 
-                request.Content = content;
-                var response = await httpClient.SendAsync(request);
+                using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url))
+                {
+                    //string imageFile = Convert.ToBase64String(buffer);
+                    var json = JsonConvert.SerializeObject(planoJpeg);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var StatusText = response.StatusCode + " " + response.ReasonPhrase + Environment.NewLine;
-                var responseBodyAsText = await response.Content.ReadAsStringAsync();
-                responseBodyAsText = responseBodyAsText.Replace("<br>", Environment.NewLine); // Insert new lines
-                _logger.LogDebug("response from save jpg = " + responseBodyAsText + " :: " + StatusText);
+                    request.Content = content;
+                    var response = await httpClient.SendAsync(request);
 
-                return response;
+                    var StatusText = response.StatusCode + " " + response.ReasonPhrase + Environment.NewLine;
+                    var responseBodyAsText = await response.Content.ReadAsStringAsync();
+                    responseBodyAsText = responseBodyAsText.Replace("<br>", Environment.NewLine); // Insert new lines
+                    _logger.LogDebug("response from save jpg = " + responseBodyAsText + " :: " + StatusText);
+
+                    return response;
+                }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError("SavePlanogramJpegCall error: " + ex.Message);
+                throw ex;
 
+            }
         }
+
         public async Task<HttpResponseMessage> SavePlanogramSvgCall(PlanmPlanoImageDto planoSvg)
         {
             _logger.LogDebug("Save planogram svg call start ");
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-            var json = JsonConvert.SerializeObject(planoSvg);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var url = "api/v2/planx/save-planogram-svg-image/";
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            await httpClient.PutAsJsonAsync<PlanmPlanoImageDto>(url, planoSvg);
-            _logger.LogDebug("Save planogram svg make call ");
+
+            try
+            {
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var json = JsonConvert.SerializeObject(planoSvg);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var url = "api/v2/planx/save-planogram-svg-image/";
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                await httpClient.PutAsJsonAsync<PlanmPlanoImageDto>(url, planoSvg);
+                _logger.LogDebug("Save planogram svg make call ");
 
 
-            return new HttpResponseMessage(HttpStatusCode.OK);
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("SavePlanogramSvgCall error: " + ex.Message);
+                throw ex;
+            }
         }
 
         public async Task<HttpResponseMessage> GetPlanoPDFCall(PlanmPlanoImageDto planoSvg)
         {
             _logger.LogDebug("Get planogram pdf call start ");
+            try
+            {
 
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
-            var json = JsonConvert.SerializeObject(planoSvg);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var json = JsonConvert.SerializeObject(planoSvg);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var url = "api/v2/planx/get-planogram-pdf/";
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var url = "api/v2/planx/get-planogram-pdf/";
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-            _logger.LogDebug("Get Planogram PDF make call ");
+                _logger.LogDebug("Get Planogram PDF make call ");
 
-            var response = await httpClient.PostAsync(url, content);
-            return response;
+                var response = await httpClient.PostAsync(url, content);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GetPlanoPDFCall error: " + ex.Message);
+                throw ex;
+            }
 
         }
 
