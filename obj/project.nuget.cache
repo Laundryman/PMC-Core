@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "uvX9tI5AND4=",
+  "dgSpecHash": "+N5q3uvJx8M=",
   "success": true,
   "projectFilePath": "C:\\Users\\nickr\\Dropbox\\Laundromat Media\\Projects\\DIAM\\Upgrade 3\\TestClient\\PMC-Core\\CoreSystem2024.csproj",
   "expectedPackageFiles": [
@@ -295,8 +295,10 @@
     {
       "code": "NU1608",
       "level": "Warning",
-      "warningLevel": 1,
       "message": "Detected package version outside of dependency constraint: Microsoft.CodeAnalysis.CSharp 4.10.0 requires Microsoft.CodeAnalysis.Common (= 4.10.0) but version Microsoft.CodeAnalysis.Common 4.14.0 was resolved.",
+      "projectPath": "C:\\Users\\nickr\\Dropbox\\Laundromat Media\\Projects\\DIAM\\Upgrade 3\\TestClient\\PMC-Core\\CoreSystem2024.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\nickr\\Dropbox\\Laundromat Media\\Projects\\DIAM\\Upgrade 3\\TestClient\\PMC-Core\\CoreSystem2024.csproj",
       "libraryId": "Microsoft.CodeAnalysis.Common",
       "targetGraphs": [
         "net9.0"
@@ -305,8 +307,10 @@
     {
       "code": "NU1902",
       "level": "Warning",
-      "warningLevel": 1,
       "message": "Package 'Microsoft.Identity.Web' 3.2.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-rpq8-q44m-2rpg",
+      "projectPath": "C:\\Users\\nickr\\Dropbox\\Laundromat Media\\Projects\\DIAM\\Upgrade 3\\TestClient\\PMC-Core\\CoreSystem2024.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\nickr\\Dropbox\\Laundromat Media\\Projects\\DIAM\\Upgrade 3\\TestClient\\PMC-Core\\CoreSystem2024.csproj",
       "libraryId": "Microsoft.Identity.Web",
       "targetGraphs": [
         "net9.0"
@@ -315,8 +319,10 @@
     {
       "code": "NU1902",
       "level": "Warning",
-      "warningLevel": 1,
       "message": "Package 'Umbraco.Cms.Web.Common' 15.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-69cg-w8vm-h229",
+      "projectPath": "C:\\Users\\nickr\\Dropbox\\Laundromat Media\\Projects\\DIAM\\Upgrade 3\\TestClient\\PMC-Core\\CoreSystem2024.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\nickr\\Dropbox\\Laundromat Media\\Projects\\DIAM\\Upgrade 3\\TestClient\\PMC-Core\\CoreSystem2024.csproj",
       "libraryId": "Umbraco.Cms.Web.Common",
       "targetGraphs": [
         "net9.0"

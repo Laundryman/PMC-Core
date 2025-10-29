@@ -14432,9 +14432,9 @@
       "Microsoft.EntityFrameworkCore >= 9.0.5",
       "Microsoft.EntityFrameworkCore.SqlServer >= 9.0.5",
       "Microsoft.Graph >= 5.83.0",
-      "Microsoft.Identity.Client >= 4.65.0",
-      "Microsoft.Identity.Web >= 3.2.0",
-      "Microsoft.Identity.Web.UI >= 3.2.0",
+      "Microsoft.identity.Client >= 4.65.0",
+      "Microsoft.identity.Web >= 3.2.0",
+      "Microsoft.identity.Web.UI >= 3.2.0",
       "PMApplication >= 1.0.0",
       "PMInfrastructure >= 1.0.0",
       "RazorEngine.NetCore >= 3.1.0",
@@ -14499,7 +14499,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.200"
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net9.0": {
@@ -14525,15 +14525,15 @@
             "target": "Package",
             "version": "[5.83.0, )"
           },
-          "Microsoft.Identity.Client": {
+          "Microsoft.identity.Client": {
             "target": "Package",
             "version": "[4.65.0, )"
           },
-          "Microsoft.Identity.Web": {
+          "Microsoft.identity.Web": {
             "target": "Package",
             "version": "[3.2.0, )"
           },
-          "Microsoft.Identity.Web.UI": {
+          "Microsoft.identity.Web.UI": {
             "target": "Package",
             "version": "[3.2.0, )"
           },
@@ -14586,7 +14586,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
       }
     }
   },

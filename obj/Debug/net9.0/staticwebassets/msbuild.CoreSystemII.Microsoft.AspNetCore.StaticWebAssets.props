@@ -16,6 +16,8 @@
       <Integrity>HPbUTNfGaIPH6iZZtEQVt8pmaIH/vyt5HVhiW3boSn0=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <FileLength>69620</FileLength>
+      <LastWriteTime>Tue, 14 Oct 2025 14:08:18 GMT</LastWriteTime>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\corescripts\yourRequests.js'))</OriginalItemSpec>
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\umbraco-package.json'))">
@@ -34,6 +36,8 @@
       <Integrity>qHPy4k/PXhMRMaZEICteeosy2Tu8004el7DBNod9ytU=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <FileLength>112</FileLength>
+      <LastWriteTime>Thu, 02 Oct 2025 14:46:10 GMT</LastWriteTime>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\umbraco-package.json'))</OriginalItemSpec>
     </StaticWebAsset>
   </ItemGroup>

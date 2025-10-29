@@ -2,7 +2,7 @@
 using CoreSystem2024.Models;
 using CoreSystem2024.Models.Shop;
 using CoreSystem2024.Models.Shop.Json;
-using CoreSystemII.Config;
+//using CoreSystemII.Config;
 using diam_planogram.Helpers;
 using diam_planogram.Models.Shop;
 using dplo_shop.Models;

@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Config\MapperConfig.cs" />
     <Compile Remove="Config\pmConfiguration.cs" />
     <Compile Remove="Controllers\AccountController.cs" />
     <Compile Remove="Controllers\AzureAccountController.cs" />
@@ -57,5 +58,10 @@
   <ItemGroup>
     <ProjectReference Include="..\PM-Application\PMApplication.csproj" />
     <ProjectReference Include="..\PM-Infrastructure\PMInfrastructure.csproj" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="Config\" />
   </ItemGroup>
 </Project>

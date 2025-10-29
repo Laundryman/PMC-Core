@@ -10,6 +10,7 @@ using PMApplication.Dtos;
 using PMApplication.Entities;
 using PMApplication.Entities.CountriesAggregate;
 using PMApplication.Entities.PlanogramAggregate;
+using PMApplication.Entities.StandAggregate;
 
 namespace CoreSystem2024.AutoMapper
 {
@@ -21,6 +22,8 @@ namespace CoreSystem2024.AutoMapper
             CreateMap<Brand, BrandDto>();
             CreateMap<Country, CountryDto>();
             CreateMap<Category, CategoryModel>();
+            CreateMap<StandType, StandTypeDto>();
+            //CreateMap<StandTypeDto, StandType>();
         }
     }
 }

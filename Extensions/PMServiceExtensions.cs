@@ -30,6 +30,7 @@ namespace CoreSystem2024.Extensions
             builder.Services.AddTransient<IOrderService, OrderService>();
             builder.Services.AddTransient<IOrderWindowService, OrderWindowService>();
             builder.Services.AddTransient<IPlanogramService, PlanogramService>();
+            //builder.Services.AddTransient<IPlanogramPreviewService, PlanogramPreviewService>();
             builder.Services.AddTransient<IProductService, ProductService>();
             builder.Services.AddTransient<IRegionService, RegionService>();
             builder.Services.AddTransient<IStandService, StandService>();
@@ -64,6 +65,7 @@ namespace CoreSystem2024.Extensions
             builder.Services.AddTransient<IPlanogramLockRepository, PlanogramLockRepository>();
             builder.Services.AddTransient<IPlanogramNoteRepository, PlanogramNoteRepository>();
             builder.Services.AddTransient<IPlanogramPartRepository, PlanogramPartRepository>();
+            builder.Services.AddTransient<IPlanogramPreviewRepository, PlanogramPreviewRepository>();
             //builder.Services.AddTransient<IPlanogramPartFacingRepository, PlanogramPartFacingRepository>();
             builder.Services.AddTransient<IPlanogramShelfRepository, PlanogramShelfRepository>();
             //builder.Services.AddTransient<IPlanogramStatusRepository, PlanogramStatusRepository>();

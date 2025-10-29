@@ -34,12 +34,15 @@ namespace diam_planogram.Controllers
         private readonly IMemberManager _memberManager;
         private readonly ILogger _logger;
         private readonly IMapper _mapper;
-        public CreatePlanogramController(ILogger<RenderController> logger, ICompositeViewEngine compositeViewEngine, IUmbracoContextAccessor umbracoContextAccessor, IStandService standService, IPlanogramService planogramService, IProductService productService, IConfiguration config, IConfiguration configuration, IMemberManager memberManager) : base(logger, compositeViewEngine, umbracoContextAccessor)
+        public CreatePlanogramController(ILogger<CreatePlanogramController> logger, ICompositeViewEngine compositeViewEngine, IUmbracoContextAccessor umbracoContextAccessor, IStandService standService, IPlanogramService planogramService, IProductService productService, IConfiguration config, IConfiguration configuration, IMemberManager memberManager, IMapper mapper) : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
             _standService = standService;
             _planogramService = planogramService;
+            Configuration = configuration;
             _config = configuration;
             _memberManager = memberManager;
+            _mapper = mapper;
+            _logger = logger;
             _azureSettings = config.GetSection("AzureB2C");
             config = config;
         }
@@ -61,8 +64,7 @@ namespace diam_planogram.Controllers
         {
 
                 var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-                var claimsPrincipal = ClaimsPrincipal.Current;
-                var userInfo = AuthHelper.GetUserInfo(claimsPrincipal);
+                var userInfo = AuthHelper.GetUserInfo(memberIdentity);
                 string urlReferrer = Request.Headers["Referer"].ToString();
                 //if (string.IsNullOrEmpty(urlReferrer))
                 //{
@@ -120,8 +122,9 @@ namespace diam_planogram.Controllers
                 //model.StandTypes = await _standService.GetStandTypesWithStands(model.BrandId).Select(st => (StandTypeDto)st).ToList();
 
                 var standTypes = await _standService.GetStandTypes(filter);
-                var stDtos = _mapper.Map<IReadOnlyList<StandTypeDto>>(standTypes);
-            return CurrentTemplate(stDtos);
+                var stDtos = _mapper.Map<List<StandTypeDto>>(standTypes);
+                model.StandTypes = stDtos;
+            return CurrentTemplate(model);
         }
     }
 }

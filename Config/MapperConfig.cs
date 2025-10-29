@@ -9,6 +9,7 @@ using PMApplication.Dtos;
 using PMApplication.Entities;
 using PMApplication.Entities.CountriesAggregate;
 using PMApplication.Entities.PlanogramAggregate;
+using PMApplication.Entities.StandAggregate;
 using Umbraco.Cms.Core.Models.Membership;
 
 namespace CoreSystemII.Config;
@@ -28,6 +29,7 @@ public class MapperConfig
             cfg.CreateMap<Category, CategoryModel>();
             cfg.CreateMap<Category, CategoryDto>();
             cfg.CreateMap<PlanogramNote, PNotesViewModel>();
+
             //Any Other Mapping Configuration ....
         });
         ////Create an Instance of Mapper and return that Instance

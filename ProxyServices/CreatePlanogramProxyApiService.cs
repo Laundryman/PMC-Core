@@ -49,119 +49,134 @@ namespace CoreSystem2024.ProxyServices
 
         public async Task<IEnumerable<SelectListItem>> GetStandsWithClusters(int standTypeId)
         {
+            try
+            {
+                string brand = _configuration["AppSettings:ClientBrandId"];
 
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var uriSuffix = "api/v2/stand/getBrandedWithClusters/" + brand + "/" + userInfo.DiamCountryId + "/" +
+                                standTypeId;
 
-            var uriSuffix = "api/v2/stand/getBrandedWithClusters/" + brand + "/" + userInfo.DiamCountryId + "/" + standTypeId;
-
-            //maybe log something here
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<IEnumerable<SelectListItem>>(uriSuffix);
-            return response;
+                //maybe log something here
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<IEnumerable<SelectListItem>>(uriSuffix);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetStandsWithClusters");
+                throw;
+            }
 
 
         }
 
         public async Task<IEnumerable<PlanmClusterDto>> GetClustersCall(int standId)
         {
+            try
+            {
+                string brand = _configuration["AppSettings:ClientBrandId"];
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
+                var uriSuffix = "api/v2/clusters/get/" + brand + "/" + standId;
 
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
-
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
-            var uriSuffix = "api/v2/clusters/get/" + brand + "/" + standId;
-
-            //maybe log something here
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmClusterDto>>(uriSuffix);
-            return response;
+                //maybe log something here
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmClusterDto>>(uriSuffix);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetClustersCall");
+                throw;
+            }
 
         }
 
         public async Task<IEnumerable<PlanmClusterDto>> GetTemplatesCall(int standId)
         {
             //var getPartURL = $("#apiURL").val() + "api/planogram/template/get/" + $('#brandId').val() + "/" + standId + "?token=" + _authCode + "&callback=?";
+            try
+            {
+                string brand = _configuration["AppSettings:ClientBrandId"];
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
 
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
+                var uriSuffix = "api/v2/planogram/template/get/" + brand + "/" + standId;
 
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                //maybe log something here
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmClusterDto>>(uriSuffix);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetTemplatesCall");
+                throw;
 
-            var uriSuffix = "api/v2/planogram/template/get/" + brand + "/" + standId;
-
-            //maybe log something here
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmClusterDto>>(uriSuffix);
-            return response;
+            }
         }
 
 
         public async Task<int> ClonePlanogramCall(int planogramId, string planoName)
         {
 
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
+            try
+            {
 
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
+                var uriSuffix = "api/v2/planogram/clone/" + planogramId + "/" + planoName;
 
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
-            var uriSuffix = "api/v2/planogram/clone/" + planogramId + "/" + planoName;
-
-            //maybe log something here
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<int>(uriSuffix);
-            return response;
+                //maybe log something here
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<int>(uriSuffix);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in ClonePlanogramCall");
+                throw;
+            }
 
         }
 
+
         public async Task<int> CreatePlanogramCall(int clusterId, string planoName)
         {
+            try
+            {
 
-            string domain = _configuration["AppSettings:ApiUrl"];
-            string brand = _configuration["AppSettings:ClientBrandId"];
-            string readScope = _configuration["AzureB2C:ReadScope"];
-            string writeScope = _configuration["AzureB2CWriteScope"];
-            //we need to re-auth using the reauth process
+                //string domain = _configuration["AppSettings:ApiUrl"];
+                string brand = _configuration["AppSettings:ClientBrandId"];
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
 
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
-            var url = domain + "api/v2/planogram/create/" + clusterId + "/" + planoName + "/" + brand;
-            var httpClient = _httpClientFactory.CreateClient("PmcApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<int>(url);
-            return response;
+                var url = "api/v2/planogram/create/" + clusterId + "/" + planoName + "/" + brand;
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<int>(url);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in CreatePlanogramCall");
+                throw;
+            }
         }
 
         #endregion
