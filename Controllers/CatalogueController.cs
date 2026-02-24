@@ -14,6 +14,7 @@ using AutoMapper;
 using diam_planogram.Models.Shop;
 using Microsoft.Extensions.Configuration;
 using PMApplication.Entities;
+using PMApplication.Dtos.Categories;
 using PMApplication.Entities.CountriesAggregate;
 using PMApplication.Entities.PartAggregate;
 using PMApplication.Enums;

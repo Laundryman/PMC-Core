@@ -322,10 +322,6 @@
               "target": "Package",
               "version": "[14.0.0, )"
             },
-            "Microsoft.CodeAnalysis.Common": {
-              "target": "Package",
-              "version": "[4.14.0, )"
-            },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[9.0.5, )"
