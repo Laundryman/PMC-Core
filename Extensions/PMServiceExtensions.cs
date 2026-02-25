@@ -20,7 +20,8 @@ namespace CoreSystem2024.Extensions
     {
         public static IUmbracoBuilder AddPMServices(this IUmbracoBuilder builder)
         {
-            builder.Services.AddAutoMapper(typeof(DiamClientProfile));
+
+            builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(DiamClientProfile)));
             builder.Services.AddTransient<ICategoryService, CategoryService>();
             builder.Services.AddTransient<IPartService, PartService>();
             builder.Services.AddTransient<ICountryService, CountryService>();

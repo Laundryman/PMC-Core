@@ -1,9 +1,11 @@
 ﻿
 using diam_planogram.Models.Shop;
 using PMApplication.Dtos;
+using PMApplication.Dtos.Categories;
 using PMApplication.Entities;
 using PMApplication.Entities.PartAggregate;
 using PMApplication.Entities.StandAggregate;
+using PMApplication.Entities.ProductAggregate;
 
 namespace CoreSystem2024.CMSModelBuilderModels
 {

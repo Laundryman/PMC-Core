@@ -318,25 +318,9 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
-            "AutoMapper": {
-              "target": "Package",
-              "version": "[14.0.0, )"
-            },
-            "Microsoft.EntityFrameworkCore": {
-              "target": "Package",
-              "version": "[9.0.5, )"
-            },
-            "Microsoft.EntityFrameworkCore.SqlServer": {
-              "target": "Package",
-              "version": "[9.0.5, )"
-            },
             "Microsoft.Graph": {
               "target": "Package",
               "version": "[5.83.0, )"
-            },
-            "Microsoft.identity.Client": {
-              "target": "Package",
-              "version": "[4.65.0, )"
             },
             "Microsoft.identity.Web": {
               "target": "Package",

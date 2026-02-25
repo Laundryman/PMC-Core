@@ -1,5 +1,5 @@
 ﻿
-using PMApplication.Dtos;
+using PMApplication.Dtos.StandTypes;
 
 namespace CoreSystem2024.Models
 {

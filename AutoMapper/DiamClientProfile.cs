@@ -11,6 +11,7 @@ using PMApplication.Entities;
 using PMApplication.Entities.CountriesAggregate;
 using PMApplication.Entities.PlanogramAggregate;
 using PMApplication.Entities.StandAggregate;
+using PMApplication.Dtos.StandTypes;
 
 namespace CoreSystem2024.AutoMapper
 {
