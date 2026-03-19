@@ -7,6 +7,7 @@ using AutoMapper;
 using CoreSystem2024.Models;
 using diam_planogram.Models.Shop;
 using PMApplication.Dtos;
+using PMApplication.Dtos.Categories;
 using PMApplication.Entities;
 using PMApplication.Entities.CountriesAggregate;
 using PMApplication.Entities.PlanogramAggregate;
@@ -24,6 +25,7 @@ namespace CoreSystem2024.AutoMapper
             CreateMap<Country, CountryDto>();
             CreateMap<Category, CategoryModel>();
             CreateMap<StandType, StandTypeDto>();
+            CreateMap<Category, CategoryDto>();
             //CreateMap<StandTypeDto, StandType>();
         }
     }

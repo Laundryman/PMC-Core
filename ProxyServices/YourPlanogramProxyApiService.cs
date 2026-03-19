@@ -201,7 +201,7 @@ namespace CoreSystem2024.ProxyServices
             var url = "api/v2/planogram/submit/" + planogramId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<string>(url);
+            var response = await httpClient.GetFromJsonAsync<long>(url);
             return planogramId;
 
         }
@@ -221,7 +221,7 @@ namespace CoreSystem2024.ProxyServices
             var url = "api/v2/planogram/approve/" + planogramId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<string>(url);
+            var response = await httpClient.GetFromJsonAsync<long>(url);
             return planogramId;
         }
 
@@ -240,7 +240,7 @@ namespace CoreSystem2024.ProxyServices
             var url = "api/v2/planogram/reject/" + planogramId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<string>(url);
+            var response = await httpClient.GetFromJsonAsync<long>(url);
             return planogramId;
         }
 
@@ -259,7 +259,7 @@ namespace CoreSystem2024.ProxyServices
             var url = "api/v2/planogram/validate/" + planogramId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<string>(url);
+            var response = await httpClient.GetFromJsonAsync<long>(url);
             return planogramId;
 
         }
@@ -269,18 +269,26 @@ namespace CoreSystem2024.ProxyServices
         {
 
 
+            try
+            {
+                var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+                //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
-            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
+                //            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
-            //            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+                var url = "api/v2/planogram/delete/" + planogramId;
+                var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await httpClient.GetFromJsonAsync<long>(url);
+                return planogramId;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error deleting planogram with id " + planogramId + ": " + ex.Message);
+                throw;
 
-            var url = "api/v2/planogram/delete/" + planogramId;
-            var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetFromJsonAsync<string>(url);
-            return planogramId;
+            }
 
         }
 

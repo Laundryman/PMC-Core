@@ -99,7 +99,7 @@ namespace diam_planogram.Controllers
                    catalogueModel.StandTypes = standTypes.ToList();
 
                 catalogueModel.ApiUrl = _config["AppSettings:ApiURL"];
-                catalogueModel.ServerUrl = _config["AppSettings:ServerURL"];
+                catalogueModel.ServerUrl = _config["AzureBlob:AzureBlobBaseUrl"] + _config["AzureBlob:ProductStoreContainer"];
 
 
                 catalogueModel.CountryId = country.Id;
@@ -126,14 +126,14 @@ namespace diam_planogram.Controllers
                     var hasProducts = await _partService.GetParts(filter);
                     if (hasProducts.Count > 0 && !notthese.Contains(cat.Id))
                     {
-                        var heroImageUrl = catalogueModel.ServerUrl + "/planogram/products/photo_art/placeholder.jpg";
-                        var heroProduct = _productService.GetHeroProduct(cat.Id, catalogueModel.BrandId);
+                        var heroImageUrl = catalogueModel.ServerUrl + "/placeholder.jpeg";
+                        var heroProduct = await _productService.GetHeroProduct(cat.Id, catalogueModel.BrandId);
                         if (heroProduct != null)
                         {
                             var catHeroProduct = await _productService.GetProduct(heroProduct.Id);
                             if (catHeroProduct != null)
                             {
-                                heroImageUrl = catalogueModel.ServerUrl + "/planogram/products/photo_art/" +
+                                heroImageUrl = catalogueModel.ServerUrl + "/" +
                                                catHeroProduct.ProductImage;
                             }
                         }
@@ -204,7 +204,7 @@ namespace diam_planogram.Controllers
                 var standTypes = await _standService.GetStandTypes(stFilter);
                 catalogueModel.StandTypes = standTypes.ToList();
                 catalogueModel.ApiUrl = _config["AppSettings:ApiURL"];
-                catalogueModel.ServerUrl = _config["AppSettings:ServerURL"];
+                catalogueModel.ServerUrl = _config["AzureBlob:AzureBlobBaseUrl"] + _config["AzureBlob:ProductStoreContainer"];
 
 
 
@@ -231,14 +231,14 @@ namespace diam_planogram.Controllers
                     var hasProducts = partsList.Any();
                     if (hasProducts && !notthese.Contains(cat.Id))
                     {
-                        var heroImageUrl = "placeholder.jpg";
+                        var heroImageUrl = catalogueModel.ServerUrl + "/" + "placeholder.jpeg";
                         var heroProduct = await _productService.GetHeroProduct(cat.Id, catalogueModel.BrandId);
                         if (heroProduct != null)
                         {
                             var catHeroProduct = await _productService.GetProduct(heroProduct.ProductId);
                             if (catHeroProduct != null)
                             {
-                                heroImageUrl = catalogueModel.ServerUrl + "/planogram/products/photo_art/" +
+                                heroImageUrl = catalogueModel.ServerUrl + "/" +
                                                catHeroProduct.ProductImage;
                             }
                         }

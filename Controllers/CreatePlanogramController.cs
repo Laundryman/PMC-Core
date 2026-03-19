@@ -112,7 +112,7 @@ namespace diam_planogram.Controllers
             model.UserLastName = userInfo.Surname;
             model.BrandId = int.Parse(_config["AppSettings:ClientBrandId"]);
             model.ApiUrl = _config["AppSettings:apiURL"];
-            model.ImageServerUrl = _config["AppSettings:ServerURL"];
+            model.ImageServerUrl = _config["AzureBlob:AzureBlobBaseUrl"] + _config["AzureBlob:StandTypeContainer"];
             model.UserRoles = userInfo.Roles;
             model.SystemRole = (int)systemRole;
 

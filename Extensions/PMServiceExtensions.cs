@@ -5,6 +5,7 @@ using CoreSystem2024.ProxyServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NPoco;
+using PMApplication.Interfaces;
 using PMApplication.Interfaces.RepositoryInterfaces;
 using PMApplication.Interfaces.ServiceInterfaces;
 using PMApplication.Services;
@@ -46,6 +47,8 @@ namespace CoreSystem2024.Extensions
 
         public static IUmbracoBuilder AddRepositories(this IUmbracoBuilder builder)
         {
+            builder.Services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
+            builder.Services.AddScoped(typeof(IAsyncRepositoryLong<>), typeof(EfRepositoryLong<>));
             builder.Services.AddTransient<IBrandRepository, BrandRepository>();
             builder.Services.AddTransient<ICategoryRepository, CategoryRepository>();
             builder.Services.AddTransient<IClusterRepository, ClusterRepository>();
