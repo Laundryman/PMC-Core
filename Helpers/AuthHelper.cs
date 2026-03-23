@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Security.Claims;
 using System.Text;
+using Lucene.Net.Index;
 //using CoreSystem2024.Config;
 using PMApplication.Dtos;
 using Umbraco.Cms.Core.Security;
@@ -101,22 +102,15 @@ namespace CoreSystem2024.Helpers
                 //var user = HttpRequest.GetOwinContext().Authentication.User.Claims;
                 //Check here if userinfo exists in the session (will be faster to use that)
                 var userInfo = new CurrentUser();
-                userInfo.GivenName = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value;
-                userInfo.Surname = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value;
-                userInfo.Email = user.Claims.FirstOrDefault(c => c.Type == "extension_userEmailAddress")?.Value;
+                userInfo.GivenName = user.Claims.FirstOrDefault(c => c.Type == "givenname")?.Value;
+                userInfo.Surname = user.Claims.FirstOrDefault(c => c.Type == "surname")?.Value;
+                userInfo.Email = user.Claims.FirstOrDefault(c => c.Type == "userEmailAddress")?.Value;
                 userInfo.Id = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;;
-                userInfo.Roles = user.Claims.FirstOrDefault(c => c.Type == "extension_diamRoles")?.Value;
+                userInfo.Roles = user.Claims.FirstOrDefault(c => c.Type == "DiamRoles")?.Value;
                 userInfo.DisplayName = user.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
-                var value = user.Claims
-                    .FirstOrDefault(c => c.Type == "extension_diamCountryId")?.Value;
-                if (value != null)
-                {
-                    userInfo.DiamCountryId = int.Parse(value);
-                    //if (user.FirstOrDefault(c => c.Type == "extension_diamUserId") != null) 
-                    //    userInfo.DiamUserId = int.Parse(user.FirstOrDefault(c => c.Type == "extension_diamUserId").Value);
-                    userInfo.Brands = user.Claims.FirstOrDefault(c => c.Type == "extension_brands")?.Value;
-                }
-
+                userInfo.UserName = user.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+                userInfo.DiamCountryId = int.Parse(user.Claims.FirstOrDefault(c => c.Type == "DiamCountryId")?.Value ?? "0");
+                userInfo.Brands = user.Claims.FirstOrDefault(c => c.Type == "brands")?.Value;
 
                 return userInfo;
             }
@@ -138,17 +132,17 @@ namespace CoreSystem2024.Helpers
                 //var user = HttpRequest.GetOwinContext().Authentication.User.Claims;
                 //Check here if userinfo exists in the session (will be faster to use that)
                 var userInfo = new CurrentUser();
-                userInfo.GivenName = user.Claims.FirstOrDefault(c => c.ClaimType == "given_name").ClaimValue;
-                userInfo.Email = user.Claims.FirstOrDefault(c => c.ClaimType == "extension_userEmailAddress").ClaimValue;
+                userInfo.GivenName = user.Claims.FirstOrDefault(c => c.ClaimType == "givenname").ClaimValue;
+                userInfo.Email = user.Claims.FirstOrDefault(c => c.ClaimType == "UserEmailAddress").ClaimValue;
                 userInfo.Id = user.Claims.FirstOrDefault(c => c.ClaimType == "sub").ClaimValue;
-                userInfo.Roles = user.Claims.FirstOrDefault(c => c.ClaimType == "extension_diamRoles").ClaimValue;
+                userInfo.Roles = user.Claims.FirstOrDefault(c => c.ClaimType == "DiamRoles").ClaimValue;
                 userInfo.DisplayName = user.Claims.FirstOrDefault(c => c.ClaimType == "name").ClaimValue;
-                userInfo.DiamCountryId = int.Parse(user.Claims.FirstOrDefault(c => c.ClaimType == "extension_diamCountryId").ClaimValue);
+                userInfo.DiamCountryId = int.Parse(user.Claims.FirstOrDefault(c => c.ClaimType == "DiamCountryId").ClaimValue);
                 //if (user.FirstOrDefault(c => c.Type == "extension_diamUserId") != null) 
                 //    userInfo.DiamUserId = int.Parse(user.FirstOrDefault(c => c.Type == "extension_diamUserId").Value);
-                userInfo.Brands = user.Claims.FirstOrDefault(c => c.ClaimType == "extension_brands").ClaimValue;
+                userInfo.Brands = user.Claims.FirstOrDefault(c => c.ClaimType == "Brands").ClaimValue;
                 userInfo.UserName = user.Claims.FirstOrDefault(c => c.ClaimType == "name").ClaimValue;
-                userInfo.Surname = user.Claims.FirstOrDefault(c => c.ClaimType == "family_name").ClaimValue;
+                userInfo.Surname = user.Claims.FirstOrDefault(c => c.ClaimType == "surname").ClaimValue;
 
 
                 return userInfo;
@@ -156,6 +150,7 @@ namespace CoreSystem2024.Helpers
             catch (Exception ex)
             {
                 //If it fails then there is something wrong with the auth - need to login again
+                var test = "fail";
             }
             //}
             //else
@@ -164,6 +159,8 @@ namespace CoreSystem2024.Helpers
             //}
             return null;
         }
+
+
         public static Guid SetUserSession(ClaimsPrincipal userInfo, HttpContext httpContext)
         {
             //Check User is valid for this client (scope should contain the client Id)

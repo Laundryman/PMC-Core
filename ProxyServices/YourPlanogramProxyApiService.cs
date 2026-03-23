@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Web;
 using PMApplication.Dtos;
 using PMApplication.Dtos.PlanModels;
 using PMApplication.Entities.CountriesAggregate;
@@ -42,7 +43,7 @@ namespace CoreSystem2024.ProxyServices
         Task<int> GetRegionsCall(int brandId);
         Task<int> GetCountriesByRegionCall(int regionId);
 
-        Task<IEnumerable<PlanogramInfo>> GetPlanogramsCall(int status, int countryId = 0,
+        Task<IEnumerable<PlanogramInfo>> GetPlanogramsCall(CurrentUser userInfo, int status, int countryId = 0,
             int regionId = 0, int standTypeId = 0);
 
         Task<IEnumerable<JobDto>> GetJobNumbersCall();
@@ -59,6 +60,7 @@ namespace CoreSystem2024.ProxyServices
         Task<IEnumerable<Order>> GetOpenOrdersCall(long planogramId);
         Task<string> AddToOrderCall(long orderId, long planogramId, int quantity, bool isFullPlano);
     }
+
     public class YourPlanogramProxyApiService : IYourPlanogramProxyApiService
     {
 
@@ -72,7 +74,10 @@ namespace CoreSystem2024.ProxyServices
         private string readScope;
         private string writeScope;
         private readonly IHttpClientFactory _httpClientFactory;
-        public YourPlanogramProxyApiService(ILogger<YourPlanogramProxyApiService> logger, ICountryService countryService, IConfiguration configuration, IMemberManager memberManager, IRegionService regionService, IHttpClientFactory httpClientFactory)
+
+        public YourPlanogramProxyApiService(ILogger<YourPlanogramProxyApiService> logger,
+            ICountryService countryService, IConfiguration configuration, IMemberManager memberManager,
+            IRegionService regionService, IHttpClientFactory httpClientFactory)
         {
             _logger = logger;
             _countryService = countryService;
@@ -93,13 +98,9 @@ namespace CoreSystem2024.ProxyServices
         public async Task<string> LockPlanogramCall(long planogramId)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
-
             var url = "api/v2/planogram/lock/" + planogramId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<string>(url);
             return response;
 
@@ -108,29 +109,22 @@ namespace CoreSystem2024.ProxyServices
         public async Task<long> RenamePlanogramCall(PlanogramUpdate data)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
 
             var url = "api/v2/planogram/rename/" + data.PlanogramId + "/" + data.PlanogramName;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<int>(url);
             return response;
 
         }
+
         public async Task<int> GetCommentsCountCall(long planogramId)
         {
-
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
 
             var url = "api/v2/planogram/getCommentCount/" + planogramId + "/" + brandId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<int>(url);
             return response;
 
@@ -142,15 +136,12 @@ namespace CoreSystem2024.ProxyServices
 
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
             var isPowerUser = false;
             var isDiamUser = false;
 
             var url = "api/v2/planogram/get/skulist/" + planogramId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<string>(url);
             return response;
 
@@ -159,15 +150,12 @@ namespace CoreSystem2024.ProxyServices
         public async Task<IEnumerable<ExportSkuDto>> CreateJsonSkuList(long planogramId)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
             var isPowerUser = false;
             var isDiamUser = false;
 
             var url = "api/v2/planogram/get/jsonskulist/" + planogramId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<IEnumerable<ExportSkuDto>>(url);
             return response;
             _logger.LogDebug("making api call with url " + url);
@@ -176,12 +164,9 @@ namespace CoreSystem2024.ProxyServices
         public async Task<string> CreateCassetteList(long planogramId)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
             var url = "api/v2/planogram/get/casslist/" + planogramId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<string>(url);
             return response;
         }
@@ -189,18 +174,10 @@ namespace CoreSystem2024.ProxyServices
 
         public async Task<long> SubmitPlanogramCall(long planogramId)
         {
-
-
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
-            //            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
             var url = "api/v2/planogram/submit/" + planogramId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<long>(url);
             return planogramId;
 
@@ -210,17 +187,10 @@ namespace CoreSystem2024.ProxyServices
         public async Task<long> ApprovePlanogramCall(long planogramId)
         {
 
-
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
-            //            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
             var url = "api/v2/planogram/approve/" + planogramId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<long>(url);
             return planogramId;
         }
@@ -228,18 +198,11 @@ namespace CoreSystem2024.ProxyServices
 
         public async Task<long> RejectPlanogramCall(long planogramId)
         {
-
-
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
-            //            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
             var url = "api/v2/planogram/reject/" + planogramId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<long>(url);
             return planogramId;
         }
@@ -248,17 +211,10 @@ namespace CoreSystem2024.ProxyServices
         public async Task<long> ValidatePlanogramCall(long planogramId)
         {
 
-
-
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
-            //            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
             var url = "api/v2/planogram/validate/" + planogramId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<long>(url);
             return planogramId;
 
@@ -272,14 +228,9 @@ namespace CoreSystem2024.ProxyServices
             try
             {
                 var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-                //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
-                //            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
                 var url = "api/v2/planogram/delete/" + planogramId;
                 var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
                 var response = await httpClient.GetFromJsonAsync<long>(url);
                 return planogramId;
             }
@@ -299,14 +250,11 @@ namespace CoreSystem2024.ProxyServices
 
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
-            //            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
             var url = "api/v2/planogram/reject/" + planogramId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
+
             var response = await httpClient.GetFromJsonAsync<string>(url);
             return planogramId;
 
@@ -316,18 +264,17 @@ namespace CoreSystem2024.ProxyServices
         public async Task<string> ArchivePlanogramCall(long planogramId, string jobNumber, int jobId)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
             var url = "api/v2/planogram/archive/" + planogramId + "/" + jobNumber + "/" + jobId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<string>(url);
             return response;
 
         }
 
-        public async Task<IEnumerable<PlanogramInfo>> GetArchivedPlanogramsByJobCall(int jobId, string jobCode, int countryId = 0, int regionId = 0, int standTypeId = 0)
+        public async Task<IEnumerable<PlanogramInfo>> GetArchivedPlanogramsByJobCall(int jobId, string jobCode,
+            int countryId = 0, int regionId = 0, int standTypeId = 0)
         {
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
@@ -382,13 +329,10 @@ namespace CoreSystem2024.ProxyServices
                 var url = "api/v2/planogram/get/archived/job/" + (isPowerUser ? 1 : 0) + "/" + jobId + "/" + jobCode +
                           "/" + brandId + "/" + countryId + "/" + regionId + "/" + standTypeId + "/" +
                           (isDiamUser ? 1 : 0);
-                //var uri = "api/v2/planogram/get/archived/job/" + jobId + "/" + jobCode + "/" + brandId + "/" + countryId + "/" + regionId + "/" + standTypeId;
-
-                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
                 var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
                 var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanogramInfo>>(url);
                 return response;
             }
@@ -402,13 +346,11 @@ namespace CoreSystem2024.ProxyServices
         public async Task<int> GetStandTypesCall(int brandId)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
             var url = "api/v2/planogram/getStandTypes/" + brandId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<int>(url);
             return response;
 
@@ -418,13 +360,10 @@ namespace CoreSystem2024.ProxyServices
         {
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
 
             var url = "api/v2/planogram/getRegions/" + brandId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<int>(url);
             return response;
 
@@ -433,25 +372,23 @@ namespace CoreSystem2024.ProxyServices
         public async Task<int> GetCountriesByRegionCall(int regionId)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
 
             var url = "api/v2/planogram/getCountries/" + regionId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<int>(url);
             return response;
 
         }
 
-        public async Task<IEnumerable<PlanogramInfo>> GetPlanogramsCall(int status, int countryId = 0, int regionId = 0, int standTypeId = 0)
+        public async Task<IEnumerable<PlanogramInfo>> GetPlanogramsCall(CurrentUser userInfo, int status,
+            int countryId = 0, int regionId = 0, int standTypeId = 0)
         {
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
             if (memberIdentity != null)
             {
-                var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
                 var isDiamUser = false;
 
@@ -485,18 +422,16 @@ namespace CoreSystem2024.ProxyServices
                     }
                 }
 
-                //            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
                 var url = "api/v2/planogram/get/yourplanograms/" + (int)status + "/" + countryId + "/" +
-                                regionId + "/" + standTypeId + "/" + brandId;
+                          regionId + "/" + standTypeId + "/" + brandId;
                 var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
 
+                Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
 
                 try
                 {
-                    httpClient.DefaultRequestHeaders.Authorization =
-                        new AuthenticationHeaderValue("Bearer", accessToken);
+
                     var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanogramInfo>>(url);
                     return response;
                 }
@@ -516,18 +451,16 @@ namespace CoreSystem2024.ProxyServices
         public async Task<IEnumerable<JobDto>> GetJobNumbersCall()
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
             var url = "api/v2/jobs/get/" + brandId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<IEnumerable<JobDto>>(url);
             return response;
 
         }
 
-        public async Task<IEnumerable<JobFolderInfo>> GetJobFoldersCall(int countryId = 0, int regionId = 0, int standTypeId = 0)
+        public async Task<IEnumerable<JobFolderInfo>> GetJobFoldersCall(int countryId = 0, int regionId = 0,
+            int standTypeId = 0)
         {
             try
             {
@@ -581,13 +514,9 @@ namespace CoreSystem2024.ProxyServices
                         }
                     }
 
-                    var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
-                    //var uriSuffix = "api/v2/jobFolders/get/" + brandId + "/" + countryId + "/" + regionId + "/" + standTypeId + "/" + isDiamUser;
                     var url = "api/v2/jobFolders/get/" + brandId + "/" + countryId + "/" + regionId;
                     var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-                    httpClient.DefaultRequestHeaders.Authorization =
-                        new AuthenticationHeaderValue("Bearer", accessToken);
+                    Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
                     var response = await httpClient.GetFromJsonAsync<IEnumerable<JobFolderInfo>>(url);
                     return response;
                 }
@@ -611,15 +540,10 @@ namespace CoreSystem2024.ProxyServices
         {
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
-
             var url = "api/v2/jobNumbersForFolder/get/" + jobFolderId;
-            
+
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<IEnumerable<JobInfo>>(url);
             return response;
         }
@@ -629,12 +553,9 @@ namespace CoreSystem2024.ProxyServices
         public async Task<IEnumerable<PlanmPlanoClusterDto>> GetTemplatesCall(int standId)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
             var url = "api/v2/planogram/template/get/" + brandId + "/" + standId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<IEnumerable<PlanmPlanoClusterDto>>(url);
             return response;
 
@@ -644,12 +565,9 @@ namespace CoreSystem2024.ProxyServices
         public async Task<long> ClonePlanogramCall(long planogramId, string planoName)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
             var url = "api/v2/planogram/clone/" + planogramId + "/" + planoName;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<int>(url);
             return response;
 
@@ -659,12 +577,9 @@ namespace CoreSystem2024.ProxyServices
         public async Task<long> CreatePlanogramCall(long clusterId, string planoName)
         {
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
             var url = "api/v2/planogram/create/" + clusterId + "/" + planoName;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<int>(url);
             return response;
 
@@ -672,18 +587,11 @@ namespace CoreSystem2024.ProxyServices
 
         public async Task<Order> GetOpenOrderCall(long planogramId)
         {
-
-
-
-
             var uri = domain + "api/v2/order/getOpen/" + brandId + "/" + planogramId;
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
             var url = "api/v2/order/getOpen/" + brandId + "/" + planogramId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<Order>(url);
             return response;
 
@@ -693,14 +601,9 @@ namespace CoreSystem2024.ProxyServices
         {
 
             var memberIdentity = await _memberManager.GetCurrentMemberAsync();
-            //var userInfo = AuthHelper.GetUserInfo(memberIdentity);
-
-
-            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
-
             var url = "api/v2/order/getOpenOrders/" + brandId + "/" + planogramId;
             var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
             var response = await httpClient.GetFromJsonAsync<IEnumerable<Order>>(url);
             return response;
 
@@ -719,14 +622,11 @@ namespace CoreSystem2024.ProxyServices
                 var userInfo = AuthHelper.GetUserInfo(ClaimsPrincipal.Current);
 
                 var userId = userInfo.Id;
-                ;
-
-                var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
 
                 var url = "api/v2/order/addToOrder/" + orderId + "/" + planogramId + "/" + quantity + "/" +
-                                userId + "/" + isFullPlano + "/" + brandId;
+                          userId + "/" + isFullPlano + "/" + brandId;
                 var httpClient = _httpClientFactory.CreateClient("PMCApiClient");
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                Utilities.SetHttpClientHeaders(httpClient, memberIdentity);
                 var response = await httpClient.GetFromJsonAsync<string>(url);
                 return response;
             }
@@ -741,5 +641,7 @@ namespace CoreSystem2024.ProxyServices
 
 
         #endregion
+
+
     }
 }

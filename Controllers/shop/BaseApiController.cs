@@ -20,7 +20,7 @@ namespace CoreSystem2024.Controllers.shop
         protected int BrandId => int.Parse(_config["AppSettings:ClientBrandId"] ?? "0");
         protected int CountryId => int.Parse(_config["AppSettings:ClientCountryId"] ?? "0");
 
-        //protected CurrentUser UserInfo => AuthHelper.GetUserInfo(User);
+        //protected CurrentUser UserInfo => AuthHelper.GetUserInfo(memberIdentity);
         //protected int BrandId => int.Parse(ConfigurationManager.AppSettings["brand"]);
         //protected Country UserCountry
         //{

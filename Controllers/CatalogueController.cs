@@ -82,7 +82,7 @@ namespace diam_planogram.Controllers
             if (memberIdentity != null)
             {
                 //var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(memberIdentity);
-                var userInfo = AuthHelper.GetUserInfo(User);
+                var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
                 //we will create a custom model
                 //var catalogueModel = new CatalogueModel();
@@ -96,10 +96,15 @@ namespace diam_planogram.Controllers
                     CountryId = country.Id 
                 };
                    var standTypes = await _standService.GetStandTypes(standTypeFilter);
-                   catalogueModel.StandTypes = standTypes.ToList();
 
-                catalogueModel.ApiUrl = _config["AppSettings:ApiURL"];
+                   catalogueModel.StandTypes = standTypes.Where(st => st.Stands.Count != 0).ToList();
+
+                catalogueModel.ApiUrl = _config["AppSettings:PMCApiBaseUrl"];
                 catalogueModel.ServerUrl = _config["AzureBlob:AzureBlobBaseUrl"] + _config["AzureBlob:ProductStoreContainer"];
+                catalogueModel.ProductBlobUrl = _config["AzureBlob:AzureBlobBaseUrl"] + _config["AzureBlob:ProductStoreContainer"];
+                catalogueModel.CassetteRenderBlobUrl = _config["AzureBlob:AzureBlobBaseUrl"] + _config["AzureBlob:CassetteRenderContainer"];
+                catalogueModel.CassettePhotoBlobUrl = _config["AzureBlob:AzureBlobBaseUrl"] + _config["AzureBlob:CassettePhotoContainer"];
+                catalogueModel.CassetteTemplateBlobUrl = _config["AzureBlob:AzureBlobBaseUrl"] + _config["AzureBlob:CassetteTemplateContainer"];
 
 
                 catalogueModel.CountryId = country.Id;
@@ -110,7 +115,7 @@ namespace diam_planogram.Controllers
 
                 var pcatFilter = new CategoryFilter
                 {
-                    ParentCatId = 0
+                    GetParents = true
                 };
                 var parentCats = await _categoryService.GetCategories(pcatFilter);
                 List<int> notthese = new List<int>(new int[] { 8, 28, 37 }); //Non product bearing categories
@@ -120,7 +125,7 @@ namespace diam_planogram.Controllers
                     var filter = new PartFilter
                     {
                         BrandId = catalogueModel.BrandId,
-                        CategoryId = cat.Id,
+                        ParentCategoryId = cat.Id,
                         Countries = countries
                     };
                     var hasProducts = await _partService.GetParts(filter);
@@ -186,7 +191,7 @@ namespace diam_planogram.Controllers
             if (memberIdentity != null)
             {
                 //var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(memberIdentity);
-                var userInfo = AuthHelper.GetUserInfo(User);
+                var userInfo = AuthHelper.GetUserInfo(memberIdentity);
 
                 //we will create a custom model
                 //var catalogueModel = new CatalogueModel();

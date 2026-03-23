@@ -13,6 +13,10 @@ namespace CoreSystem2024.CMSModelBuilderModels
     {
         public string ApiUrl { get; set; }
         public string ServerUrl { get; set; }
+        public string ProductBlobUrl { get; set; }
+        public string CassetteRenderBlobUrl { get; set; }
+        public string CassettePhotoBlobUrl { get; set; }
+        public string CassetteTemplateBlobUrl { get; set; }
         public int CountryId { get; set; }
         public int BrandId { get; set; }
         public string UserFirstName { get; set; }

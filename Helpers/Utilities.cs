@@ -1,4 +1,7 @@
-﻿namespace CoreSystem2024.Helpers
+﻿using System.Net.Http.Headers;
+using Umbraco.Cms.Core.Security;
+
+namespace CoreSystem2024.Helpers
 {
     public static class Utilities
     {
@@ -25,6 +28,17 @@
             }
 
             return value.ToUniversalTime();
+        }
+
+        public static void SetHttpClientHeaders(HttpClient httpClient, MemberIdentityUser memberIdentity)
+        {
+            var accessToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "access_token").Value;
+            var idToken = memberIdentity.LoginTokens.FirstOrDefault(t => t.Name == "id_token").Value;
+
+            httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", accessToken);
+            //httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Id", idToken);
+            httpClient.DefaultRequestHeaders.Add("x-user-info", idToken);
         }
     }
 }

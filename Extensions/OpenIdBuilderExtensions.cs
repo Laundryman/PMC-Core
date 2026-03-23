@@ -29,8 +29,8 @@ public static class OpenIdBuilderExtensions
                             var config = builder.Config;
                             options.ResponseType = "token id_token";
                             options.ResponseMode = "form_post";
-                            options.Scope.Add("https://deeplan.onmicrosoft.com/dssapi/data.Read");
-                            options.Scope.Add("https://deeplan.onmicrosoft.com/dssapi/data.Write");
+                            options.Scope.Add("https://planmatr.onmicrosoft.com/pmapi/data.Read");
+                            options.Scope.Add("https://planmatr.onmicrosoft.com/pmapi/data.Write");
                             options.Scope.Add("openid");
                             options.Scope.Add("profile");
                             options.Scope.Add("offline_access");
@@ -38,13 +38,13 @@ public static class OpenIdBuilderExtensions
                             //options.Scope.Add("phone");
                             //options.Scope.Add("address");
                             options.RequireHttpsMetadata = true;
-                            options.MetadataAddress = config["AzureB2c:MetadataAddress"];
-                            options.ClientId = config["AzureB2c:ClientId"];
+                            options.MetadataAddress = config["AzureEntraId:MetadataAddress"];
+                            options.ClientId = config["AzureEntraId:ClientId"];
 
                             // Normally the ClientSecret should not be in the Github repo.
                             // These settings are valid and only used for this example.
                             // So it's ok these are public.
-                            options.ClientSecret = config["AzureB2c:ClientSecret"];
+                            options.ClientSecret = config["AzureEntraId:ClientSecret"];
                             options.SaveTokens = true;
                             options.TokenValidationParameters.SaveSigninToken = true;
                             options.CallbackPath = "/login";
@@ -62,7 +62,7 @@ public static class OpenIdBuilderExtensions
                             options.Events.OnTokenValidated = async context =>
                             {
                                 var claims = context?.Principal?.Claims.ToList();
-                                var userBrands = claims?.SingleOrDefault(x => x.Type == "extension_brands");
+                                var userBrands = claims?.SingleOrDefault(x => x.Type == "Brands");
                                 var siteBrand = config["AppSettings:ClientBrandId"];
                                 var IsAuthenticated = true;
                                 if (userBrands != null && siteBrand != null)
@@ -89,7 +89,7 @@ public static class OpenIdBuilderExtensions
                                         claims?.Add(new Claim(ClaimTypes.Name, name.Value));
                                     }
 
-                                    var email = claims?.SingleOrDefault(x => x.Type == "extension_userEmailAddress");
+                                    var email = claims?.SingleOrDefault(x => x.Type == "UserEmailAddress");
                                     if (email != null)
                                     {
                                         // The email claim is required for auto linking.
@@ -114,17 +114,17 @@ public static class OpenIdBuilderExtensions
                             {
                                 var protocolMessage = notification.ProtocolMessage;
 
-                                var logoutUrl = config["AzureB2c:LogoutUrl"];
-                                var returnAfterLogout = config["AzureB2c:ReturnAfterLogout"];
+                                var logoutUrl = config["AzureEntraId:LogoutUrl"];
+                                var returnAfterLogout = config["AzureEntraId:ReturnAfterLogout"];
                                 if (!string.IsNullOrEmpty(logoutUrl) && !string.IsNullOrEmpty(returnAfterLogout))
                                 {
                                     // Some external login providers require an IssuerAddress.
                                     // It requires the logout URL on the external login provider.
                                     // It also need the client_id and a URL which it needs to return to after logout.
                                     protocolMessage.IssuerAddress =
-                                        $"{config["AzureB2c:LogoutUrl"]}" +
-                                        $"?client_id={config["AzureB2c:ClientId"]}" +
-                                        $"&returnTo={WebUtility.UrlEncode(config["AzureB2c:ReturnAfterLogout"])}";
+                                        $"{config["AzureEntraId:LogoutUrl"]}" +
+                                        $"?client_id={config["AzureEntraId:ClientId"]}" +
+                                        $"&returnTo={WebUtility.UrlEncode(config["AzureEntraId:ReturnAfterLogout"])}";
                                 }
 
                                 // Since we're in a static extension method we need this approach to get the member manager. 

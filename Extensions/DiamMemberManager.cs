@@ -42,10 +42,12 @@ namespace CoreSystem2024.Extensions
             {
                 var baseUser = await base.GetCurrentMemberAsync();
 
-                var token = baseUser.LoginTokens.Where(t => t.Name == "access_token").FirstOrDefault();
+                var token = baseUser.LoginTokens.Where(t => t.Name == "id_token").FirstOrDefault();
+                var accessToken = baseUser.LoginTokens.FirstOrDefault(t => t.Name == "access_token");
                 //read claims from token
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var tokenValues = tokenHandler.ReadJwtToken(token.Value);
+                var accessTokenValues = tokenHandler.ReadJwtToken(accessToken.Value);
                 //add in claims
                 foreach (var claim in tokenValues.Claims)
                 {

@@ -45,13 +45,13 @@ namespace CoreSystemII.Authentication
                             //options.Scope.Add("phone");
                             //options.Scope.Add("address");
                             options.RequireHttpsMetadata = true;
-                            options.MetadataAddress = config["AzureB2c:MetadataAddress"];
-                            options.ClientId = config["AzureB2c:ClientId"];
+                            options.MetadataAddress = config["AzureEntraId:MetadataAddress"];
+                            options.ClientId = config["AzureEntraId:ClientId"];
 
                             // Normally the ClientSecret should not be in the Github repo.
                             // These settings are valid and only used for this example.
                             // So it's ok these are public.
-                            options.ClientSecret = config["AzureB2c:ClientSecret"];
+                            options.ClientSecret = config["AzureEntraId:ClientSecret"];
                             options.SaveTokens = true;
                             options.TokenValidationParameters.SaveSigninToken = true;
                             options.CallbackPath = "/login";
@@ -59,7 +59,7 @@ namespace CoreSystemII.Authentication
                             options.Events.OnTokenValidated = async context =>
                             {
                                 var claims = context?.Principal?.Claims.ToList();
-                                var email = claims?.SingleOrDefault(x => x.Type == "extension_userEmailAddress");
+                                var email = claims?.SingleOrDefault(x => x.Type == "userEmailAddress");
                                 if (email != null)
                                 {
                                     // The email claim is required for auto linking.

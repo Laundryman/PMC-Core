@@ -69,7 +69,7 @@ public class OpenIdConnectMemberExternalLoginProviderOptions : IConfigureNamedOp
                 IMember? member = _memberService.GetByKey(user.Key);
                 var extClaim = loginInfo
                     .Principal
-                    .FindFirst(ClaimTypes.GivenName);
+                    .FindFirst("givenname");
                 user.Claims.Add(new IdentityUserClaim<string>
                 {
                     ClaimType = extClaim.Type,
@@ -106,7 +106,7 @@ public class OpenIdConnectMemberExternalLoginProviderOptions : IConfigureNamedOp
 
                 extClaim = loginInfo
                     .Principal
-                    .FindFirst(ClaimTypes.Surname);
+                    .FindFirst("surname");
                 user.Claims.Add(new IdentityUserClaim<string>
                 {
                     ClaimType = extClaim.Type,
@@ -118,7 +118,7 @@ public class OpenIdConnectMemberExternalLoginProviderOptions : IConfigureNamedOp
 
                 extClaim = loginInfo
                     .Principal
-                    .FindFirst("extension_userEmailAddress");
+                    .FindFirst("userEmailAddress");
                 user.Claims.Add(new IdentityUserClaim<string>
                 {
                     ClaimType = extClaim.Type,
@@ -129,7 +129,7 @@ public class OpenIdConnectMemberExternalLoginProviderOptions : IConfigureNamedOp
 
                 extClaim = loginInfo
                     .Principal
-                    .FindFirst("extension_diamRoles");
+                    .FindFirst("diamRoles");
                 user.Claims.Add(new IdentityUserClaim<string>
                 {
                     ClaimType = extClaim.Type,
@@ -140,7 +140,7 @@ public class OpenIdConnectMemberExternalLoginProviderOptions : IConfigureNamedOp
 
                 extClaim = loginInfo
                     .Principal
-                    .FindFirst("extension_diamCountryId");
+                    .FindFirst("diamCountryId");
                 user.Claims.Add(new IdentityUserClaim<string>
                 {
                     ClaimType = extClaim.Type,
@@ -151,7 +151,7 @@ public class OpenIdConnectMemberExternalLoginProviderOptions : IConfigureNamedOp
 
                 extClaim = loginInfo
                     .Principal
-                    .FindFirst("extension_brands");
+                    .FindFirst("brands");
                 user.Claims.Add(new IdentityUserClaim<string>
                 {
                     ClaimType = extClaim.Type,

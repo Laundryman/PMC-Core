@@ -258,8 +258,8 @@ namespace CoreSystem2024.Controllers
         [Route("/Api/YourPlanogramApi/GetPlanograms")]
         public async Task<IActionResult> GetPlanograms([FromBody] GetPlanoParams data)
         {
-            var memberInfo = await _memberManager.GetCurrentMemberAsync();
-            var userInfo = AuthHelper.GetUserInfo(memberInfo);
+            var memberIdentity = await _memberManager.GetCurrentMemberAsync();
+            var userInfo = AuthHelper.GetUserInfo(memberIdentity);
             //RolesHelper.Initialize(_config);
 
             IEnumerable<PlanogramInfo> response;
@@ -276,16 +276,16 @@ namespace CoreSystem2024.Controllers
                             var userCountry = await _countryService.GetCountry(userInfo.DiamCountryId);
                             data.RegionId = userCountry.Regions.FirstOrDefault(r => r.BrandId == brandId)!.Id;
                         }
-                        response = await _proxyApi.GetPlanogramsCall(status, (int)data.CountryId, (int)data.RegionId, (int)data.StandTypeId);
+                        response = await _proxyApi.GetPlanogramsCall(userInfo,status, (int)data.CountryId, (int)data.RegionId, (int)data.StandTypeId);
                     }
                     else
                     {
-                        response = await _proxyApi.GetPlanogramsCall(status, _countryService.GetCountry(userInfo.DiamCountryId).Id, 0, (int)data.StandTypeId);
+                        response = await _proxyApi.GetPlanogramsCall(userInfo, status, _countryService.GetCountry(userInfo.DiamCountryId).Id, 0, (int)data.StandTypeId);
                     }
                 }
                 else
                 {
-                    response = await _proxyApi.GetPlanogramsCall( status, _countryService.GetCountry(userInfo.DiamCountryId).Id, 0, (int)data.StandTypeId);
+                    response = await _proxyApi.GetPlanogramsCall(userInfo, status, _countryService.GetCountry(userInfo.DiamCountryId).Id, 0, (int)data.StandTypeId);
                 }
 
                     return Ok(response);
