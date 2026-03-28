@@ -186,7 +186,7 @@ namespace CoreSystem2024.Controllers.shop
 
         private List<PartModel> BuildPartModels(IEnumerable<PartInfo> parts)
         {
-            var imageDomain = _config["AppSettings:cassette-photo-url"] ?? string.Empty;
+            var imageDomain = _config["AzureBlob:AzureBlobBaseUrl"] + _config["AzureBlob:CassettePhotoContainer"] + "/";
 
             var partModels =
                 parts.Select(x => new PartModel()
