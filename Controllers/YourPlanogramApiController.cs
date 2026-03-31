@@ -294,6 +294,7 @@ namespace CoreSystem2024.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError("GetPlanograms error = " + ex.Message + " StackTrace = " + ex.StackTrace);
                 return BadRequest(ex.Message);
             }
         }

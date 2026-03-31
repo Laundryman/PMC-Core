@@ -437,6 +437,7 @@ namespace CoreSystem2024.ProxyServices
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError("Error getting planograms" + userInfo.UserName + " with url " + url + ": " + ex.Message);
                     var message = ex.Message;
                     throw;
                 }
