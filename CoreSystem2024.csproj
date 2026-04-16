@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <StaticWebAssetBasePath>App_Plugins/CoreSystemII</StaticWebAssetBasePath>
@@ -37,17 +37,16 @@
 
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Graph" Version="5.83.0" />
-    <PackageReference Include="Microsoft.identity.Web" Version="3.2.0" />
-    <PackageReference Include="Microsoft.identity.Web.UI" Version="3.2.0" />
-    <PackageReference Include="RazorEngine.NetCore" Version="3.1.0" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
-    <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="7.0.2" />
-    <PackageReference Include="Umbraco.Cms.Core" Version="15.0.0" />
-    <PackageReference Include="Umbraco.Cms.Web.Website" Version="15.0.0" />
-    <PackageReference Include="Umbraco.Cms.Web.Common" Version="15.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.6" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.17.0" />
+    <PackageReference Include="RazorEngine.NetCore" Version="3.1.1" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="9.0.3" />
+    <PackageReference Include="Umbraco.Cms.Core" Version="17.3.4" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.3.4" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="17.3.4" />
   </ItemGroup>
 
 
