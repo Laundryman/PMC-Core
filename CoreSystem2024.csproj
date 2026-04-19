@@ -44,9 +44,9 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="9.0.3" />
-    <PackageReference Include="Umbraco.Cms.Core" Version="17.0.0" />
-    <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.0.0" />
-    <PackageReference Include="Umbraco.Cms.Web.Common" Version="17.0.0" />
+    <PackageReference Include="Umbraco.Cms.Core" Version="17.1.0" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.1.0" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="17.1.0" />
   </ItemGroup>
 
 
